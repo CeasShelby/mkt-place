@@ -1,0 +1,115 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Edit Profile - simply marketplace{% endblock %}
+
+{% block content %}
+<!-- Back Navigation -->
+<div class="mb-4 max-w-md mx-auto">
+    <a href="{% url 'home_feed' %}" class="inline-flex items-center text-sm font-bold text-earth-700 hover:text-earth-800 transition-colors">
+        <i class="ph-bold ph-caret-left mr-1"></i>
+        Back to Feed
+    </a>
+</div>
+
+<!-- Profile Update Card -->
+<div class="bg-white rounded-[2.5rem] border border-earth-300 shadow-sm p-6 md:p-8 max-w-md mx-auto">
+    
+    <div class="text-center mb-6">
+        <h2 class="text-3xl font-black text-earth-800 tracking-tight font-heading">Profile Settings</h2>
+        <p class="text-xs text-earth-700/70 mt-2 font-medium">Keep your contact and campus information up to date.</p>
+    </div>
+
+    <!-- Error/Success Alerts -->
+    {% if error %}
+        <div class="mb-4 p-3.5 bg-red-50 border border-red-200 text-red-800 text-xs font-semibold rounded-2xl flex items-center space-x-2">
+            <i class="ph-fill ph-warning-circle text-red-600 text-lg shrink-0"></i>
+            <span class="leading-tight">{{ error }}</span>
+        </div>
+    {% endif %}
+
+    <!-- Update Form -->
+    <form method="POST" action="{% url 'edit_profile' %}" enctype="multipart/form-data" class="space-y-5">
+        {% csrf_token %}
+        
+        <!-- Avatar Preview Area -->
+        <div class="flex flex-col items-center space-y-3 pb-3 border-b border-earth-300/40">
+            <div class="relative w-24 h-24 rounded-full overflow-hidden border-2 border-earth-300 shadow-inner flex items-center justify-center bg-earth-100">
+                {% if profile.profile_picture %}
+                    <img id="avatar-preview" src="{{ profile.profile_picture.url }}" class="w-full h-full object-cover" alt="Profile Picture">
+                {% else %}
+                    <div id="avatar-initials" class="w-full h-full bg-earth-800 text-earth-200 flex items-center justify-center font-heading text-3xl font-black uppercase">
+                        {{ request.user.username|slice:":2" }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            {% if profile.profile_picture %}
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" name="remove_picture" id="remove_picture" value="true" class="rounded border-earth-300 text-earth-800 focus:ring-earth-800 h-4 w-4">
+                    <label for="remove_picture" class="text-xs font-bold text-red-600 cursor-pointer select-none hover:text-red-700">Remove picture</label>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- First Name (Associated with User model) -->
+        <div>
+            <label for="first_name" class="block text-[10px] font-extrabold text-earth-850 uppercase tracking-widest mb-1.5 px-1">First Name (Display Name)</label>
+            <input type="text" name="first_name" id="first_name" required value="{{ request.user.first_name|default:request.user.username }}" placeholder="Your first name"
+                   class="w-full bg-[#fcfbfa]/80 border border-earth-300 rounded-2xl px-4 py-3 text-sm text-earth-800 placeholder-earth-800/35 focus:outline-none focus:ring-2 focus:ring-earth-800 focus:bg-white transition-all">
+        </div>
+
+        <!-- Phone Number -->
+        <div>
+            <label for="phone_number" class="block text-[10px] font-extrabold text-earth-850 uppercase tracking-widest mb-1.5 px-1">WhatsApp Phone Number</label>
+            <input type="text" name="phone_number" id="phone_number" required value="{{ profile.phone_number }}" placeholder="e.g. 256770000000"
+                   class="w-full bg-[#fcfbfa]/80 border border-earth-300 rounded-2xl px-4 py-3 text-sm text-earth-800 placeholder-earth-800/35 focus:outline-none focus:ring-2 focus:ring-earth-800 focus:bg-white transition-all">
+            <span class="text-[9px] text-earth-700/60 mt-1 block px-1">Include country code (e.g. 256...) so WhatsApp links function properly.</span>
+        </div>
+
+        <!-- Hostel/Area Choice -->
+        <div>
+            <label for="hostel_or_area" class="block text-[10px] font-extrabold text-earth-850 uppercase tracking-widest mb-1.5 px-1">Hostel / Area</label>
+            <select name="hostel_or_area" id="hostel_or_area" required
+                    class="w-full bg-[#fcfbfa]/80 border border-earth-300 rounded-2xl px-4 py-3 text-sm text-earth-800 focus:outline-none focus:ring-2 focus:ring-earth-800 focus:bg-white transition-all">
+                {% for key, val in hostel_choices %}
+                    <option value="{{ key }}" {% if profile.hostel_or_area == key %}selected{% endif %}>{{ val }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Profile Picture Upload -->
+        <div>
+            <label for="profile_picture" class="block text-[10px] font-extrabold text-earth-850 uppercase tracking-widest mb-1 px-1">Upload Profile Photo</label>
+            <p class="text-[9px] text-earth-700/65 mb-1.5 px-1">Images will be resized automatically to fit the avatar circle.</p>
+            <input type="file" name="profile_picture" id="profile_picture" accept="image/*"
+                   class="w-full text-xs text-earth-700 file:mr-4 file:py-2 file:px-3 file:rounded-xl file:border file:border-earth-300 file:text-xs file:font-semibold file:bg-[#fcfbfa]/80 file:text-earth-800 hover:file:bg-earth-300 transition-all cursor-pointer">
+        </div>
+
+        <!-- Save Button -->
+        <button type="submit" class="w-full py-3.5 bg-earth-800 hover:bg-earth-850 active:scale-[0.98] text-earth-200 font-extrabold text-xs rounded-2xl shadow-sm transition-all mt-4 flex items-center justify-center space-x-2">
+            <i class="ph-bold ph-check text-sm"></i>
+            <span>Save Settings</span>
+        </button>
+    </form>
+
+</div>
+
+<script>
+// Simple front-end validation & checkbox logic
+const removeCheckbox = document.getElementById('remove_picture');
+const fileInput = document.getElementById('profile_picture');
+
+if (fileInput && removeCheckbox) {
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            removeCheckbox.checked = false;
+        }
+    });
+    removeCheckbox.addEventListener('change', () => {
+        if (removeCheckbox.checked) {
+            fileInput.value = '';
+        }
+    });
+}
+</script>
+{% endblock %}

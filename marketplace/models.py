@@ -1,0 +1,246 @@
+import urllib.parse
+import io
+import os
+from PIL import Image
+from django.core.files.base import ContentFile
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils.text import slugify
+
+def resize_image_field(image_field, max_size=(800, 800)):
+    if not image_field:
+        return None
+    try:
+        # Open using PIL
+        img = Image.open(image_field)
+        if img.width > max_size[0] or img.height > max_size[1]:
+            img_format = img.format or 'JPEG'
+            
+            # For transparent images, convert RGBA/LA to RGB with a white background if saving as JPEG
+            if img.mode in ('RGBA', 'LA') and img_format in ('JPEG', 'JPG'):
+                background = Image.new('RGB', img.size, (255, 255, 255))
+                background.paste(img, mask=img.split()[3])
+                img = background
+            elif img.mode != 'RGB' and img_format in ('JPEG', 'JPG'):
+                img = img.convert('RGB')
+                
+            img.thumbnail(max_size, Image.Resampling.LANCZOS)
+            
+            temp_handle = io.BytesIO()
+            img.save(temp_handle, format=img_format, quality=85)
+            temp_handle.seek(0)
+            
+            # Update the field's file content
+            new_file = ContentFile(temp_handle.read(), name=os.path.basename(image_field.name))
+            return new_file
+    except Exception as e:
+        print(f"Error resizing image: {e}")
+    return None
+
+class Profile(models.Model):
+    HOSTEL_CHOICES = [
+        ('main_campus', 'Main Campus'),
+        ('laroo', 'Laroo'),
+        ('pece', 'Pece'),
+        ('for_god', 'For God'),
+        ('custom_corner', 'Custom Corner'),
+    ]
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    phone_number = models.CharField(verbose_name='Phone Number', max_length=20, unique=True)
+    hostel_or_area = models.CharField(
+        max_length=50,
+        choices=HOSTEL_CHOICES,
+        default='main_campus'
+    )
+    profile_picture = models.ImageField(upload_to='profiles/', null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user.username}'s Profile"
+
+    def save(self, *args, **kwargs):
+        if self.profile_picture:
+            resized = resize_image_field(self.profile_picture, (300, 300))
+            if resized:
+                self.profile_picture = resized
+        super().save(*args, **kwargs)
+
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=120, unique=True)
+
+    class Meta:
+        verbose_name_plural = "Categories"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+class Product(models.Model):
+    STATUS_CHOICES = [
+        ('available', 'Available'),
+        ('sold', 'Sold'),
+        ('archived', 'Archived'),
+    ]
+    seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name='products')
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='products')
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    price = models.PositiveIntegerField(help_text="Price in UGX")
+    image = models.ImageField(upload_to='products/')
+    is_featured = models.BooleanField(default=False)
+    is_bundle = models.BooleanField(default=False)
+    is_flash_sale = models.BooleanField(default=False)
+    flash_sale_price = models.PositiveIntegerField(null=True, blank=True, help_text="Special price during Flash Sale Hour")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        if self.image:
+            resized = resize_image_field(self.image, (800, 800))
+            if resized:
+                self.image = resized
+        super().save(*args, **kwargs)
+
+    @property
+    def bundle_total_individual_price(self):
+        if not self.is_bundle:
+            return 0
+        return sum(item.estimated_price or 0 for item in self.bundle_items.all())
+
+    @property
+    def bundle_savings(self):
+        if not self.is_bundle:
+            return 0
+        total_indiv = self.bundle_total_individual_price
+        if total_indiv > self.price:
+            return total_indiv - self.price
+        return 0
+
+    def get_current_price(self):
+        if self.is_flash_sale:
+            from django.utils import timezone
+            import datetime
+            local_now = timezone.localtime(timezone.now())
+            if local_now.weekday() == 4 and datetime.time(18, 0) <= local_now.time() <= datetime.time(20, 0):
+                return self.flash_sale_price
+        return self.price
+
+    @property
+    def flash_sale_discount_percent(self):
+        if not self.price or not self.flash_sale_price:
+            return 0
+        discount = self.price - self.flash_sale_price
+        return int((discount / self.price) * 100)
+
+    @property
+    def whatsapp_link(self):
+        first_name = self.seller.first_name if self.seller.first_name else self.seller.username
+        phone_number = self.seller.profile.phone_number if hasattr(self.seller, 'profile') else ""
+        
+        current_p = self.get_current_price()
+        message = f"Hi {first_name}, I saw your listing for '{self.title}' ({current_p} UGX) on the Campus Marketplace. Is it still available?"
+        encoded_message = urllib.parse.quote(message)
+        return f"https://wa.me/{phone_number}?text={encoded_message}"
+
+class BundleItem(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='bundle_items')
+    name = models.CharField(max_length=150)
+    estimated_price = models.PositiveIntegerField(help_text="Estimated price if sold individually", null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.name} (for bundle: {self.product.title})"
+
+class ItemRequest(models.Model):
+    requester = models.ForeignKey(User, on_delete=models.CASCADE, related_name='item_requests')
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    budget = models.PositiveIntegerField(help_text="Budget in UGX")
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='item_requests')
+    image = models.ImageField(upload_to='requests/', null=True, blank=True)
+    status = models.CharField(
+        max_length=20,
+        choices=[('open', 'Open'), ('fulfilled', 'Fulfilled'), ('cancelled', 'Cancelled')],
+        default='open'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Request: {self.title} by {self.requester.username}"
+
+    def save(self, *args, **kwargs):
+        if self.image:
+            resized = resize_image_field(self.image, (800, 800))
+            if resized:
+                self.image = resized
+        super().save(*args, **kwargs)
+
+class ChatThread(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True, related_name='chat_threads')
+    item_request = models.ForeignKey(ItemRequest, on_delete=models.CASCADE, null=True, blank=True, related_name='chat_threads')
+    buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='buyer_threads')
+    seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name='seller_threads')
+
+    class Meta:
+        unique_together = (
+            ('product', 'buyer', 'seller'),
+            ('item_request', 'buyer', 'seller'),
+        )
+
+    def __str__(self):
+        title = self.product.title if self.product else (self.item_request.title if self.item_request else "Request")
+        return f"Chat for {title} between {self.buyer.username} and {self.seller.username}"
+
+class Message(models.Model):
+    thread = models.ForeignKey(ChatThread, on_delete=models.CASCADE, related_name='messages')
+    sender = models.ForeignKey(User, on_delete=models.CASCADE)
+    text = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"Message by {self.sender.username} in Thread {self.thread_id} at {self.created_at}"
+
+
+from django.utils import timezone
+
+class PasswordResetOTP(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='password_reset_otps')
+    otp = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def is_valid(self):
+        # Valid for 10 minutes
+        return (timezone.now() - self.created_at).total_seconds() < 600
+
+    def __str__(self):
+        return f"OTP for {self.user.username} (Created: {self.created_at})"
+
+
+class BannerImage(models.Model):
+    CARD_CHOICES = [
+        ('big_card', 'Big Hero Card'),
+        ('flash_sales', 'Flash Sales Card'),
+        ('requests', 'Requests Card'),
+        ('bundles', 'Setup Bundles Card'),
+    ]
+    card_type = models.CharField(max_length=20, choices=CARD_CHOICES)
+    image = models.ImageField(upload_to='banners/')
+    order = models.PositiveIntegerField(default=0, help_text="Order of display for big card slideshow")
+
+    class Meta:
+        ordering = ['order', 'id']
+
+    def __str__(self):
+        return f"{self.get_card_type_display()} Image ({self.id})"
+
+

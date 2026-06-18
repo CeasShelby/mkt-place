@@ -1,0 +1,170 @@
+{% extends 'marketplace/admin_base.html' %}
+{% load humanize %}
+
+{% block title %}Manage Products - simply marketplace admin{% endblock %}
+{% block header_title %}Products Catalog{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <h2 class="text-base font-bold text-admin-900 tracking-tight font-heading">Product Inventory</h2>
+    <a href="{% url 'admin_create_product' %}" class="bg-accent-600 hover:bg-accent-700 text-white font-extrabold text-xs py-2.5 px-4 rounded-xl shadow-md transition-all flex items-center space-x-1.5 uppercase tracking-wider">
+        <i class="ph-bold ph-plus text-sm"></i>
+        <span>Add Product</span>
+    </a>
+</div>
+
+<!-- Search and Filters Panel -->
+<div class="bg-admin-900/30 border border-admin-800 rounded-2xl p-5 mb-8 backdrop-blur-md">
+    <form method="GET" action="{% url 'admin_products_list' %}" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+        <div>
+            <label class="block text-xs font-bold text-admin-400 uppercase tracking-wider mb-2">Search Products</label>
+            <input type="text" name="q" value="{{ query }}" placeholder="Title, description, seller..." class="w-full bg-admin-950/80 border border-admin-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accent-500 transition-colors">
+        </div>
+        
+        <div>
+            <label class="block text-xs font-bold text-admin-400 uppercase tracking-wider mb-2">Category</label>
+            <select name="category" class="w-full bg-admin-950/80 border border-admin-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accent-500 transition-colors">
+                <option value="">All Categories</option>
+                {% for category in categories %}
+                    <option value="{{ category.slug }}" {% if selected_category == category.slug %}selected{% endif %}>{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label class="block text-xs font-bold text-admin-400 uppercase tracking-wider mb-2">Status</label>
+            <select name="status" class="w-full bg-admin-950/80 border border-admin-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accent-500 transition-colors">
+                <option value="">All Statuses</option>
+                <option value="available" {% if selected_status == 'available' %}selected{% endif %}>Available</option>
+                <option value="sold" {% if selected_status == 'sold' %}selected{% endif %}>Sold</option>
+                <option value="archived" {% if selected_status == 'archived' %}selected{% endif %}>Archived</option>
+            </select>
+        </div>
+
+        <div class="flex space-x-2">
+            <button type="submit" class="flex-1 bg-accent-600 hover:bg-accent-700 text-white font-bold text-sm py-2.5 px-4 rounded-xl shadow-md transition-colors">Filter</button>
+            <a href="{% url 'admin_products_list' %}" class="bg-admin-800 hover:bg-admin-700 text-white font-bold text-sm py-2.5 px-4 rounded-xl border border-admin-700 transition-colors text-center">Reset</a>
+        </div>
+    </form>
+</div>
+
+<!-- Products Table Container -->
+<div class="bg-admin-900/20 border border-admin-800 rounded-2xl overflow-hidden shadow-xl">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="border-b border-admin-800 bg-admin-900/50 text-xs font-bold text-admin-400 uppercase tracking-wider">
+                    <th class="px-6 py-4">Product Info</th>
+                    <th class="px-6 py-4">Category</th>
+                    <th class="px-6 py-4">Price</th>
+                    <th class="px-6 py-4">Seller</th>
+                    <th class="px-6 py-4">Status</th>
+                    <th class="px-6 py-4">Promotions</th>
+                    <th class="px-6 py-4 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-admin-800 text-sm">
+                {% for product in products %}
+                    <tr class="hover:bg-admin-900/20 transition-colors">
+                        <!-- Product Info -->
+                        <td class="px-6 py-4">
+                            <div class="flex items-center space-x-4">
+                                {% if product.image %}
+                                    <img src="{{ product.image.url }}" class="w-14 h-14 rounded-lg object-cover border border-admin-700 shrink-0" alt="{{ product.title }}">
+                                {% else %}
+                                    <div class="w-14 h-14 rounded-lg bg-admin-800 flex items-center justify-center text-admin-500 shrink-0">
+                                        <i class="ph-fill ph-image text-2xl"></i>
+                                    </div>
+                                {% endif %}
+                                <div class="min-w-0">
+                                    <a href="{% url 'product_detail' product.id %}" target="_blank" class="text-admin-900 hover:text-accent-400 font-bold block truncate max-w-[200px] transition-colors" title="{{ product.title }}">
+                                        {{ product.title }}
+                                    </a>
+                                    <span class="text-[10px] text-admin-400 block mt-0.5">Listed: {{ product.created_at|date:"M d, Y" }}</span>
+                                    {% if product.is_bundle %}
+                                        <span class="inline-block px-1.5 py-0.5 text-[8px] font-black bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded mt-1 uppercase tracking-wide">Bundle</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Category -->
+                        <td class="px-6 py-4 text-admin-300 font-semibold">
+                            {{ product.category.name|default:"Uncategorized" }}
+                        </td>
+
+                        <!-- Price -->
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-admin-900">{{ product.price|intcomma }} UGX</div>
+                            {% if product.is_flash_sale %}
+                                <div class="text-[10px] text-amber-400 font-semibold mt-0.5">Flash: {{ product.flash_sale_price|intcomma }} UGX</div>
+                            {% endif %}
+                        </td>
+
+                        <!-- Seller -->
+                        <td class="px-6 py-4">
+                            <div class="text-admin-900 font-semibold">{{ product.seller.first_name|default:product.seller.username }}</div>
+                            <div class="text-xs text-admin-400 font-medium">@{{ product.seller.username }}</div>
+                        </td>
+
+                        <!-- Status -->
+                        <td class="px-6 py-4">
+                            <form action="{% url 'admin_update_product_status' product.id %}" method="POST">
+                                {% csrf_token %}
+                                <select name="status" onchange="this.form.submit()" class="bg-admin-950 border border-admin-800 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-accent-500 cursor-pointer">
+                                    <option value="available" {% if product.status == 'available' %}selected{% endif %}>Available</option>
+                                    <option value="sold" {% if product.status == 'sold' %}selected{% endif %}>Sold</option>
+                                    <option value="archived" {% if product.status == 'archived' %}selected{% endif %}>Archived</option>
+                                </select>
+                            </form>
+                        </td>
+
+                        <!-- Promotions -->
+                        <td class="px-6 py-4">
+                            <div class="flex flex-col space-y-1">
+                                <!-- Featured Toggle -->
+                                <form action="{% url 'admin_toggle_product' product.id 'featured' %}" method="POST">
+                                    {% csrf_token %}
+                                    <button type="submit" class="w-full text-left inline-flex items-center space-x-1.5 px-2 py-0.5 rounded text-[10px] font-bold border transition-colors 
+                                        {% if product.is_featured %} bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20 
+                                        {% else %} bg-admin-900 text-admin-500 border-admin-800 hover:text-admin-300 {% endif %}">
+                                        <span class="w-1.5 h-1.5 rounded-full {% if product.is_featured %}bg-emerald-400{% else %}bg-admin-600{% endif %}"></span>
+                                        <span>Featured</span>
+                                    </button>
+                                </form>
+
+                                <!-- Flash Sale Toggle -->
+                                <form action="{% url 'admin_toggle_product' product.id 'flash_sale' %}" method="POST">
+                                    {% csrf_token %}
+                                    <button type="submit" class="w-full text-left inline-flex items-center space-x-1.5 px-2 py-0.5 rounded text-[10px] font-bold border transition-colors 
+                                        {% if product.is_flash_sale %} bg-amber-500/10 text-amber-400 border-amber-500/30 hover:bg-amber-500/20 
+                                        {% else %} bg-admin-900 text-admin-500 border-admin-800 hover:text-admin-300 {% endif %}">
+                                        <span class="w-1.5 h-1.5 rounded-full {% if product.is_flash_sale %}bg-amber-400{% else %}bg-admin-600{% endif %}"></span>
+                                        <span>Flash Sale</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+
+                        <!-- Actions -->
+                        <td class="px-6 py-4 text-right">
+                            <div class="flex items-center justify-end space-x-2">
+                                <form action="{% url 'admin_delete_product' product.id %}" method="POST" onsubmit="return confirm('Are you sure you want to delete product \'{{ product.title }}\'?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="p-2 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white rounded-xl transition-all flex items-center justify-center" title="Delete Product">
+                                        <i class="ph-fill ph-trash text-base"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-8 text-center text-admin-400 text-xs">No products matched the filters.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

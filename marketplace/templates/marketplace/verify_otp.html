@@ -1,0 +1,70 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Verify OTP - simply marketplace{% endblock %}
+
+{% block content %}
+<!-- Back to Request Navigation -->
+<div class="mb-4 max-w-sm mx-auto">
+    <a href="{% url 'forgot_password' %}" class="inline-flex items-center text-sm font-bold text-earth-700 hover:text-earth-800 transition-colors">
+        <i class="ph-bold ph-caret-left mr-1"></i>
+        Resend OTP / Back
+    </a>
+</div>
+
+<div class="max-w-sm mx-auto bg-white rounded-[2.5rem] border border-earth-300 shadow-sm overflow-hidden p-6 md:p-8">
+    
+    <!-- Title -->
+    <div class="text-center mb-6">
+        <h2 class="text-3xl font-black text-earth-800 tracking-tight font-heading">simply</h2>
+        <p class="text-[10px] font-bold text-earth-700 uppercase tracking-widest mt-0.5">verify code</p>
+        <p class="text-xs text-earth-700/70 mt-2.5 font-medium leading-relaxed">Enter the 6-digit OTP code sent to your email to reset your password.</p>
+    </div>
+
+    <!-- Error Alert -->
+    {% if error %}
+        <div class="mb-5 p-3.5 bg-red-50 border border-red-200 text-red-800 text-xs font-semibold rounded-2xl flex items-center space-x-2">
+            <i class="ph-fill ph-warning-circle text-red-600 text-lg shrink-0"></i>
+            <span class="leading-tight">{{ error }}</span>
+        </div>
+    {% endif %}
+
+    <!-- Verify OTP & Reset Password Form -->
+    <form method="POST" action="{% url 'verify_otp' %}" class="space-y-4">
+        {% csrf_token %}
+        
+        <!-- Email (Pre-filled) -->
+        <div>
+            <label for="email" class="block text-[10px] font-extrabold text-earth-850 uppercase tracking-widest mb-1.5 px-1">Email Address</label>
+            <input type="email" name="email" id="email" required value="{{ email }}" placeholder="e.g. name@student.gu.ac.ug"
+                   class="w-full bg-[#fcfbfa]/80 border border-earth-300 rounded-2xl px-4 py-3.5 text-base md:text-xs text-earth-800 placeholder-earth-800/35 focus:outline-none focus:ring-2 focus:ring-earth-800 focus:bg-white transition-all">
+        </div>
+
+        <!-- OTP Code -->
+        <div>
+            <label for="otp" class="block text-[10px] font-extrabold text-earth-850 uppercase tracking-widest mb-1.5 px-1">6-Digit OTP Code</label>
+            <input type="text" name="otp" id="otp" required placeholder="e.g. 123456" pattern="\d{6}" maxlength="6" autocomplete="one-time-code"
+                   class="w-full bg-[#fcfbfa]/80 border border-earth-300 rounded-2xl px-4 py-3.5 text-base md:text-xs text-earth-800 text-center tracking-widest font-black focus:outline-none focus:ring-2 focus:ring-earth-800 focus:bg-white transition-all">
+        </div>
+
+        <!-- New Password -->
+        <div>
+            <label for="password" class="block text-[10px] font-extrabold text-earth-850 uppercase tracking-widest mb-1.5 px-1">New Password</label>
+            <input type="password" name="password" id="password" required placeholder="Min 6 characters"
+                   class="w-full bg-[#fcfbfa]/80 border border-earth-300 rounded-2xl px-4 py-3.5 text-base md:text-xs text-earth-800 placeholder-earth-800/35 focus:outline-none focus:ring-2 focus:ring-earth-800 focus:bg-white transition-all">
+        </div>
+
+        <!-- Confirm New Password -->
+        <div>
+            <label for="confirm_password" class="block text-[10px] font-extrabold text-earth-850 uppercase tracking-widest mb-1.5 px-1">Confirm Password</label>
+            <input type="password" name="confirm_password" id="confirm_password" required placeholder="Confirm new password"
+                   class="w-full bg-[#fcfbfa]/80 border border-earth-300 rounded-2xl px-4 py-3.5 text-base md:text-xs text-earth-800 placeholder-earth-800/35 focus:outline-none focus:ring-2 focus:ring-earth-800 focus:bg-white transition-all">
+        </div>
+
+        <button type="submit" class="w-full py-3.5 bg-earth-800 hover:bg-earth-850 active:scale-[0.98] text-earth-200 font-extrabold text-xs rounded-2xl shadow-sm transition-all mt-4 flex items-center justify-center space-x-2">
+            <i class="ph-bold ph-check text-sm"></i>
+            <span>Reset Password</span>
+        </button>
+    </form>
+
+</div>
+{% endblock %}

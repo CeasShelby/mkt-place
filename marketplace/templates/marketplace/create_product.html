@@ -1,0 +1,116 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Sell an Item - Gulu Campus Mkt{% endblock %}
+
+{% block content %}
+<!-- Back Navigation -->
+<div class="mb-4 max-w-sm mx-auto">
+    <a href="{% url 'home_feed' %}" class="inline-flex items-center text-sm font-bold text-earth-700 hover:text-earth-800 transition-colors">
+        <i class="ph-bold ph-caret-left mr-1"></i>
+        Back to Feed
+    </a>
+</div>
+
+<!-- Bundle Promotion Banner -->
+<div class="mb-6 bg-earth-500 text-earth-100 rounded-3xl p-5 border border-earth-300 shadow-sm max-w-sm mx-auto flex items-start space-x-3">
+    <div class="text-2xl mt-0.5">🎓</div>
+    <div>
+        <h4 class="text-xs font-black uppercase tracking-wider text-earth-800">Graduating or Moving?</h4>
+        <p class="text-[10px] text-white/95 mt-1 leading-normal font-medium">Sell your entire room contents (bed, basin, utensils, subwoofer) as a single discounted package instead of individually!</p>
+        <a href="{% url 'create_bundle' %}" class="inline-block mt-3 px-4 py-2 bg-earth-800 text-earth-200 text-[10px] font-black rounded-full hover:bg-earth-850 active:scale-95 transition-all shadow">
+            Create Room Setup Bundle &rarr;
+        </a>
+    </div>
+</div>
+
+<!-- Main Creation Form Card -->
+<div class="bg-white rounded-[2.5rem] border border-earth-300 shadow-sm p-6 md:p-8 max-w-sm mx-auto">
+    
+    <div class="text-center mb-6">
+        <h2 class="text-3xl font-black text-earth-800 tracking-tight font-heading">List a New Item</h2>
+        <p class="text-xs text-earth-700/70 mt-2 font-medium">Provide listing details to start selling to fellow students.</p>
+    </div>
+
+    <!-- Error Alert -->
+    {% if error %}
+        <div class="mb-4 p-3.5 bg-red-50 border border-red-200 text-red-800 text-xs font-semibold rounded-2xl flex items-center space-x-2">
+            <i class="ph-fill ph-warning-circle text-red-600 text-lg shrink-0"></i>
+            <span class="leading-tight">{{ error }}</span>
+        </div>
+    {% endif %}
+
+    <!-- Sell Form -->
+    <form method="POST" action="{% url 'create_product' %}" enctype="multipart/form-data" class="space-y-4">
+        {% csrf_token %}
+        
+        <!-- Title -->
+        <div>
+            <label for="title" class="block text-[10px] font-extrabold text-earth-850 uppercase tracking-widest mb-1.5 px-1">Listing Title</label>
+            <input type="text" name="title" id="title" required placeholder="e.g. Scientific Calculator FX-991"
+                   class="w-full bg-[#fcfbfa]/80 border border-earth-300 rounded-2xl px-4 py-3.5 text-base md:text-xs text-earth-800 placeholder-earth-800/35 focus:outline-none focus:ring-2 focus:ring-earth-800 focus:bg-white transition-all">
+        </div>
+
+        <!-- Category -->
+        <div>
+            <label for="category" class="block text-[10px] font-extrabold text-earth-850 uppercase tracking-widest mb-1.5 px-1">Category</label>
+            <select name="category" id="category" required onchange="toggleNewCategoryInput(this, 'new-category-container-product')"
+                    class="w-full bg-[#fcfbfa]/80 border border-earth-300 rounded-2xl px-4 py-3.5 text-base md:text-xs text-earth-800 focus:outline-none focus:ring-2 focus:ring-earth-800 focus:bg-white transition-all">
+                <option value="" disabled selected>Select category</option>
+                {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+                <option value="__new__">Other (Type a new category...)</option>
+            </select>
+        </div>
+
+        <!-- Hidden New Category Input -->
+        <div id="new-category-container-product" class="hidden">
+            <label for="new_category_name" class="block text-[10px] font-extrabold text-earth-850 uppercase tracking-widest mb-1.5 px-1">New Category Name</label>
+            <input type="text" name="new_category_name" id="new_category_name" placeholder="e.g. Clothing"
+                   class="w-full bg-[#fcfbfa]/80 border border-earth-300 rounded-2xl px-4 py-3.5 text-base md:text-xs text-earth-800 placeholder-earth-800/35 focus:outline-none focus:ring-2 focus:ring-earth-800 focus:bg-white transition-all">
+        </div>
+
+        <!-- Price -->
+        <div>
+            <label for="price" class="block text-[10px] font-extrabold text-earth-850 uppercase tracking-widest mb-1.5 px-1">Price (UGX)</label>
+            <input type="number" name="price" id="price" required placeholder="e.g. 50000" min="0"
+                   class="w-full bg-[#fcfbfa]/80 border border-earth-300 rounded-2xl px-4 py-3.5 text-base md:text-xs text-earth-800 placeholder-earth-800/35 focus:outline-none focus:ring-2 focus:ring-earth-800 focus:bg-white transition-all">
+        </div>
+
+        <!-- Image Input -->
+        <div>
+            <label for="image" class="block text-[10px] font-extrabold text-earth-850 uppercase tracking-widest mb-1.5 px-1">Product Photo</label>
+            <input type="file" name="image" id="image" accept="image/*" required
+                   class="w-full text-base md:text-xs text-earth-700 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border file:border-earth-300 file:text-base md:file:text-xs file:font-semibold file:bg-[#fcfbfa]/80 file:text-earth-800 hover:file:bg-earth-300 transition-all cursor-pointer">
+        </div>
+
+        <!-- Description -->
+        <div>
+            <label for="description" class="block text-[10px] font-extrabold text-earth-850 uppercase tracking-widest mb-1.5 px-1">Item Details & Condition</label>
+            <textarea name="description" id="description" rows="4" required placeholder="Describe item condition, pick-up location, etc."
+                      class="w-full bg-[#fcfbfa]/80 border border-earth-300 rounded-2xl px-4 py-3.5 text-base md:text-xs text-earth-800 placeholder-earth-800/35 focus:outline-none focus:ring-2 focus:ring-earth-800 focus:bg-white transition-all"></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="w-full py-3.5 bg-earth-800 hover:bg-earth-850 active:scale-[0.98] text-earth-200 font-extrabold text-xs rounded-2xl shadow-sm transition-all mt-4 flex items-center justify-center space-x-2">
+            <i class="ph-bold ph-plus text-sm"></i>
+            <span>Publish Listing</span>
+        </button>
+    </form>
+
+</div>
+
+<script>
+function toggleNewCategoryInput(selectEl, containerId) {
+    const container = document.getElementById(containerId);
+    const input = container.querySelector('input');
+    if (selectEl.value === '__new__') {
+        container.classList.remove('hidden');
+        input.setAttribute('required', 'required');
+    } else {
+        container.classList.add('hidden');
+        input.removeAttribute('required');
+    }
+}
+</script>
+{% endblock %}

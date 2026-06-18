@@ -1,0 +1,722 @@
+{% extends 'marketplace/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}simply marketplace{% endblock %}
+
+{% block content %}
+<!-- Search Form Section -->
+<div class="mb-6 max-w-xl mx-auto">
+    <form method="GET" action="{% url 'home_feed' %}" class="relative">
+        <input type="text" name="q" value="{{ query }}" placeholder="Search listings: electronics, textbooks, clothing..." 
+               class="w-full bg-[#fcfbfa]/80 border border-earth-300 rounded-full pl-12 pr-4 py-3.5 text-base md:text-xs text-earth-800 placeholder-earth-800/40 focus:outline-none focus:ring-2 focus:ring-earth-800 focus:bg-white transition-all shadow-sm">
+        <div class="absolute left-4 top-1/2 -translate-y-1/2 text-earth-800 opacity-60 flex items-center justify-center">
+            <i class="ph-bold ph-magnifying-glass text-lg"></i>
+        </div>
+        {% if category_slug %}
+            <input type="hidden" name="category" value="{{ selected_category }}">
+        {% endif %}
+    </form>
+</div>
+
+<style>
+.standout-pill-bundle {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.standout-pill-bundle:hover {
+    transform: translateY(-1px) scale(1.04);
+    box-shadow: 0 6px 12px -2px rgba(199, 138, 88, 0.25), 0 0 8px rgba(199, 138, 88, 0.35);
+}
+.standout-pill-bundle:active {
+    transform: translateY(0px) scale(0.96);
+}
+
+.standout-pill-flash {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.standout-pill-flash:hover {
+    transform: translateY(-1px) scale(1.04);
+    box-shadow: 0 6px 12px -2px rgba(239, 68, 68, 0.25), 0 0 8px rgba(239, 68, 68, 0.35);
+}
+.standout-pill-flash:active {
+    transform: translateY(0px) scale(0.96);
+}
+
+@keyframes pulseSubtle {
+    0%, 100% { transform: scale(1); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+    50% { transform: scale(1.02); box-shadow: 0 8px 12px -2px rgba(199, 138, 88, 0.15); }
+}
+.animate-pulse-subtle {
+    animation: pulseSubtle 3s ease-in-out infinite;
+}
+
+@keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+    display: flex;
+    width: max-content;
+    animation: marquee 25s linear infinite;
+}
+.animate-marquee:hover {
+    animation-play-state: paused;
+}
+
+@keyframes marquee-cards {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+@media (max-width: 767px) {
+    .animate-marquee-cards {
+        display: flex;
+        width: max-content;
+        animation: marquee-cards 18s linear infinite;
+    }
+    .animate-marquee-cards:hover {
+        animation-play-state: paused;
+    }
+}
+
+/* Hero Background Slideshow Styles */
+.slide-bg {
+    transition: opacity 1.5s ease-in-out;
+}
+.animate-ken-burns {
+    animation: kenBurns 24s ease-in-out infinite alternate;
+}
+@keyframes kenBurns {
+    0% { transform: scale(1) rotate(0deg); }
+    100% { transform: scale(1.12) rotate(1deg); }
+}
+.opacity-0 {
+    opacity: 0 !important;
+}
+.opacity-100 {
+    opacity: 1 !important;
+}
+.text-shadow-sm {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+.text-shadow-md {
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+</style>
+
+<!-- Terracotta Hero Banner (Simply Marketplace Layout) -->
+<div class="relative rounded-[2rem] overflow-hidden p-5 md:p-8 mb-8 text-earth-100 min-h-[220px] md:min-h-[300px] flex flex-col justify-between gap-6 shadow-sm">
+    
+    <!-- Automatic Background Slideshow for Big Card -->
+    <div id="big-card-bg-container" class="absolute inset-0 z-0 overflow-hidden">
+        {% if custom_big_banners %}
+            {% for banner in custom_big_banners %}
+                <div class="absolute inset-0 bg-cover bg-center slide-bg {% if forloop.first %}opacity-100{% else %}opacity-0{% endif %} animate-ken-burns" style="background-image: url('{{ banner.image.url }}');"></div>
+            {% endfor %}
+        {% else %}
+            <!-- Slide 1 -->
+            <div class="absolute inset-0 bg-cover bg-center slide-bg opacity-100 animate-ken-burns" style="background-image: url('{% static 'images/simply_hero_bg.png' %}');"></div>
+            <!-- Slide 2 -->
+            <div class="absolute inset-0 bg-cover bg-center slide-bg opacity-0 animate-ken-burns" style="background-image: url('{% static 'images/setup_bundles_bg.png' %}');"></div>
+            <!-- Slide 3 -->
+            <div class="absolute inset-0 bg-cover bg-center slide-bg opacity-0 animate-ken-burns" style="background-image: url('{% static 'images/flash_sales_bg.png' %}');"></div>
+            <!-- Slide 4 -->
+            <div class="absolute inset-0 bg-cover bg-center slide-bg opacity-0 animate-ken-burns" style="background-image: url('{% static 'images/requests_bg.png' %}');"></div>
+        {% endif %}
+        <!-- Dark/warm gradient overlay to keep high contrast text legible -->
+        <div class="absolute inset-0 bg-gradient-to-r from-earth-900/95 via-earth-850/85 to-earth-800/70 mix-blend-multiply z-10"></div>
+        <!-- Dark overlay to ensure text and elements stand out clearly -->
+        <div class="absolute inset-0 bg-black/65 z-10"></div>
+    </div>
+
+    <!-- Top Row: Typography & Meta details -->
+    <div class="relative z-20 flex flex-row items-center justify-between w-full border-b border-white/10 pb-4">
+        <div class="text-left select-none">
+            <h1 class="text-4xl md:text-6xl font-black font-heading tracking-tighter text-white leading-none text-shadow-md">simply</h1>
+            <span class="text-[9px] md:text-xs font-extrabold uppercase tracking-widest text-earth-300 block -mt-1 md:-mt-1.5 md:ml-1 text-shadow-sm">marketplace</span>
+        </div>
+        
+        <div class="flex items-center space-x-4 md:space-x-8">
+            <div class="text-left hidden sm:block max-w-[150px] md:max-w-[200px]">
+                <p class="text-[9px] md:text-xs font-bold leading-tight uppercase tracking-wider text-earth-300 text-shadow-sm">
+                    Simple student trade<br>for Gulu campus life
+                </p>
+            </div>
+            <a href="{% url 'create_product' %}" class="px-4 py-2 bg-earth-800 hover:bg-earth-850 hover:scale-[1.03] text-earth-200 text-[10px] font-extrabold rounded-full transition-all active:scale-95 shadow-md uppercase tracking-wider shrink-0">
+                List Item
+            </a>
+        </div>
+    </div>
+
+    <!-- Right Column: Interactive Small Cards -->
+    <div class="relative z-20 overflow-hidden w-full md:overflow-visible">
+        <div class="animate-marquee-cards flex flex-row gap-2.5 flex-nowrap w-max md:w-full md:grid md:grid-cols-4 md:gap-4 md:animate-none">
+            <!-- Card 1: Flash Sales -->
+            <a href="#flash-sale-section" class="group relative block overflow-hidden rounded-xl border border-white/10 p-3 h-[70px] md:h-[85px] shrink-0 w-[145px] md:w-auto shadow-sm hover:shadow-md hover:border-white/20 hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-300">
+                <!-- Background slideshow container -->
+                <div class="small-card-flash-bg absolute inset-0 z-0">
+                    {% if custom_flash_banners %}
+                        {% for banner in custom_flash_banners %}
+                            <div class="absolute inset-0 bg-cover bg-center slide-bg {% if forloop.first %}opacity-100{% else %}opacity-0{% endif %} animate-ken-burns" style="background-image: url('{{ banner.image.url }}');"></div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="absolute inset-0 bg-cover bg-center slide-bg opacity-100 animate-ken-burns" style="background-image: url('{% static 'images/flash_sales_bg.png' %}');"></div>
+                        <div class="absolute inset-0 bg-cover bg-center slide-bg opacity-0 animate-ken-burns" style="background-image: url('{% static 'images/simply_hero_bg.png' %}'); filter: hue-rotate(15deg) brightness(0.85);"></div>
+                    {% endif %}
+                    <div class="absolute inset-0 bg-gradient-to-r from-red-955/85 to-red-800/40 mix-blend-multiply z-10"></div>
+                </div>
+                <!-- Card Content -->
+                <div class="relative z-20 flex items-center justify-between h-full">
+                    <div class="flex items-center space-x-2.5">
+                        <span class="text-2xl md:text-3xl shrink-0 group-hover:scale-110 transition-transform duration-300">⚡</span>
+                        <div class="text-left">
+                            <h3 class="text-[10px] md:text-xs font-black text-white leading-tight uppercase tracking-wider">Flash Sales</h3>
+                            <p class="text-[7px] md:text-[9px] text-red-200 font-bold mt-0.5 leading-none">Heavy deals</p>
+                        </div>
+                    </div>
+                    <div class="bg-red-500/20 border border-red-400/30 px-1.5 py-0.5 md:px-3 md:py-1 rounded-full shrink-0 text-right">
+                        <span class="text-[6px] md:text-[8px] font-black text-white uppercase tracking-wider">
+                            {% if active_flash_count > 0 %}{{ active_flash_count }} Active{% else %}Deals{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Card 2: Student Requests -->
+            <a href="{% url 'requests_feed' %}" class="group relative block overflow-hidden rounded-xl border border-white/10 p-3 h-[70px] md:h-[85px] shrink-0 w-[145px] md:w-auto shadow-sm hover:shadow-md hover:border-white/20 hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-300">
+                <!-- Background slideshow container -->
+                <div class="small-card-requests-bg absolute inset-0 z-0">
+                    {% if custom_request_banners %}
+                        {% for banner in custom_request_banners %}
+                            <div class="absolute inset-0 bg-cover bg-center slide-bg {% if forloop.first %}opacity-100{% else %}opacity-0{% endif %} animate-ken-burns" style="background-image: url('{{ banner.image.url }}');"></div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="absolute inset-0 bg-cover bg-center slide-bg opacity-100 animate-ken-burns" style="background-image: url('{% static 'images/requests_bg.png' %}');"></div>
+                        <div class="absolute inset-0 bg-cover bg-center slide-bg opacity-0 animate-ken-burns" style="background-image: url('{% static 'images/simply_hero_bg.png' %}'); filter: sepia(0.3) brightness(0.7);"></div>
+                    {% endif %}
+                    <div class="absolute inset-0 bg-gradient-to-r from-earth-950/85 to-earth-900/40 mix-blend-multiply z-10"></div>
+                </div>
+                <!-- Card Content -->
+                <div class="relative z-20 flex items-center justify-between h-full">
+                    <div class="flex items-center space-x-2.5">
+                        <span class="text-2xl md:text-3xl shrink-0 group-hover:scale-110 transition-transform duration-300">🔍</span>
+                        <div class="text-left">
+                            <h3 class="text-[10px] md:text-xs font-black text-white leading-tight uppercase tracking-wider">Requests</h3>
+                            <p class="text-[7px] md:text-[9px] text-earth-300 font-bold mt-0.5 leading-none">Fulfill & earn</p>
+                        </div>
+                    </div>
+                    <div class="bg-earth-500/20 border border-earth-400/30 px-1.5 py-0.5 md:px-3 md:py-1 rounded-full shrink-0 text-right">
+                        <span class="text-[6px] md:text-[8px] font-black text-white uppercase tracking-wider">
+                            {% if open_requests_count > 0 %}{{ open_requests_count }} Open{% else %}Browse{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Card 3: Room Setup Bundles -->
+            <a href="{% url 'home_feed' %}?category=bundles" class="group relative block overflow-hidden rounded-xl border border-white/10 p-3 h-[70px] md:h-[85px] shrink-0 w-[145px] md:w-auto shadow-sm hover:shadow-md hover:border-white/20 hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-300">
+                <!-- Background slideshow container -->
+                <div class="small-card-bundles-bg absolute inset-0 z-0">
+                    {% if custom_bundle_banners %}
+                        {% for banner in custom_bundle_banners %}
+                            <div class="absolute inset-0 bg-cover bg-center slide-bg {% if forloop.first %}opacity-100{% else %}opacity-0{% endif %} animate-ken-burns" style="background-image: url('{{ banner.image.url }}');"></div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="absolute inset-0 bg-cover bg-center slide-bg opacity-100 animate-ken-burns" style="background-image: url('{% static 'images/setup_bundles_bg.png' %}');"></div>
+                        <div class="absolute inset-0 bg-cover bg-center slide-bg opacity-0 animate-ken-burns" style="background-image: url('{% static 'images/simply_hero_bg.png' %}'); filter: saturate(0.5) brightness(0.65);"></div>
+                    {% endif %}
+                    <div class="absolute inset-0 bg-gradient-to-r from-earth-950/85 to-earth-900/40 mix-blend-multiply z-10"></div>
+                </div>
+                <!-- Card Content -->
+                <div class="relative z-20 flex items-center justify-between h-full">
+                    <div class="flex items-center space-x-2.5">
+                        <span class="text-2xl md:text-3xl shrink-0 group-hover:scale-110 transition-transform duration-300">📦</span>
+                        <div class="text-left">
+                            <h3 class="text-[10px] md:text-xs font-black text-white leading-tight uppercase tracking-wider">Bundles</h3>
+                            <p class="text-[7px] md:text-[9px] text-earth-300 font-bold mt-0.5 leading-none">Setup packages</p>
+                        </div>
+                    </div>
+                    <div class="bg-earth-500/20 border border-earth-400/30 px-1.5 py-0.5 md:px-3 md:py-1 rounded-full shrink-0 text-right">
+                        <span class="text-[6px] md:text-[8px] font-black text-white uppercase tracking-wider">
+                            {% if active_bundles_count > 0 %}{{ active_bundles_count }} Bundles{% else %}Explore{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Card 4: Student Listings -->
+            <a href="#student-listings-section" class="group relative block overflow-hidden rounded-xl border border-white/10 p-3 h-[70px] md:h-[85px] shrink-0 w-[145px] md:w-auto shadow-sm hover:shadow-md hover:border-white/20 hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-300">
+                <!-- Background slideshow container -->
+                <div class="small-card-listings-bg absolute inset-0 z-0">
+                    {% if recent_products %}
+                        {% for product in recent_products|slice:":4" %}
+                            {% if product.image %}
+                                <div class="absolute inset-0 bg-cover bg-center slide-bg {% if forloop.first %}opacity-100{% else %}opacity-0{% endif %} animate-ken-burns" style="background-image: url('{{ product.image.url }}');"></div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="absolute inset-0 bg-cover bg-center slide-bg opacity-100 animate-ken-burns" style="background-image: url('{% static 'images/simply_hero_bg.png' %}');"></div>
+                    {% endif %}
+                    <div class="absolute inset-0 bg-gradient-to-r from-earth-950/85 to-earth-900/40 mix-blend-multiply z-10"></div>
+                </div>
+                <!-- Card Content -->
+                <div class="relative z-20 flex items-center justify-between h-full">
+                    <div class="flex items-center space-x-2.5">
+                        <span class="text-2xl md:text-3xl shrink-0 group-hover:scale-110 transition-transform duration-300">🛍️</span>
+                        <div class="text-left">
+                            <h3 class="text-[10px] md:text-xs font-black text-white leading-tight uppercase tracking-wider">Listings</h3>
+                            <p class="text-[7px] md:text-[9px] text-earth-300 font-bold mt-0.5 leading-none">Student ads</p>
+                        </div>
+                    </div>
+                    <div class="bg-earth-500/20 border border-earth-400/30 px-1.5 py-0.5 md:px-3 md:py-1 rounded-full shrink-0 text-right">
+                        <span class="text-[6px] md:text-[8px] font-black text-white uppercase tracking-wider">
+                            Explore
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- ================= Duplicate Loop for Continuous Scroll (Mobile Only) ================= -->
+            
+            <!-- Duplicate Card 1: Flash Sales -->
+            <a href="#flash-sale-section" class="md:hidden group relative block overflow-hidden rounded-xl border border-white/10 p-3 h-[70px] md:h-[85px] shrink-0 w-[145px] md:w-auto shadow-sm hover:shadow-md hover:border-white/20 hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-300">
+                <!-- Background slideshow container -->
+                <div class="small-card-flash-bg absolute inset-0 z-0">
+                    {% if custom_flash_banners %}
+                        {% for banner in custom_flash_banners %}
+                            <div class="absolute inset-0 bg-cover bg-center slide-bg {% if forloop.first %}opacity-100{% else %}opacity-0{% endif %} animate-ken-burns" style="background-image: url('{{ banner.image.url }}');"></div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="absolute inset-0 bg-cover bg-center slide-bg opacity-100 animate-ken-burns" style="background-image: url('{% static 'images/flash_sales_bg.png' %}');"></div>
+                        <div class="absolute inset-0 bg-cover bg-center slide-bg opacity-0 animate-ken-burns" style="background-image: url('{% static 'images/simply_hero_bg.png' %}'); filter: hue-rotate(15deg) brightness(0.85);"></div>
+                    {% endif %}
+                    <div class="absolute inset-0 bg-gradient-to-r from-red-955/85 to-red-800/40 mix-blend-multiply z-10"></div>
+                </div>
+                <!-- Card Content -->
+                <div class="relative z-20 flex items-center justify-between h-full">
+                    <div class="flex items-center space-x-2.5">
+                        <span class="text-2xl md:text-3xl shrink-0 group-hover:scale-110 transition-transform duration-300">⚡</span>
+                        <div class="text-left">
+                            <h3 class="text-[10px] md:text-xs font-black text-white leading-tight uppercase tracking-wider">Flash Sales</h3>
+                            <p class="text-[7px] md:text-[9px] text-red-200 font-bold mt-0.5 leading-none">Heavy deals</p>
+                        </div>
+                    </div>
+                    <div class="bg-red-500/20 border border-red-400/30 px-1.5 py-0.5 md:px-3 md:py-1 rounded-full shrink-0 text-right">
+                        <span class="text-[6px] md:text-[8px] font-black text-white uppercase tracking-wider">
+                            {% if active_flash_count > 0 %}{{ active_flash_count }} Active{% else %}Deals{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Duplicate Card 2: Student Requests -->
+            <a href="{% url 'requests_feed' %}" class="md:hidden group relative block overflow-hidden rounded-xl border border-white/10 p-3 h-[70px] md:h-[85px] shrink-0 w-[145px] md:w-auto shadow-sm hover:shadow-md hover:border-white/20 hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-300">
+                <!-- Background slideshow container -->
+                <div class="small-card-requests-bg absolute inset-0 z-0">
+                    {% if custom_request_banners %}
+                        {% for banner in custom_request_banners %}
+                            <div class="absolute inset-0 bg-cover bg-center slide-bg {% if forloop.first %}opacity-100{% else %}opacity-0{% endif %} animate-ken-burns" style="background-image: url('{{ banner.image.url }}');"></div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="absolute inset-0 bg-cover bg-center slide-bg opacity-100 animate-ken-burns" style="background-image: url('{% static 'images/requests_bg.png' %}');"></div>
+                        <div class="absolute inset-0 bg-cover bg-center slide-bg opacity-0 animate-ken-burns" style="background-image: url('{% static 'images/simply_hero_bg.png' %}'); filter: sepia(0.3) brightness(0.7);"></div>
+                    {% endif %}
+                    <div class="absolute inset-0 bg-gradient-to-r from-earth-950/85 to-earth-900/40 mix-blend-multiply z-10"></div>
+                </div>
+                <!-- Card Content -->
+                <div class="relative z-20 flex items-center justify-between h-full">
+                    <div class="flex items-center space-x-2.5">
+                        <span class="text-2xl md:text-3xl shrink-0 group-hover:scale-110 transition-transform duration-300">🔍</span>
+                        <div class="text-left">
+                            <h3 class="text-[10px] md:text-xs font-black text-white leading-tight uppercase tracking-wider">Requests</h3>
+                            <p class="text-[7px] md:text-[9px] text-earth-300 font-bold mt-0.5 leading-none">Fulfill & earn</p>
+                        </div>
+                    </div>
+                    <div class="bg-earth-500/20 border border-earth-400/30 px-1.5 py-0.5 md:px-3 md:py-1 rounded-full shrink-0 text-right">
+                        <span class="text-[6px] md:text-[8px] font-black text-white uppercase tracking-wider">
+                            {% if open_requests_count > 0 %}{{ open_requests_count }} Open{% else %}Browse{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Duplicate Card 3: Room Setup Bundles -->
+            <a href="{% url 'home_feed' %}?category=bundles" class="md:hidden group relative block overflow-hidden rounded-xl border border-white/10 p-3 h-[70px] md:h-[85px] shrink-0 w-[145px] md:w-auto shadow-sm hover:shadow-md hover:border-white/20 hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-300">
+                <!-- Background slideshow container -->
+                <div class="small-card-bundles-bg absolute inset-0 z-0">
+                    {% if custom_bundle_banners %}
+                        {% for banner in custom_bundle_banners %}
+                            <div class="absolute inset-0 bg-cover bg-center slide-bg {% if forloop.first %}opacity-100{% else %}opacity-0{% endif %} animate-ken-burns" style="background-image: url('{{ banner.image.url }}');"></div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="absolute inset-0 bg-cover bg-center slide-bg opacity-100 animate-ken-burns" style="background-image: url('{% static 'images/setup_bundles_bg.png' %}');"></div>
+                        <div class="absolute inset-0 bg-cover bg-center slide-bg opacity-0 animate-ken-burns" style="background-image: url('{% static 'images/simply_hero_bg.png' %}'); filter: saturate(0.5) brightness(0.65);"></div>
+                    {% endif %}
+                    <div class="absolute inset-0 bg-gradient-to-r from-earth-950/85 to-earth-900/40 mix-blend-multiply z-10"></div>
+                </div>
+                <!-- Card Content -->
+                <div class="relative z-20 flex items-center justify-between h-full">
+                    <div class="flex items-center space-x-2.5">
+                        <span class="text-2xl md:text-3xl shrink-0 group-hover:scale-110 transition-transform duration-300">📦</span>
+                        <div class="text-left">
+                            <h3 class="text-[10px] md:text-xs font-black text-white leading-tight uppercase tracking-wider">Bundles</h3>
+                            <p class="text-[7px] md:text-[9px] text-earth-300 font-bold mt-0.5 leading-none">Setup packages</p>
+                        </div>
+                    </div>
+                    <div class="bg-earth-500/20 border border-earth-400/30 px-1.5 py-0.5 md:px-3 md:py-1 rounded-full shrink-0 text-right">
+                        <span class="text-[6px] md:text-[8px] font-black text-white uppercase tracking-wider">
+                            {% if active_bundles_count > 0 %}{{ active_bundles_count }} Bundles{% else %}Explore{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Duplicate Card 4: Student Listings -->
+            <a href="#student-listings-section" class="md:hidden group relative block overflow-hidden rounded-xl border border-white/10 p-3 h-[70px] md:h-[85px] shrink-0 w-[145px] md:w-auto shadow-sm hover:shadow-md hover:border-white/20 hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-300">
+                <!-- Background slideshow container -->
+                <div class="small-card-listings-bg absolute inset-0 z-0">
+                    {% if recent_products %}
+                        {% for product in recent_products|slice:":4" %}
+                            {% if product.image %}
+                                <div class="absolute inset-0 bg-cover bg-center slide-bg {% if forloop.first %}opacity-100{% else %}opacity-0{% endif %} animate-ken-burns" style="background-image: url('{{ product.image.url }}');"></div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="absolute inset-0 bg-cover bg-center slide-bg opacity-100 animate-ken-burns" style="background-image: url('{% static 'images/simply_hero_bg.png' %}');"></div>
+                    {% endif %}
+                    <div class="absolute inset-0 bg-gradient-to-r from-earth-950/85 to-earth-900/40 mix-blend-multiply z-10"></div>
+                </div>
+                <!-- Card Content -->
+                <div class="relative z-20 flex items-center justify-between h-full">
+                    <div class="flex items-center space-x-2.5">
+                        <span class="text-2xl md:text-3xl shrink-0 group-hover:scale-110 transition-transform duration-300">🛍️</span>
+                        <div class="text-left">
+                            <h3 class="text-[10px] md:text-xs font-black text-white leading-tight uppercase tracking-wider">Listings</h3>
+                            <p class="text-[7px] md:text-[9px] text-earth-300 font-bold mt-0.5 leading-none">Student ads</p>
+                        </div>
+                    </div>
+                    <div class="bg-earth-500/20 border border-earth-400/30 px-1.5 py-0.5 md:px-3 md:py-1 rounded-full shrink-0 text-right">
+                        <span class="text-[6px] md:text-[8px] font-black text-white uppercase tracking-wider">
+                            Explore
+                        </span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if flash_status.is_active and flash_products %}
+<!-- Flash Sale Campus Hour Section -->
+<div class="mb-8 relative overflow-hidden rounded-[2.5rem] border border-earth-300 bg-white shadow-sm p-6 md:p-8">
+    {% if flash_status.is_active %}
+        <!-- Active Flash Sale Hour -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-red-200 pb-4 mb-6">
+            <div class="flex items-center space-x-3">
+                <span class="flex h-3 w-3 relative">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-red-600"></span>
+                </span>
+                <div>
+                    <h2 class="text-xl font-black font-heading text-red-700 tracking-tight flex items-center">
+                        ⚡ LIVE: CAMPUS HOUR FLASH SALE
+                    </h2>
+                    <p class="text-[11px] text-earth-700 font-bold mt-0.5">Heavy discounts on sneakers, power banks, speakers, and more!</p>
+                </div>
+            </div>
+            <!-- Live Countdown -->
+            <div class="bg-red-50 border border-red-200 rounded-full px-4 py-2 text-center shrink-0 flex items-center space-x-2">
+                <span class="text-[10px] font-black text-red-700 tracking-wider uppercase">CLOSES IN:</span>
+                <span id="flash-countdown" class="text-sm font-black font-heading text-red-600 tracking-tight">00:00:00</span>
+            </div>
+        </div>
+        
+        <!-- Flash Sale Deals horizontal scroll -->
+        <div class="flex overflow-x-auto whitespace-nowrap gap-4 pb-3 pt-1 no-scrollbar flex-nowrap items-center w-full">
+            {% for product in flash_products %}
+                <a href="{% url 'product_detail' product.pk %}" 
+                   class="shrink-0 group w-48 bg-[#fcfbfa]/60 rounded-3xl overflow-hidden border border-earth-300 shadow-sm hover:shadow transition-all flex flex-col justify-between h-72">
+                    <div class="relative aspect-square w-full bg-earth-100 overflow-hidden shrink-0">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.title }}" class="object-cover w-full h-full group-hover:scale-105 transition-all duration-300">
+                        {% endif %}
+                        <span class="absolute top-2.5 left-2.5 px-2.5 py-1 text-[8px] font-black text-white bg-gradient-to-r from-red-600 to-earth-700 rounded-full uppercase tracking-wider shadow z-10 flex items-center space-x-1">
+                            <span>⚡</span> <span>Flash hour</span>
+                        </span>
+                    </div>
+                    <div class="p-3 flex-1 flex flex-col justify-between whitespace-normal">
+                        <div>
+                            <span class="text-[9px] font-extrabold text-red-600 uppercase tracking-wider">⚡ Flash deal</span>
+                            <h3 class="text-xs font-bold text-earth-800 line-clamp-2 mt-0.5 leading-tight group-hover:text-earth-500 transition-colors">{{ product.title }}</h3>
+                        </div>
+                        <div class="flex flex-wrap items-center justify-between border-t border-earth-300/30 pt-2.5 mt-2 gap-1">
+                            <div class="flex flex-col">
+                                <span class="text-xs font-black text-red-600">{{ product.flash_sale_price|intcomma }} UGX</span>
+                                <span class="text-[8px] text-earth-700/60 line-through">{{ product.price|intcomma }} UGX</span>
+                            </div>
+                            <span class="text-[8px] text-red-700 bg-red-50 border border-red-200/50 px-1.5 py-0.5 rounded font-black uppercase">
+                                -{{ product.flash_sale_discount_percent }}% OFF
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+        
+    {% else %}
+        <!-- Teaser Flash Sale Window -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div class="space-y-2 max-w-md">
+                <span class="px-2.5 py-1 bg-earth-200 text-earth-800 text-[9px] font-black uppercase tracking-widest rounded-md inline-block">Weekly Campus Event</span>
+                <h2 class="text-2xl font-black text-earth-800 tracking-tight font-heading leading-none flex items-center">
+                    ⚡ The "Flash Sale" Campus Hour
+                </h2>
+                <p class="text-xs text-earth-700 leading-normal font-medium">
+                    Every Friday from **6:00 PM to 8:00 PM (Local Time)**, grab heavily discounted sneakers, power banks, subwoofers, and more. Set your alarm and don't miss out!
+                </p>
+            </div>
+            
+            <!-- Teaser Countdown Clock -->
+            <div class="bg-earth-100 border border-earth-300 rounded-3xl p-5 text-center shrink-0 flex flex-col justify-center min-w-[200px] shadow-inner">
+                <span class="text-[9px] font-extrabold text-earth-700 uppercase tracking-wider block mb-1">Sale opens in:</span>
+                <div id="flash-teaser-countdown" class="text-lg font-black font-heading text-earth-800 tracking-tight">00d 00h 00m 00s</div>
+            </div>
+        </div>
+        
+        <!-- Blurred Deal Previews for Hype -->
+        <div class="mt-6 pt-5 border-t border-earth-300/40">
+            <h4 class="text-[9px] font-extrabold uppercase tracking-widest text-earth-700/80 mb-3 px-1">Upcoming Friday deals peek:</h4>
+            <div class="flex overflow-x-auto whitespace-nowrap gap-4 pb-2 pt-0.5 no-scrollbar flex-nowrap w-full">
+                {% for product in flash_products %}
+                    <div class="shrink-0 w-44 bg-[#fcfbfa]/30 rounded-3xl overflow-hidden border border-earth-300/50 shadow-sm opacity-65 relative select-none">
+                        <!-- Blur overlay -->
+                        <div class="absolute inset-0 bg-white/20 backdrop-blur-[3px] z-10 flex flex-col items-center justify-center p-3 text-center">
+                            <span class="text-[9px] font-black text-earth-800 uppercase tracking-widest bg-white border border-earth-300 px-2.5 py-1 rounded-md shadow-sm">Locked &bull; Friday 6PM</span>
+                        </div>
+                        <div class="aspect-square w-full bg-earth-100 overflow-hidden shrink-0">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="Locked" class="object-cover w-full h-full filter blur-[1px]">
+                            {% endif %}
+                        </div>
+                        <div class="p-3 whitespace-normal">
+                            <h3 class="text-[10px] font-bold text-earth-700/65 line-clamp-1 leading-tight">{{ product.title }}</h3>
+                            <div class="flex items-baseline space-x-1.5 mt-1">
+                                <span class="text-[10px] font-black text-earth-700/60 line-through">{{ product.price|intcomma }} UGX</span>
+                                <span class="text-[9px] text-green-700 font-extrabold">??? UGX</span>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- JavaScript for Live Countdowns -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    {% if flash_status.is_active %}
+        // Countdown to close (active sale)
+        const rawEndDateStr = "{{ flash_status.end_time|date:'Y-m-d H:i:s' }}";
+        const endTime = new Date(rawEndDateStr.replace(/-/g, "/")).getTime();
+        const countdownEl = document.getElementById('flash-countdown');
+        
+        if (countdownEl) {
+            const timer = setInterval(updateTimer, 1000);
+            updateTimer();
+            
+            function updateTimer() {
+                const now = new Date().getTime();
+                const distance = endTime - now;
+                
+                if (distance <= 0) {
+                    clearInterval(timer);
+                    countdownEl.innerHTML = "CLOSED";
+                    setTimeout(() => window.location.reload(), 1500);
+                    return;
+                }
+                
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                const h = String(hours).padStart(2, '0');
+                const m = String(minutes).padStart(2, '0');
+                const s = String(seconds).padStart(2, '0');
+                
+                countdownEl.innerHTML = `${h}:${m}:${s}`;
+            }
+        }
+    {% else %}
+        // Countdown to open (teaser sale)
+        const rawDateStr = "{{ flash_status.next_start|date:'Y-m-d H:i:s' }}";
+        const startTime = new Date(rawDateStr.replace(/-/g, "/")).getTime();
+        const teaserEl = document.getElementById('flash-teaser-countdown');
+        
+        if (teaserEl) {
+            const timer = setInterval(updateTeaser, 1000);
+            updateTeaser();
+            
+            function updateTeaser() {
+                const now = new Date().getTime();
+                const distance = startTime - now;
+                
+                if (distance <= 0) {
+                    clearInterval(timer);
+                    teaserEl.innerHTML = "SALE OPENING!";
+                    setTimeout(() => window.location.reload(), 1500);
+                    return;
+                }
+                
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                const d = String(days).padStart(2, '0');
+                const h = String(hours).padStart(2, '0');
+                const m = String(minutes).padStart(2, '0');
+                const s = String(seconds).padStart(2, '0');
+                
+                teaserEl.innerHTML = `${d}d ${h}h ${m}m ${s}s`;
+            }
+        }
+    {% endif %}
+    // Slideshow transition engine for hero banner & small cards
+    function initSlideshow(selector, interval) {
+        const containers = document.querySelectorAll(selector);
+        containers.forEach(container => {
+            const slides = container.querySelectorAll('.slide-bg');
+            if (slides.length <= 1) return;
+            
+            let index = 0;
+            setInterval(() => {
+                slides[index].classList.remove('opacity-100');
+                slides[index].classList.add('opacity-0');
+                
+                index = (index + 1) % slides.length;
+                
+                slides[index].classList.remove('opacity-0');
+                slides[index].classList.add('opacity-100');
+            }, interval);
+        });
+    }
+    
+    initSlideshow('#big-card-bg-container', 6000);
+    initSlideshow('.small-card-flash-bg', 5000);
+    initSlideshow('.small-card-requests-bg', 5400);
+    initSlideshow('.small-card-bundles-bg', 5800);
+    initSlideshow('.small-card-listings-bg', 5200);
+});
+</script>
+
+
+
+<!-- Room Setup Bundles Feed (Separated Section) -->
+{% if bundles %}
+<div class="mb-10 bg-earth-100/50 border border-earth-300 rounded-[2rem] p-5 md:p-6">
+    <div class="mb-4">
+        <h2 class="text-lg md:text-xl font-black font-heading text-earth-800 uppercase tracking-tight">🎓 Room Setup Bundles</h2>
+        <p class="text-[11px] text-earth-700/75 mt-0.5">Move-in ready packages listed by graduating/moving students</p>
+    </div>
+    
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {% for product in bundles %}
+            <a href="{% url 'product_detail' product.pk %}" 
+               class="group bg-white rounded-3xl overflow-hidden transition-all flex flex-col justify-between h-full border-2 border-earth-500 shadow-[0_8px_30px_rgba(199,138,88,0.12)] ring-1 ring-earth-500/20 scale-[1.01] hover:scale-[1.03]">
+                <div class="relative aspect-square w-full bg-earth-100 overflow-hidden shrink-0">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.title }}" class="object-cover w-full h-full group-hover:scale-105 transition-all duration-300">
+                    {% endif %}
+                    <span class="absolute top-2.5 left-2.5 px-2 py-0.5 text-[8px] font-black text-white bg-gradient-to-r from-earth-500 to-earth-700 rounded-full uppercase tracking-wider shadow z-10 flex items-center space-x-1">
+                        <span>🎓</span> <span>Room Setup</span>
+                    </span>
+                    <span class="absolute top-2.5 right-2.5 px-2 py-0.5 text-[8px] font-bold text-earth-700 bg-earth-200/90 backdrop-blur-sm rounded-full border border-earth-300/35 hidden sm:block">
+                        {{ product.created_at|timesince }} ago
+                    </span>
+                </div>
+                <div class="p-3 flex-1 flex flex-col justify-between">
+                    <div>
+                        <span class="text-[9px] font-extrabold text-earth-500 uppercase tracking-wider">{{ product.category.name|default:"General" }}</span>
+                        <h3 class="text-xs font-bold text-earth-800 line-clamp-2 mt-0.5 leading-tight group-hover:text-earth-500 transition-colors">{{ product.title }}</h3>
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between border-t border-earth-300/30 pt-2.5 mt-2 gap-1.5">
+                        <div class="flex flex-col">
+                            <span class="text-xs font-black text-earth-800">{{ product.price|intcomma }} UGX</span>
+                            {% if product.bundle_savings > 0 %}
+                                <span class="text-[8px] font-extrabold text-green-700 uppercase tracking-tight">Save {{ product.bundle_savings|intcomma }} UGX</span>
+                            {% endif %}
+                        </div>
+                        <span class="text-[8px] sm:text-[9px] text-earth-700 bg-earth-200 px-2 py-0.5 rounded-full font-bold uppercase self-start sm:self-center truncate max-w-[95px] sm:max-w-none">{{ product.seller.profile.get_hostel_or_area_display|default:"Gulu" }}</span>
+                    </div>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Fresh listings Feed -->
+<div class="mb-10" id="student-listings-section">
+    <h2 class="text-lg md:text-xl font-black font-heading text-earth-800 uppercase tracking-tight mb-5">🛍️ Student listings</h2>
+    
+    {% if recent_products or featured_products %}
+        <!-- Responsive Catalog Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            <!-- Render featured items first -->
+            {% for product in featured_products %}
+                <a href="{% url 'product_detail' product.pk %}" class="group bg-white rounded-3xl overflow-hidden border border-earth-300 shadow-sm hover:shadow hover:scale-[1.01] transition-all flex flex-col justify-between h-full">
+                    <div class="relative aspect-square w-full bg-earth-100 overflow-hidden shrink-0">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.title }}" class="object-cover w-full h-full group-hover:scale-105 transition-all duration-300">
+                        {% endif %}
+                        <span class="absolute top-3 left-3 px-2.5 py-1 text-[8px] font-black text-white bg-earth-500 rounded-full uppercase tracking-wider shadow-sm">
+                            🔥 Premium
+                        </span>
+                    </div>
+                    <div class="p-3 flex-1 flex flex-col justify-between">
+                        <div>
+                            <span class="text-[9px] font-extrabold text-earth-500 uppercase tracking-wider">{{ product.category.name|default:"General" }}</span>
+                            <h3 class="text-xs font-bold text-earth-800 line-clamp-2 mt-0.5 leading-tight group-hover:text-earth-500 transition-colors">{{ product.title }}</h3>
+                        </div>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-t border-earth-300/30 pt-2.5 mt-2 gap-1.5">
+                            <span class="text-xs font-black text-earth-800">{{ product.price|intcomma }} UGX</span>
+                            <span class="text-[8px] sm:text-[9px] text-earth-700 bg-earth-200 px-2 py-0.5 rounded-full font-bold uppercase self-start sm:self-center truncate max-w-[95px] sm:max-w-none">{{ product.seller.profile.get_hostel_or_area_display|default:"Gulu" }}</span>
+                        </div>
+                    </div>
+                </a>
+            {% endfor %}
+
+            <!-- Render recent items -->
+            {% for product in recent_products %}
+                <a href="{% url 'product_detail' product.pk %}" class="group bg-white rounded-3xl overflow-hidden border border-earth-300 shadow-sm hover:shadow hover:scale-[1.01] transition-all flex flex-col justify-between h-full">
+                    <div class="relative aspect-square w-full bg-earth-100 overflow-hidden shrink-0">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.title }}" class="object-cover w-full h-full group-hover:scale-105 transition-all duration-300">
+                        {% endif %}
+                        <span class="absolute top-3 right-3 px-2 py-0.5 text-[8px] font-bold text-earth-700 bg-earth-200/90 backdrop-blur-sm rounded-full border border-earth-300/35 hidden sm:block">
+                            {{ product.created_at|timesince }} ago
+                        </span>
+                    </div>
+                    <div class="p-3 flex-1 flex flex-col justify-between">
+                        <div>
+                            <span class="text-[9px] font-extrabold text-earth-500 uppercase tracking-wider">{{ product.category.name|default:"General" }}</span>
+                            <h3 class="text-xs font-bold text-earth-800 line-clamp-2 mt-0.5 leading-tight group-hover:text-earth-500 transition-colors">{{ product.title }}</h3>
+                        </div>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-t border-earth-300/30 pt-2.5 mt-2 gap-1.5">
+                            <span class="text-xs font-black text-earth-800">{{ product.price|intcomma }} UGX</span>
+                            <span class="text-[8px] sm:text-[9px] text-earth-700 bg-earth-200 px-2 py-0.5 rounded-full font-bold uppercase self-start sm:self-center truncate max-w-[95px] sm:max-w-none">{{ product.seller.profile.get_hostel_or_area_display|default:"Gulu" }}</span>
+                        </div>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="bg-white rounded-[2rem] p-12 border border-earth-300 text-center shadow-sm max-w-md mx-auto">
+            <i class="ph-fill ph-package text-5xl text-earth-300 mx-auto mb-3 block"></i>
+            <p class="text-sm font-bold text-earth-800">No listings found</p>
+            <p class="text-xs text-earth-700 mt-1">Try refining your query or selection filters.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

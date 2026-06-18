@@ -1,0 +1,120 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}{% if action == 'signup' %}Join Marketplace{% else %}Login - Gulu Campus Mkt{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-sm mx-auto bg-white rounded-[2.5rem] border border-earth-300 shadow-sm overflow-hidden p-6 md:p-8 mt-6">
+    
+    <!-- Title -->
+    <div class="text-center mb-6">
+        <h2 class="text-3xl font-black text-earth-800 tracking-tight font-heading">simply</h2>
+        <p class="text-[10px] font-bold text-earth-700 uppercase tracking-widest mt-0.5">campus marketplace</p>
+        <p class="text-xs text-earth-700/70 mt-2 font-medium">{% if action == 'signup' %}Create your student seller account{% else %}Sign in to buy, sell, or chat{% endif %}</p>
+    </div>
+
+    <!-- Error Alert -->
+    {% if error %}
+        <div class="mb-5 p-3.5 bg-red-50 border border-red-200 text-red-800 text-xs font-semibold rounded-2xl flex items-center space-x-2">
+            <i class="ph-fill ph-warning-circle text-red-600 text-lg shrink-0"></i>
+            <span class="leading-tight">{{ error }}</span>
+        </div>
+    {% endif %}
+
+    <!-- Tabs header -->
+    <div class="flex border-b border-earth-300 mb-6">
+        <a href="{% url 'login' %}" class="flex-1 text-center pb-2.5 text-sm font-bold transition-all border-b-2
+            {% if action == 'login' %} border-earth-800 text-earth-800 {% else %} border-transparent text-earth-700/50 hover:text-earth-800 {% endif %}">
+            Login
+        </a>
+        <a href="{% url 'signup' %}" class="flex-1 text-center pb-2.5 text-sm font-bold transition-all border-b-2
+            {% if action == 'signup' %} border-earth-800 text-earth-800 {% else %} border-transparent text-earth-700/50 hover:text-earth-800 {% endif %}">
+            Register
+        </a>
+    </div>
+
+    {% if action == 'login' %}
+        <!-- LOGIN FORM -->
+        <form method="POST" action="{% url 'login' %}" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label for="username" class="block text-[10px] font-extrabold text-earth-850 uppercase tracking-widest mb-1.5 px-1">Username</label>
+                <input type="text" name="username" id="username" required placeholder="e.g. jdoe"
+                       class="w-full bg-[#fcfbfa]/80 border border-earth-300 rounded-2xl px-4 py-3.5 text-base md:text-xs text-earth-800 placeholder-earth-800/35 focus:outline-none focus:ring-2 focus:ring-earth-800 focus:bg-white transition-all">
+            </div>
+
+            <div>
+                <label for="password" class="block text-[10px] font-extrabold text-earth-850 uppercase tracking-widest mb-1.5 px-1">Password</label>
+                <input type="password" name="password" id="password" required placeholder="••••••••"
+                       class="w-full bg-[#fcfbfa]/80 border border-earth-300 rounded-2xl px-4 py-3.5 text-base md:text-xs text-earth-800 placeholder-earth-800/35 focus:outline-none focus:ring-2 focus:ring-earth-800 focus:bg-white transition-all">
+                <div class="text-right mt-1.5 px-1">
+                    <a href="{% url 'forgot_password' %}" class="text-[10px] text-earth-700/80 hover:text-earth-800 font-bold hover:underline">Forgot password?</a>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full py-3.5 bg-earth-800 hover:bg-earth-850 active:scale-[0.98] text-earth-200 font-extrabold text-xs rounded-2xl shadow-sm transition-all mt-4">
+                Sign In
+            </button>
+        </form>
+        
+        <p class="text-center text-[10px] text-earth-700/70 mt-6">
+            Don't have a seller profile? <a href="{% url 'signup' %}" class="text-earth-800 font-bold hover:underline">Register here</a>
+        </p>
+
+    {% else %}
+        <!-- SIGNUP FORM -->
+        <form method="POST" action="{% url 'signup' %}" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label for="username" class="block text-[10px] font-extrabold text-earth-850 uppercase tracking-widest mb-1.5 px-1">Username</label>
+                <input type="text" name="username" id="username" required placeholder="e.g. okellomark"
+                       class="w-full bg-[#fcfbfa]/80 border border-earth-300 rounded-2xl px-4 py-3.5 text-base md:text-xs text-earth-800 placeholder-earth-800/35 focus:outline-none focus:ring-2 focus:ring-earth-800 focus:bg-white transition-all">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label for="first_name" class="block text-[10px] font-extrabold text-earth-850 uppercase tracking-widest mb-1.5 px-1">First Name</label>
+                    <input type="text" name="first_name" id="first_name" required placeholder="e.g. Mark"
+                           class="w-full bg-[#fcfbfa]/80 border border-earth-300 rounded-2xl px-4 py-3.5 text-base md:text-xs text-earth-800 placeholder-earth-800/35 focus:outline-none focus:ring-2 focus:ring-earth-800 focus:bg-white transition-all">
+                </div>
+                <div>
+                    <label for="email" class="block text-[10px] font-extrabold text-earth-850 uppercase tracking-widest mb-1.5 px-1">Email</label>
+                    <input type="email" name="email" id="email" placeholder="e.g. mark@student.gu.ac.ug"
+                           class="w-full bg-[#fcfbfa]/80 border border-earth-300 rounded-2xl px-4 py-3.5 text-base md:text-xs text-earth-800 placeholder-earth-800/35 focus:outline-none focus:ring-2 focus:ring-earth-800 focus:bg-white transition-all">
+                </div>
+            </div>
+
+            <div>
+                <label for="password" class="block text-[10px] font-extrabold text-earth-850 uppercase tracking-widest mb-1.5 px-1">Password</label>
+                <input type="password" name="password" id="password" required placeholder="Min 6 characters"
+                       class="w-full bg-[#fcfbfa]/80 border border-earth-300 rounded-2xl px-4 py-3.5 text-base md:text-xs text-earth-800 placeholder-earth-800/35 focus:outline-none focus:ring-2 focus:ring-earth-800 focus:bg-white transition-all">
+            </div>
+
+            <div>
+                <label for="phone_number" class="block text-[10px] font-extrabold text-earth-850 uppercase tracking-widest mb-1.5 px-1">WhatsApp Phone Number</label>
+                <input type="text" name="phone_number" id="phone_number" required placeholder="e.g. 256770000000"
+                       class="w-full bg-[#fcfbfa]/80 border border-earth-300 rounded-2xl px-4 py-3.5 text-base md:text-xs text-earth-800 placeholder-earth-800/35 focus:outline-none focus:ring-2 focus:ring-earth-800 focus:bg-white transition-all">
+                <span class="text-[9px] text-earth-700/60 mt-1.5 block px-1 leading-normal">Enter with country code (e.g. 256 for Uganda) without '+' for WhatsApp compatibility.</span>
+            </div>
+
+            <div>
+                <label for="hostel_or_area" class="block text-[10px] font-extrabold text-earth-850 uppercase tracking-widest mb-1.5 px-1">Hostel or Campus Area</label>
+                <select name="hostel_or_area" id="hostel_or_area"
+                        class="w-full bg-[#fcfbfa]/80 border border-earth-300 rounded-2xl px-4 py-3.5 text-base md:text-xs text-earth-800 focus:outline-none focus:ring-2 focus:ring-earth-800 focus:bg-white transition-all">
+                    {% for value, display in hostel_choices %}
+                        <option value="{{ value }}">{{ display }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="w-full py-3.5 bg-earth-800 hover:bg-earth-850 active:scale-[0.98] text-earth-200 font-extrabold text-xs rounded-2xl shadow-sm transition-all mt-4">
+                Create Account
+            </button>
+        </form>
+        
+        <p class="text-center text-[10px] text-earth-700/70 mt-6">
+            Already have an account? <a href="{% url 'login' %}" class="text-earth-800 font-bold hover:underline">Login here</a>
+        </p>
+    {% endif %}
+
+</div>
+{% endblock %}

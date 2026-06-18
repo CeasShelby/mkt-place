@@ -1,0 +1,221 @@
+{% extends 'marketplace/base.html' %}
+{% load humanize %}
+
+{% block title %}{{ product.title }} - simply marketplace{% endblock %}
+
+{% block content %}
+<!-- Back Navigation -->
+<div class="mb-4">
+    <a href="{% url 'home_feed' %}" class="inline-flex items-center text-sm font-bold text-earth-750 hover:text-earth-500 transition-colors">
+        <i class="ph-bold ph-caret-left mr-1"></i>
+        Back to Feed
+    </a>
+</div>
+
+<!-- Main Card -->
+<div class="bg-white rounded-[2rem] overflow-hidden border border-earth-300 shadow-sm mb-36 md:mb-8 md:grid md:grid-cols-2 md:items-stretch">
+    
+    <!-- Hero Image (Full width on mobile, left column on desktop) -->
+    <div class="relative w-full aspect-[4/3] md:aspect-auto md:h-full bg-earth-100 overflow-hidden">
+        {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.title }}" class="object-cover w-full h-full">
+        {% else %}
+            <div class="w-full h-full flex items-center justify-center text-earth-300 min-h-[300px]">
+                <i class="ph-fill ph-image text-5xl"></i>
+            </div>
+        {% endif %}
+        
+        <!-- Status indicator overlay -->
+        {% if product.status != 'available' %}
+            <div class="absolute inset-0 bg-black/60 flex items-center justify-center">
+                <span class="px-6 py-2.5 bg-red-600 text-white font-extrabold text-sm tracking-wide rounded-full uppercase">
+                    {{ product.get_status_display }}
+                </span>
+            </div>
+        {% elif product.is_featured %}
+            <span class="absolute top-4 left-4 px-3 py-1 text-xs font-bold text-white bg-earth-500 rounded-full uppercase tracking-wider shadow-sm">
+                🔥 Premium Deal
+            </span>
+        {% endif %}
+    </div>
+
+    <!-- Details Body (right column on desktop) -->
+    <div class="p-6 md:p-8 flex flex-col justify-between h-full bg-[#fcfbfa]/40">
+        <div>
+            <!-- Category & Time -->
+            <div class="flex items-center justify-between mb-3 border-b border-earth-300/30 pb-3">
+                <span class="px-3 py-1 text-[10px] font-black text-earth-800 bg-earth-300/40 rounded-full uppercase tracking-wider">
+                    {{ product.category.name|default:"General" }}
+                </span>
+                <span class="text-[9px] font-bold text-earth-700">
+                    {{ product.created_at|timesince }} ago
+                </span>
+            </div>
+
+            <!-- Title -->
+            <h1 class="text-xl md:text-2xl font-black font-heading text-earth-800 leading-tight mb-4">{{ product.title }}</h1>
+
+            <!-- Location Badge & Seller Details -->
+            <div class="flex flex-wrap gap-2 items-center mb-6">
+                <!-- Location Identifier Badge -->
+                <div class="inline-flex items-center px-3 py-1.5 rounded-full text-[10px] font-bold bg-earth-100 border border-earth-300 text-earth-800">
+                    <i class="ph-fill ph-map-pin mr-1 text-earth-700"></i>
+                    Area: {{ product.seller.profile.get_hostel_or_area_display|default:"Gulu" }}
+                </div>
+                
+                <div class="inline-flex items-center px-3 py-1.5 rounded-full text-[10px] font-bold bg-earth-100 border border-earth-300 text-earth-800">
+                    <i class="ph-fill ph-user mr-1 text-earth-700"></i>
+                    Seller: {{ product.seller.first_name|default:product.seller.username }}
+                </div>
+            </div>
+
+            <!-- Price Display Card -->
+            {% if product.is_bundle %}
+            <div class="bg-earth-800 text-earth-200 rounded-[1.5rem] p-5 mb-4 shadow-sm border border-earth-300/20">
+                <div class="flex items-center justify-between gap-4">
+                    <div>
+                        <p class="text-[9px] text-earth-300 uppercase tracking-widest font-extrabold flex items-center gap-1.5">
+                            <span class="inline-block w-2.5 h-2.5 rounded-full bg-green-500"></span> Discounted Bundle Price
+                        </p>
+                        <h2 class="text-xl md:text-2xl font-black tracking-tight font-heading mt-0.5">{{ product.price|intcomma }} UGX</h2>
+                    </div>
+                    <!-- Mini savings tag -->
+                    <div class="text-right shrink-0">
+                        <span class="text-[9px] font-black border border-green-500/50 bg-green-500/20 px-2.5 py-1 rounded-md text-green-400 uppercase">BUNDLE SPECIAL</span>
+                    </div>
+                </div>
+                
+                {% if product.bundle_savings > 0 %}
+                <div class="border-t border-earth-300/10 mt-3 pt-3 flex flex-wrap items-center justify-between text-xs gap-2">
+                    <span class="text-earth-300">Total value if sold separately: <span class="line-through text-earth-200/60 font-medium">{{ product.bundle_total_individual_price|intcomma }} UGX</span></span>
+                    <span class="font-extrabold text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full">Save {{ product.bundle_savings|intcomma }} UGX!</span>
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+                {% if is_flash_active %}
+                <!-- Active Flash Sale Price Display -->
+                <div class="bg-gradient-to-r from-red-600 to-earth-700 text-white rounded-[1.5rem] p-5 mb-6 shadow-md border-2 border-red-500">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <p class="text-[9px] text-red-200 uppercase tracking-widest font-extrabold flex items-center gap-1.5">
+                                <span class="w-2.5 h-2.5 bg-red-400 rounded-full animate-ping shrink-0"></span> Live Flash Sale Price
+                            </p>
+                            <h2 class="text-xl md:text-2xl font-black tracking-tight font-heading mt-0.5">{{ product.flash_sale_price|intcomma }} UGX</h2>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <span class="text-[9px] font-black bg-red-500/20 border border-red-400/40 px-2.5 py-1 rounded-md text-red-100 uppercase tracking-wider">⚡ FLASH DEALS</span>
+                        </div>
+                    </div>
+                    <div class="border-t border-white/10 mt-3 pt-3 flex flex-wrap items-center justify-between text-xs gap-2">
+                        <span class="text-red-200">Standard Price: <span class="line-through text-white/50 font-medium">{{ product.price|intcomma }} UGX</span></span>
+                        <span class="font-extrabold text-red-100 bg-red-800/40 px-2.5 py-0.5 rounded-full">Save {{ flash_savings|intcomma }} UGX!</span>
+                    </div>
+                </div>
+                {% else %}
+                <!-- Normal Price Display -->
+                <div class="bg-earth-800 text-earth-200 rounded-[1.5rem] p-5 mb-6 shadow-sm flex items-center justify-between gap-4">
+                    <div>
+                        <p class="text-[9px] text-earth-300 uppercase tracking-widest font-extrabold">Asking Price</p>
+                        <h2 class="text-xl md:text-2xl font-black tracking-tight font-heading mt-0.5">{{ product.price|intcomma }} UGX</h2>
+                    </div>
+                    <!-- Mini currency tag -->
+                    <span class="text-[10px] font-black border border-earth-300/40 px-2.5 py-1 rounded text-earth-300 uppercase shrink-0">UGX</span>
+                </div>
+                {% endif %}
+            {% endif %}
+
+            <!-- Bundle Checklist Section -->
+            {% if product.is_bundle and product.bundle_items.all %}
+            <div class="bg-white border border-earth-300 rounded-[1.5rem] p-5 mb-6 shadow-sm">
+                <h3 class="text-[10px] font-extrabold uppercase tracking-widest text-earth-700 mb-3.5 flex items-center justify-between">
+                    <span>Bundle Checklist ({{ product.bundle_items.all|length }} items)</span>
+                    <span class="px-2 py-0.5 bg-earth-200 text-earth-800 text-[8px] font-black rounded-md">INSTANT ROOM SETUP</span>
+                </h3>
+                
+                <ul class="space-y-2.5">
+                    {% for item in product.bundle_items.all %}
+                    <li class="flex items-center justify-between p-2.5 bg-earth-100 rounded-xl border border-earth-300/40 text-xs">
+                        <div class="flex items-center space-x-2.5">
+                            <span class="w-5 h-5 bg-green-100 text-green-700 border border-green-200 rounded-full flex items-center justify-center font-bold text-[10px]">&check;</span>
+                            <span class="font-bold text-earth-800">{{ item.name }}</span>
+                        </div>
+                        {% if item.estimated_price %}
+                        <span class="text-[10px] text-earth-700 font-medium bg-earth-200/60 px-2 py-0.5 rounded-md">
+                            Est. Value: {{ item.estimated_price|intcomma }} UGX
+                        </span>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            {% if user.is_authenticated and user == product.seller %}
+            <div class="bg-earth-100 border border-earth-300 rounded-[1.5rem] p-5 mb-6 shadow-sm">
+                <h3 class="text-[10px] font-extrabold uppercase tracking-widest text-earth-700 mb-3 flex items-center justify-between">
+                    <span>Owner Control Panel</span>
+                    <span class="px-2 py-0.5 bg-earth-300 text-earth-800 text-[8px] font-black rounded-md">Listing Admin</span>
+                </h3>
+                <p class="text-[11px] text-earth-700 mb-3.5 font-semibold">Change your product availability. Sold or Archived listings will be hidden from student feeds.</p>
+                <form action="{% url 'update_product_status' product.id %}" method="POST" class="flex flex-wrap gap-2">
+                    {% csrf_token %}
+                    {% if product.status == 'available' %}
+                        <button type="submit" name="status" value="sold" class="flex-1 px-4 py-2.5 bg-earth-800 hover:bg-earth-850 text-earth-200 text-xs font-bold rounded-xl transition-all shadow-sm">
+                            Mark as Sold (Hide)
+                        </button>
+                        <button type="submit" name="status" value="archived" class="px-4 py-2.5 bg-earth-300 hover:bg-earth-300/80 text-earth-800 text-xs font-bold rounded-xl transition-all border border-earth-300">
+                            Archive
+                        </button>
+                    {% else %}
+                        <button type="submit" name="status" value="available" class="flex-1 px-4 py-2.5 bg-earth-500 hover:bg-earth-600 text-white text-xs font-bold rounded-xl transition-all shadow-sm">
+                            Relist as Available
+                        </button>
+                    {% endif %}
+                </form>
+            </div>
+            {% endif %}
+
+            <!-- Description -->
+            <div class="mb-4">
+                <h3 class="text-[10px] font-extrabold uppercase tracking-widest text-earth-700 mb-2">Item Description</h3>
+                <p class="text-xs text-earth-800 leading-relaxed bg-earth-100 rounded-[1.5rem] p-4 border border-earth-300">
+                    {{ product.description|linebreaksbr }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Inline Widescreen Desktop Action Buttons -->
+        <div class="hidden md:flex items-center space-x-3 mt-6 pt-6 border-t border-earth-300/40">
+            <!-- In-App Chat -->
+            <a href="{% url 'initiate_chat' product.id %}" class="flex-1 inline-flex items-center justify-center px-4 py-3.5 text-xs font-extrabold text-white bg-earth-800 hover:bg-earth-850 active:scale-[0.98] rounded-full transition-all shadow-sm flex items-center justify-center space-x-2">
+                <i class="ph-fill ph-chat-circle-dots text-base"></i>
+                <span>In-App Chat</span>
+            </a>
+
+            <!-- WhatsApp Quick Contact -->
+            <a href="{{ whatsapp_link }}" target="_blank" class="flex-1 inline-flex items-center justify-center px-4 py-3.5 text-xs font-extrabold text-white bg-earth-500 hover:bg-earth-600 active:scale-[0.98] rounded-full transition-all shadow-sm flex items-center justify-center space-x-2">
+                <i class="ph-fill ph-whatsapp-logo text-base"></i>
+                <span>WhatsApp Me</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Sticky Bottom Action Bar (Mobile Only) -->
+<div class="fixed bottom-14 left-0 right-0 z-40 bg-earth-200/95 backdrop-blur-md border-t border-earth-300 py-4 px-6 shadow-[0_-8px_20px_rgba(61,35,20,0.05)] md:hidden">
+    <div class="max-w-md mx-auto flex items-center space-x-3">
+        <!-- Secondary Button (Blue) - In-App Chat -->
+        <a href="{% url 'initiate_chat' product.id %}" class="flex-1 inline-flex items-center justify-center px-4 py-3.5 text-xs font-extrabold text-white bg-earth-800 hover:bg-earth-850 rounded-full transition-all shadow-sm flex items-center justify-center space-x-2">
+            <i class="ph-fill ph-chat-circle-dots text-base"></i>
+            <span>In-App Chat</span>
+        </a>
+
+        <!-- Primary Button (Green) - WhatsApp Quick Contact -->
+        <a href="{{ whatsapp_link }}" target="_blank" class="flex-1 inline-flex items-center justify-center px-4 py-3.5 text-xs font-extrabold text-white bg-earth-500 hover:bg-earth-600 rounded-full transition-all shadow-sm flex items-center justify-center space-x-2">
+            <i class="ph-fill ph-whatsapp-logo text-base"></i>
+            <span>WhatsApp Me</span>
+        </a>
+    </div>
+</div>
+{% endblock %}

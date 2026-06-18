@@ -1,0 +1,70 @@
+{% extends 'marketplace/admin_base.html' %}
+
+{% block title %}Manage Categories - simply marketplace admin{% endblock %}
+{% block header_title %}Product Categories{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <!-- Left Column: Add Category Form -->
+    <div class="bg-admin-900/30 border border-admin-800 rounded-2xl p-6 backdrop-blur-md h-fit">
+        <h2 class="text-base font-bold text-admin-900 tracking-tight font-heading mb-4">Add New Category</h2>
+        
+        <form method="POST" action="{% url 'admin_categories_list' %}">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="category-name" class="block text-xs font-bold text-admin-400 uppercase tracking-wider mb-2">Category Name</label>
+                <input type="text" id="category-name" name="name" required placeholder="e.g. Electronics, Books" class="w-full bg-admin-950 border border-admin-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accent-500 transition-colors">
+                <p class="text-[10px] text-admin-500 mt-2 font-medium">Name must be unique. A URL-friendly slug will be automatically generated.</p>
+            </div>
+            
+            <button type="submit" class="w-full bg-accent-600 hover:bg-accent-700 text-white font-bold text-sm py-2.5 rounded-xl shadow-md transition-colors">
+                Create Category
+            </button>
+        </form>
+    </div>
+
+    <!-- Right Column: Categories List -->
+    <div class="lg:col-span-2 bg-admin-900/20 border border-admin-800 rounded-2xl overflow-hidden shadow-xl">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b border-admin-800 bg-admin-900/50 text-xs font-bold text-admin-400 uppercase tracking-wider">
+                        <th class="px-6 py-4">Category Name</th>
+                        <th class="px-6 py-4">Slug</th>
+                        <th class="px-6 py-4">Products count</th>
+                        <th class="px-6 py-4 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-admin-800 text-sm">
+                    {% for category in categories %}
+                        <tr class="hover:bg-admin-900/20 transition-colors">
+                            <td class="px-6 py-4 font-bold text-admin-900">
+                                {{ category.name }}
+                            </td>
+                            <td class="px-6 py-4 text-admin-400">
+                                {{ category.slug }}
+                            </td>
+                            <td class="px-6 py-4 font-semibold text-accent-400">
+                                {{ category.products.count }} listings
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <form action="{% url 'admin_delete_category' category.id %}" method="POST" onsubmit="return confirm('Are you sure you want to delete category \'{{ category.name }}\'? Product listings tied to this category will become Uncategorized.');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="p-2 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white rounded-xl transition-all flex items-center justify-center" title="Delete Category">
+                                        <i class="ph-fill ph-trash text-base"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="px-6 py-8 text-center text-admin-400 text-xs">No categories have been created yet.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

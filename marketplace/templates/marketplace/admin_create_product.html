@@ -1,0 +1,124 @@
+{% extends 'marketplace/admin_base.html' %}
+
+{% block title %}Add Product - simply marketplace admin{% endblock %}
+{% block header_title %}Add New Product{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <!-- Back Button -->
+    <div class="mb-6">
+        <a href="{% url 'admin_products_list' %}" class="inline-flex items-center text-xs font-bold text-admin-500 hover:text-accent-500 transition-colors uppercase tracking-wider">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+            Back to Inventory
+        </a>
+    </div>
+
+    <!-- Form Container -->
+    <div class="bg-admin-900/30 border border-admin-800 rounded-2xl p-6 backdrop-blur-md">
+        <h2 class="text-base font-bold text-admin-900 tracking-tight font-heading mb-6">Product Details</h2>
+
+        <form method="POST" action="{% url 'admin_create_product' %}" enctype="multipart/form-data" class="space-y-5">
+            {% csrf_token %}
+
+            <!-- Title -->
+            <div>
+                <label for="title" class="block text-xs font-bold text-admin-400 uppercase tracking-wider mb-2">Product Title</label>
+                <input type="text" id="title" name="title" required placeholder="e.g. Sony Subwoofer System" class="w-full bg-admin-950 border border-admin-800 rounded-xl px-4 py-2.5 text-sm text-admin-900 placeholder-admin-500/55 focus:outline-none focus:border-accent-500 transition-colors">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Category -->
+                <div>
+                    <label for="category" class="block text-xs font-bold text-admin-400 uppercase tracking-wider mb-2">Category</label>
+                    <select id="category" name="category" required class="w-full bg-admin-950 border border-admin-800 rounded-xl px-4 py-2.5 text-sm text-admin-900 focus:outline-none focus:border-accent-500 transition-colors cursor-pointer">
+                        <option value="" disabled selected>Select Category...</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Seller -->
+                <div>
+                    <label for="seller" class="block text-xs font-bold text-admin-400 uppercase tracking-wider mb-2">Seller Account</label>
+                    <select id="seller" name="seller" required class="w-full bg-admin-950 border border-admin-800 rounded-xl px-4 py-2.5 text-sm text-admin-900 focus:outline-none focus:border-accent-500 transition-colors cursor-pointer">
+                        <option value="" disabled selected>Select Seller...</option>
+                        {% for u in users %}
+                            <option value="{{ u.id }}" {% if u == user %}selected{% endif %}>{{ u.username }} ({% if u.first_name %}{{ u.first_name }}{% else %}No Name{% endif %})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Price -->
+                <div>
+                    <label for="price" class="block text-xs font-bold text-admin-400 uppercase tracking-wider mb-2">Price (UGX)</label>
+                    <input type="number" id="price" name="price" required min="0" placeholder="e.g. 150000" class="w-full bg-admin-950 border border-admin-800 rounded-xl px-4 py-2.5 text-sm text-admin-900 placeholder-admin-500/55 focus:outline-none focus:border-accent-500 transition-colors">
+                </div>
+
+                <!-- Status -->
+                <div>
+                    <label for="status" class="block text-xs font-bold text-admin-400 uppercase tracking-wider mb-2">Initial Status</label>
+                    <select id="status" name="status" class="w-full bg-admin-950 border border-admin-800 rounded-xl px-4 py-2.5 text-sm text-admin-900 focus:outline-none focus:border-accent-500 transition-colors cursor-pointer">
+                        <option value="available" selected>Available</option>
+                        <option value="sold">Sold</option>
+                        <option value="archived">Archived</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Product Image -->
+            <div>
+                <label for="image" class="block text-xs font-bold text-admin-400 uppercase tracking-wider mb-2">Product Image (Required)</label>
+                <input type="file" id="image" name="image" accept="image/*" required class="w-full text-xs text-admin-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border file:border-admin-800 file:text-xs file:font-bold file:bg-admin-850 file:text-earth-200 hover:file:bg-admin-900 cursor-pointer">
+                <p class="text-[10px] text-admin-500 mt-1.5 font-medium">Image will be automatically optimized and resized upon submission.</p>
+            </div>
+
+            <!-- Description -->
+            <div>
+                <label for="description" class="block text-xs font-bold text-admin-400 uppercase tracking-wider mb-2">Description / Notes</label>
+                <textarea id="description" name="description" rows="4" placeholder="Enter condition, packaging, pickup location details..." class="w-full bg-admin-950 border border-admin-800 rounded-xl px-4 py-2.5 text-sm text-admin-900 placeholder-admin-500/55 focus:outline-none focus:border-accent-500 transition-colors"></textarea>
+            </div>
+
+            <!-- Promotions Checkboxes -->
+            <div class="bg-admin-950/50 border border-admin-800 rounded-xl p-4 space-y-3.5">
+                <span class="block text-[10px] font-black text-admin-400 uppercase tracking-wider">Promotion Settings</span>
+                
+                <div class="flex items-center space-x-3">
+                    <input type="checkbox" id="is_featured" name="is_featured" class="w-4.5 h-4.5 text-accent-600 bg-admin-950 border-admin-800 rounded focus:ring-accent-500 focus:ring-2 focus:ring-offset-admin-900 cursor-pointer">
+                    <label for="is_featured" class="text-xs font-bold text-admin-900 cursor-pointer">Feature this product in main feeds</label>
+                </div>
+
+                <div class="space-y-2">
+                    <div class="flex items-center space-x-3">
+                        <input type="checkbox" id="is_flash_sale" name="is_flash_sale" onchange="toggleFlashPrice(this)" class="w-4.5 h-4.5 text-accent-600 bg-admin-950 border-admin-800 rounded focus:ring-accent-500 focus:ring-2 focus:ring-offset-admin-900 cursor-pointer">
+                        <label for="is_flash_sale" class="text-xs font-bold text-admin-900 cursor-pointer">Enroll in Weekly Friday Flash Sale (6 PM - 8 PM)</label>
+                    </div>
+                    
+                    <div id="flash-price-container" class="hidden pl-7 pt-1">
+                        <label for="flash_sale_price" class="block text-[10px] font-bold text-admin-500 uppercase tracking-wider mb-1.5">Flash Sale Price (UGX)</label>
+                        <input type="number" id="flash_sale_price" name="flash_sale_price" placeholder="Leave empty for auto 20% discount" class="w-full md:w-64 bg-admin-950 border border-admin-800 rounded-xl px-4 py-2 text-xs text-admin-900 placeholder-admin-500/55 focus:outline-none focus:border-accent-500 transition-colors">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="w-full bg-accent-600 hover:bg-accent-700 text-white font-extrabold text-xs py-3.5 rounded-xl shadow-md transition-colors uppercase tracking-wider mt-4">
+                Create Listing
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+function toggleFlashPrice(checkbox) {
+    const container = document.getElementById('flash-price-container');
+    if (checkbox.checked) {
+        container.classList.remove('hidden');
+    } else {
+        container.classList.add('hidden');
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}simply marketplace{% endblock %}</title>
+    <!-- Google Fonts: Bricolage Grotesque & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/style.css" />
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        heading: ['Bricolage Grotesque', 'sans-serif'],
+                    },
+                    colors: {
+                        earth: {
+                            50: '#fcfbfa',
+                            100: '#f9f6f0',
+                            200: '#f5f0e6', // Cream base background
+                            300: '#ebe3cf', // Light sand border/badge
+                            500: '#c78a58', // Terracotta orange banner
+                            700: '#5c3d2e', // Warm brown accents
+                            850: '#4a2c11', // Dark brown button hover
+                            800: '#3d2314', // Chocolate brown text/borders
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f5f0e6;
+        }
+        /* Custom hide scrollbar */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased text-earth-800 pb-24">
+
+    <!-- Top Floating Header -->
+    <header class="sticky top-0 z-50 bg-[#f5f0e6]/90 backdrop-blur-md border-b border-earth-300 transition-all duration-300">
+        <div class="max-w-5xl mx-auto px-4 py-3.5 flex items-center justify-between">
+            <div class="flex items-center space-x-6">
+                <!-- S Logo Box -->
+                <a href="{% url 'home_feed' %}" class="flex items-center space-x-3 group">
+                    <div class="w-8 h-8 bg-earth-800 hover:bg-earth-850 text-earth-200 rounded-lg flex items-center justify-center font-heading text-lg font-black transition-colors">
+                        S
+                    </div>
+                    <div class="flex flex-col -space-y-1">
+                        <span class="text-base font-black tracking-tight font-heading text-earth-800">simply</span>
+                        <span class="text-[9px] font-bold text-earth-700 uppercase tracking-widest">marketplace</span>
+                    </div>
+                </a>
+                
+                <!-- Desktop Navigation links -->
+                <div class="hidden md:flex items-center space-x-6 text-sm font-bold text-earth-750">
+                    <a href="{% url 'home_feed' %}" class="hover:text-earth-500 transition-colors">Feed</a>
+                    <a href="{% url 'requests_feed' %}" class="hover:text-earth-500 transition-colors">Requests</a>
+                    <a href="{% url 'create_product' %}" class="hover:text-earth-500 transition-colors">Sell an Item</a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'inbox' %}" class="hover:text-earth-500 transition-colors flex items-center space-x-1.5">
+                            <span>Chats</span>
+                            {% if global_unread_count > 0 %}
+                                <span class="w-4.5 h-4.5 bg-earth-800 text-earth-200 rounded-full flex items-center justify-center text-[9px] font-black px-1.5">{{ global_unread_count }}</span>
+                            {% endif %}
+                        </a>
+                    {% endif %}
+
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                {% if user.is_authenticated %}
+                    <div class="flex items-center space-x-3.5">
+                        <!-- Top Header Chat Link (Always available in header on mobile/desktop) -->
+                        <div class="relative">
+                            <button id="notification-btn" class="relative p-1.5 text-earth-700 hover:text-earth-800 transition-colors hover:scale-105 focus:outline-none" title="Chats">
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6">
+        <!-- Golden outer chat bubble with tail -->
+        <path d="M6,5 L50,5 Q59,5 59,14 L59,38 Q59,47 50,47 L28,47 L16,59 L16,47 L14,47 Q5,47 5,38 L5,14 Q5,5 14,5 Z" stroke="#c78a58" stroke-width="5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+        <!-- Dark inner dots -->
+        <circle cx="21" cy="26" r="4" fill="#3d2314"/>
+        <circle cx="32" cy="26" r="4" fill="#3d2314"/>
+        <circle cx="43" cy="26" r="4" fill="#3d2314"/>
+    </svg>
+    <span id="notification-badge" class="absolute -top-0.5 -right-1 w-4.5 h-4.5 bg-earth-800 text-earth-200 rounded-full flex items-center justify-center text-[8.5px] font-black border border-[#f5f0e6] px-1 {% if global_unread_count == 0 %}hidden{% endif %}">
+        {{ global_unread_count }}
+    </span>
+</button>
+                            
+                            <!-- Dropdown Menu -->
+                            <div id="notification-dropdown" class="fixed left-4 right-4 top-16 md:absolute md:right-0 md:left-auto md:w-80 md:top-auto mt-2.5 bg-white border border-earth-300 rounded-2xl shadow-lg hidden z-50 overflow-hidden origin-top-right transition-all duration-200 transform opacity-0 scale-95">
+                                <!-- Header -->
+                                <div class="px-4 py-3 border-b border-earth-300 flex items-center justify-between bg-earth-100">
+                                    <span class="text-[10px] font-black text-earth-800 uppercase tracking-wider font-heading">Recent Conversations</span>
+                                    <span id="unread-text" class="text-[8.5px] font-black text-earth-200 bg-earth-800 px-2 py-0.5 rounded-full {% if global_unread_count == 0 %}hidden{% endif %}">
+                                        {{ global_unread_count }} unread
+                                    </span>
+                                </div>
+                                
+                                <!-- Content Area -->
+                                <div id="notification-items" class="max-h-72 overflow-y-auto divide-y divide-earth-300/60 no-scrollbar">
+                                    <!-- Loading indicator -->
+                                    <div class="p-6 text-center text-earth-700/60 text-xs font-semibold">
+                                        <div class="inline-block w-4 h-4 border-2 border-earth-800 border-t-transparent rounded-full animate-spin mb-2"></div>
+                                        <div>Loading conversations...</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Footer -->
+                                <a href="{% url 'inbox' %}" class="block text-center py-3 bg-earth-800 hover:bg-earth-850 text-earth-200 font-extrabold text-[11px] uppercase tracking-wider border-t border-earth-300 transition-colors">
+                                    View Full Inbox
+                                </a>
+                            </div>
+                        </div>
+
+                        <a href="{% url 'edit_profile' %}" class="group block shrink-0" title="Edit Profile">
+                            {% if user.profile.profile_picture %}
+                                <img src="{{ user.profile.profile_picture.url }}" class="w-8 h-8 rounded-full object-cover border border-earth-300 shadow-inner group-hover:scale-105 transition-transform" alt="Avatar">
+                            {% else %}
+                                <div class="w-8 h-8 rounded-full bg-earth-800 text-earth-200 flex items-center justify-center font-bold shadow-inner text-sm uppercase group-hover:bg-earth-850 transition-colors">
+                                    {{ user.username|slice:":2" }}
+                                </div>
+                            {% endif %}
+                        </a>
+                        <a href="{% url 'logout' %}" class="text-sm font-bold text-earth-700 hover:text-red-600 transition-colors">Logout</a>
+                    </div>
+                {% else %}
+                    <a href="{% url 'login' %}" class="text-sm font-bold text-earth-800 hover:text-earth-500 transition-colors">Login</a>
+                    <a href="{% url 'signup' %}" class="px-4 py-2 text-sm font-bold text-earth-200 bg-earth-800 hover:bg-earth-850 rounded-lg shadow-sm transition-all">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-5xl mx-auto px-4 py-6 min-h-[calc(100vh-140px)]">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Mobile Navigation Bottom Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 z-50 bg-[#f5f0e6]/95 backdrop-blur-md border-t border-earth-300 shadow-[0_-4px_20px_rgba(61,35,20,0.08)] md:hidden" style="padding-bottom: env(safe-area-inset-bottom, 8px); padding-top: 10px;">
+        <div class="max-w-md mx-auto px-4 flex items-end justify-around pb-1">
+
+            <!-- Feed -->
+            <a href="{% url 'home_feed' %}"
+               class="mobile-nav-item group flex flex-col items-center gap-0.5 px-3 py-1 rounded-2xl transition-all duration-200 {% if request.resolver_match.url_name == 'home_feed' %}text-earth-800 bg-earth-300/60{% else %}text-earth-700/70 hover:text-earth-800{% endif %}">
+                <span class="relative flex items-center justify-center w-7 h-7 transition-transform duration-200 group-hover:scale-110 {% if request.resolver_match.url_name == 'home_feed' %}scale-110{% endif %}">
+                    <svg viewBox="0 0 64 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7">
+                        <!-- Golden/terracotta outer roof -->
+                        <polyline points="1,37 32,5 63,37" stroke="#c78a58" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <!-- Chimney (golden) -->
+                        <rect x="42" y="7" width="9" height="17" rx="1.5" fill="#c78a58"/>
+                        <!-- Dark inner roof peak -->
+                        <polyline points="12,37 32,17 52,37" stroke="#3d2314" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <!-- Dark left wall -->
+                        <line x1="12" y1="37" x2="12" y2="58" stroke="#3d2314" stroke-width="5" stroke-linecap="round"/>
+                        <!-- Dark bottom-left floor -->
+                        <line x1="12" y1="58" x2="36" y2="58" stroke="#3d2314" stroke-width="5" stroke-linecap="round"/>
+                    </svg>
+                </span>
+                <span class="text-[9px] font-black uppercase tracking-wide leading-none">Feed</span>
+            </a>
+
+            <!-- Requests -->
+            <a href="{% url 'requests_feed' %}"
+               class="mobile-nav-item group flex flex-col items-center gap-0.5 px-3 py-1 rounded-2xl transition-all duration-200 {% if request.resolver_match.url_name == 'requests_feed' %}text-earth-800 bg-earth-300/60{% else %}text-earth-700/70 hover:text-earth-800{% endif %}">
+                <span class="relative flex items-center justify-center w-7 h-7 transition-transform duration-200 group-hover:scale-110 {% if request.resolver_match.url_name == 'requests_feed' %}scale-110{% endif %}">
+                    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7">
+                        <!-- Golden outer clipboard body -->
+                        <rect x="8" y="14" width="48" height="46" rx="5" stroke="#c78a58" stroke-width="5.5" fill="none"/>
+                        <!-- Golden clip tab at top -->
+                        <rect x="22" y="6" width="20" height="13" rx="4" stroke="#c78a58" stroke-width="5" fill="none"/>
+                        <!-- Dark inner list lines -->
+                        <line x1="20" y1="30" x2="44" y2="30" stroke="#3d2314" stroke-width="4.5" stroke-linecap="round"/>
+                        <line x1="20" y1="40" x2="44" y2="40" stroke="#3d2314" stroke-width="4.5" stroke-linecap="round"/>
+                        <line x1="20" y1="50" x2="34" y2="50" stroke="#3d2314" stroke-width="4.5" stroke-linecap="round"/>
+                    </svg>
+                </span>
+                <span class="text-[9px] font-black uppercase tracking-wide leading-none">Requests</span>
+            </a>
+
+            <!-- Sell / Create (Centre FAB) -->
+            <a href="{% url 'create_product' %}"
+               class="mobile-nav-item group flex flex-col items-center gap-1 -mt-5">
+                <div class="w-[52px] h-[52px] bg-earth-800 rounded-full flex items-center justify-center shadow-lg group-hover:bg-earth-700 group-hover:scale-105 active:scale-95 transition-all duration-200 border-4 border-[#f5f0e6]">
+                    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6">
+                        <!-- Golden outer price tag shape -->
+                        <path d="M6,6 L38,6 Q42,6 44,10 L58,28 Q60,31 58,34 L44,52 Q42,56 38,56 L6,56 Q3,56 3,53 L3,9 Q3,6 6,6 Z" stroke="#c78a58" stroke-width="5" fill="none" stroke-linejoin="round"/>
+                        <!-- Golden hole on tag -->
+                        <circle cx="46" cy="18" r="4" fill="#c78a58"/>
+                        <!-- Light plus sign (visible on dark FAB bg) -->
+                        <line x1="22" y1="31" x2="22" y2="47" stroke="#f5f0e6" stroke-width="5" stroke-linecap="round"/>
+                        <line x1="14" y1="39" x2="30" y2="39" stroke="#f5f0e6" stroke-width="5" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <span class="text-[9px] font-black uppercase tracking-wide text-earth-800 leading-none">Sell</span>
+            </a>
+
+            <!-- Category Drawer -->
+            <button onclick="toggleCategoriesDrawer(true)"
+                    class="mobile-nav-item group flex flex-col items-center gap-0.5 px-3 py-1 rounded-2xl transition-all duration-200 text-earth-700/70 hover:text-earth-800 focus:outline-none" id="mobile-category-btn">
+                <span class="flex items-center justify-center w-7 h-7 transition-transform duration-200 group-hover:scale-110">
+                    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7">
+                        <!-- Golden top-left square -->
+                        <rect x="4" y="4" width="25" height="25" rx="5" stroke="#c78a58" stroke-width="5.5" fill="none"/>
+                        <!-- Golden bottom-right square (filled accent) -->
+                        <rect x="35" y="35" width="25" height="25" rx="5" fill="#c78a58"/>
+                        <!-- Dark top-right square -->
+                        <rect x="35" y="4" width="25" height="25" rx="5" stroke="#3d2314" stroke-width="5.5" fill="none"/>
+                        <!-- Dark bottom-left square -->
+                        <rect x="4" y="35" width="25" height="25" rx="5" stroke="#3d2314" stroke-width="5.5" fill="none"/>
+                    </svg>
+                </span>
+                <span class="text-[9px] font-black uppercase tracking-wide leading-none">Category</span>
+            </button>
+
+        </div>
+    </nav>
+
+    <!-- Categories Drawer (Mobile only) -->
+    <div id="mobile-categories-drawer" class="fixed inset-0 z-50 invisible transition-all duration-300 pointer-events-none md:hidden">
+        <!-- Backdrop overlay -->
+        <div id="drawer-backdrop" class="absolute inset-0 bg-black/45 opacity-0 transition-opacity duration-300 cursor-pointer pointer-events-auto"></div>
+        
+        <!-- Drawer panel -->
+        <div id="drawer-panel" class="absolute bottom-0 left-0 right-0 bg-[#f5f0e6] border-t border-earth-300 rounded-t-[2.25rem] p-6 max-h-[80vh] overflow-y-auto transform translate-y-full transition-transform duration-300 pointer-events-auto shadow-[0_-8px_30px_rgb(0,0,0,0.15)] flex flex-col">
+            
+            <!-- Drawer drag handle decorator -->
+            <div class="w-12 h-1.5 bg-earth-300 rounded-full mx-auto mb-5"></div>
+            
+            <div class="flex items-center justify-between mb-5">
+                <h3 class="text-base font-black font-heading text-earth-800 uppercase tracking-tight">Browse Collections</h3>
+                <button onclick="toggleCategoriesDrawer(false)" class="text-earth-700 hover:text-earth-800 text-sm font-black uppercase">&times; Close</button>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <!-- Room Setup Bundles -->
+                <a href="{% url 'home_feed' %}?category=bundles" class="group flex items-center space-x-3 p-3.5 rounded-2xl bg-gradient-to-br from-earth-500 to-earth-700 text-white font-extrabold text-xs shadow-sm border border-earth-300/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-150">
+                    <span class="flex items-center justify-center w-8 h-8 bg-white/20 rounded-xl shrink-0 group-hover:bg-white/30 transition-colors">
+                        <i class="ph-fill ph-package text-[18px] leading-none"></i>
+                    </span>
+                    <span>Room Bundles</span>
+                </a>
+
+                <!-- Flash Sales -->
+                <a href="{% url 'home_feed' %}?category=flash" class="group flex items-center space-x-3 p-3.5 rounded-2xl bg-gradient-to-br from-red-500 to-red-700 text-white font-extrabold text-xs shadow-sm border border-red-300/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-150">
+                    <span class="flex items-center justify-center w-8 h-8 bg-white/20 rounded-xl shrink-0 group-hover:bg-white/30 transition-colors">
+                        <i class="ph-fill ph-lightning text-[18px] leading-none"></i>
+                    </span>
+                    <span>Flash Sales</span>
+                </a>
+
+                <!-- Iterate global categories -->
+                {% for category in global_categories %}
+                    {% if category.slug != 'bundles' %}
+                        <a href="{% url 'home_feed' %}?category={{ category.slug }}" class="group flex items-center space-x-3 p-3.5 rounded-2xl bg-white border border-earth-300/80 text-earth-800 font-bold text-xs shadow-sm hover:bg-earth-50 hover:border-earth-400 hover:scale-[1.02] active:scale-[0.98] transition-all duration-150">
+                            <span class="flex items-center justify-center w-8 h-8 bg-earth-100 rounded-xl shrink-0 group-hover:bg-earth-200 transition-colors text-earth-700">
+                                {% if category.slug == 'textbooks' %}
+                                    <i class="ph-fill ph-book-open text-[18px] leading-none"></i>
+                                {% elif category.slug == 'electronics' %}
+                                    <i class="ph-fill ph-desktop-tower text-[18px] leading-none"></i>
+                                {% elif category.slug == 'furniture' %}
+                                    <i class="ph-fill ph-armchair text-[18px] leading-none"></i>
+                                {% elif category.slug == 'services' %}
+                                    <i class="ph-fill ph-wrench text-[18px] leading-none"></i>
+                                {% elif category.slug == 'clothing' %}
+                                    <i class="ph-fill ph-t-shirt text-[18px] leading-none"></i>
+                                {% elif category.slug == 'shoes' %}
+                                    <i class="ph-fill ph-sneaker text-[18px] leading-none"></i>
+                                {% elif category.slug == 'kitchenware' %}
+                                    <i class="ph-fill ph-cooking-pot text-[18px] leading-none"></i>
+                                {% else %}
+                                    <i class="ph-fill ph-tag text-[18px] leading-none"></i>
+                                {% endif %}
+                            </span>
+                            <span>{{ category.name }}</span>
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            
+            <!-- Clear Filter Option -->
+            <a href="{% url 'home_feed' %}" class="block text-center w-full py-4 bg-earth-800 hover:bg-earth-850 text-earth-200 font-extrabold text-xs rounded-2xl transition-all shadow-sm uppercase tracking-wider">
+                Clear Filters / Show All
+            </a>
+        </div>
+    </div>
+
+    <!-- JS script for Categories Drawer Panel toggling -->
+    <script>
+    function toggleCategoriesDrawer(show) {
+        const drawer = document.getElementById('mobile-categories-drawer');
+        const backdrop = document.getElementById('drawer-backdrop');
+        const panel = document.getElementById('drawer-panel');
+        
+        if (!drawer || !backdrop || !panel) return;
+        
+        if (show) {
+            drawer.classList.remove('invisible');
+            setTimeout(() => {
+                backdrop.classList.remove('opacity-0');
+                backdrop.classList.add('opacity-100');
+                panel.classList.remove('translate-y-full');
+            }, 10);
+        } else {
+            backdrop.classList.remove('opacity-100');
+            backdrop.classList.add('opacity-0');
+            panel.classList.add('translate-y-full');
+            setTimeout(() => {
+                drawer.classList.add('invisible');
+            }, 300);
+        }
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+        const backdrop = document.getElementById('drawer-backdrop');
+        if (backdrop) {
+            backdrop.addEventListener('click', () => toggleCategoriesDrawer(false));
+        }
+    });
+    </script>
+
+    <!-- Auto hide notifications container -->
+    {% if messages %}
+        <div class="fixed top-18 left-1/2 -translate-x-1/2 z-50 max-w-sm w-11/12">
+            {% for message in messages %}
+                <div class="px-4 py-3 rounded-2xl shadow-md border text-xs font-semibold flex items-center justify-between mb-2 transition-all duration-300 bg-earth-100 border-earth-300 text-earth-800">
+                    <span>{{ message }}</span>
+                    <button onclick="this.parentElement.remove()" class="ml-2 font-bold text-lg leading-none hover:opacity-75">&times;</button>
+                </div>
+            {% endfor %}
+        </div>
+        <script>
+            setTimeout(() => {
+                const notifications = document.querySelectorAll('.fixed.top-18 > div');
+                notifications.forEach(el => {
+                    el.style.opacity = '0';
+                    setTimeout(() => el.remove(), 300);
+                });
+            }, 4000);
+        </script>
+    {% endif %}
+
+    <!-- Notification Dropdown Script -->
+    {% if user.is_authenticated %}
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const btn = document.getElementById('notification-btn');
+            const dropdown = document.getElementById('notification-dropdown');
+            const itemsContainer = document.getElementById('notification-items');
+            const badge = document.getElementById('notification-badge');
+            const unreadText = document.getElementById('unread-text');
+            
+            if (!btn || !dropdown) return;
+            
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isHidden = dropdown.classList.contains('hidden');
+                if (isHidden) {
+                    openDropdown();
+                } else {
+                    closeDropdown();
+                }
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (!dropdown.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+                    closeDropdown();
+                }
+            });
+            
+            function openDropdown() {
+                dropdown.classList.remove('hidden');
+                // Force a browser reflow before adding transition active classes
+                dropdown.offsetHeight;
+                dropdown.classList.remove('opacity-0', 'scale-95');
+                dropdown.classList.add('opacity-100', 'scale-100');
+                
+                fetchNotifications();
+            }
+            
+            function closeDropdown() {
+                dropdown.classList.remove('opacity-100', 'scale-100');
+                dropdown.classList.add('opacity-0', 'scale-95');
+                // Wait for the transition to finish (200ms) before hiding
+                setTimeout(() => {
+                    if (!dropdown.classList.contains('opacity-100')) {
+                        dropdown.classList.add('hidden');
+                    }
+                }, 200);
+            }
+            
+            function fetchNotifications() {
+                itemsContainer.innerHTML = `
+                    <div class="p-6 text-center text-earth-700/60 text-xs font-semibold">
+                        <div class="inline-block w-4 h-4 border-2 border-earth-800 border-t-transparent rounded-full animate-spin mb-2"></div>
+                        <div>Loading conversations...</div>
+                    </div>
+                `;
+                
+                fetch('/chat/api/notifications/')
+                    .then(res => res.json())
+                    .then(data => {
+                        // Update global unread indicators
+                        if (data.global_unread_count > 0) {
+                            if (badge) {
+                                badge.textContent = data.global_unread_count;
+                                badge.classList.remove('hidden');
+                            }
+                            if (unreadText) {
+                                unreadText.textContent = `${data.global_unread_count} unread`;
+                                unreadText.classList.remove('hidden');
+                            }
+                        } else {
+                            if (badge) badge.classList.add('hidden');
+                            if (unreadText) unreadText.classList.add('hidden');
+                        }
+                        
+                        if (!data.notifications || data.notifications.length === 0) {
+                            itemsContainer.innerHTML = `
+                                <div class="p-8 text-center text-earth-700/50">
+                                    <i class="ph-fill ph-chats-teardrop text-3xl text-earth-300 mx-auto mb-2 block"></i>
+                                    <div class="text-xs font-bold text-earth-850">No conversations yet</div>
+                                    <div class="text-[10px] mt-0.5">Start chatting on listings!</div>
+                                </div>
+                            `;
+                            return;
+                        }
+                        
+                        let html = '';
+                        data.notifications.forEach(item => {
+                            const roomUrl = `/chat/room/${item.thread_id}/`;
+                            
+                            // User avatar HTML representation
+                            let avatarHtml = '';
+                            if (item.other_user_avatar) {
+                                avatarHtml = `<img src="${item.other_user_avatar}" class="w-8 h-8 rounded-full object-cover border border-earth-300 shadow-inner" alt="${item.other_user_name}">`;
+                            } else {
+                                avatarHtml = `
+                                    <div class="w-8 h-8 rounded-full bg-earth-800 text-earth-200 flex items-center justify-center font-bold text-[10px] uppercase shadow-inner">
+                                        ${item.other_user_initials}
+                                    </div>
+                                `;
+                            }
+                            
+                            // Item image representation
+                            let itemThumbnailHtml = '';
+                            if (item.item_image) {
+                                itemThumbnailHtml = `<img src="${item.item_image}" class="w-8 h-8 rounded-lg object-cover border border-earth-300 shrink-0 ml-2 shadow-sm">`;
+                            } else if (item.item_type === 'request') {
+                                itemThumbnailHtml = `
+                                    <div class="w-8 h-8 rounded-lg bg-earth-200 border border-earth-300 shrink-0 ml-2 flex items-center justify-center text-xs shadow-sm" title="Item Request">
+                                        🔍
+                                    </div>
+                                `;
+                            } else if (item.item_title) {
+                                itemThumbnailHtml = `
+                                    <div class="w-8 h-8 rounded-lg bg-earth-100 border border-earth-300 shrink-0 ml-2 flex items-center justify-center text-[7px] font-black text-earth-400 shadow-sm uppercase">
+                                        Item
+                                    </div>
+                                `;
+                            }
+                            
+                            // Unread indicator dot
+                            let unreadBadge = '';
+                            let activeBg = 'bg-white hover:bg-earth-100/50';
+                            if (item.unread_count > 0) {
+                                unreadBadge = `<span class="w-2 h-2 bg-earth-500 rounded-full shrink-0 shadow-sm animate-pulse ml-1.5" title="${item.unread_count} unread messages"></span>`;
+                                activeBg = 'bg-earth-100/30 hover:bg-earth-100/70 font-semibold';
+                            }
+                            
+                            html += `
+                                <a href="${roomUrl}" class="flex items-center justify-between p-3 ${activeBg} transition-colors duration-150 relative">
+                                    <div class="flex items-center space-x-2.5 flex-1 min-w-0">
+                                        ${avatarHtml}
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex items-center space-x-1">
+                                                <span class="text-[11px] font-extrabold text-earth-800 truncate">${item.other_user_name}</span>
+                                                ${unreadBadge}
+                                            </div>
+                                            <p class="text-[9px] text-earth-700/60 truncate font-semibold">${item.item_title || 'Campus Conversation'}</p>
+                                            <p class="text-[10px] text-earth-800/80 truncate mt-0.5">${escapeHTML(item.last_message_text)}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col items-end shrink-0 ml-2">
+                                        <span class="text-[8px] text-earth-700/50 font-bold mb-1">${item.last_message_time}</span>
+                                        ${itemThumbnailHtml}
+                                    </div>
+                                </a>
+                            `;
+                        });
+                        
+                        itemsContainer.innerHTML = html;
+                    })
+                    .catch(err => {
+                        console.error("Error loading notifications:", err);
+                        itemsContainer.innerHTML = `
+                            <div class="p-6 text-center text-red-650 text-xs font-semibold">
+                                Failed to load notifications.
+                            </div>
+                        `;
+                    });
+            }
+            
+            function escapeHTML(str) {
+                if (!str) return '';
+                return str
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+        });
+    </script>
+    {% endif %}
+
+</body>
+</html>

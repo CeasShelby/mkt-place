@@ -1,0 +1,128 @@
+{% extends 'marketplace/admin_base.html' %}
+
+{% block title %}Manage Users - simply marketplace admin{% endblock %}
+{% block header_title %}User Accounts{% endblock %}
+
+{% block content %}
+<!-- Search and Filters Panel -->
+<div class="bg-admin-900/30 border border-admin-800 rounded-2xl p-5 mb-8 backdrop-blur-md">
+    <form method="GET" action="{% url 'admin_users_list' %}" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+        <div>
+            <label class="block text-xs font-bold text-admin-400 uppercase tracking-wider mb-2">Search Users</label>
+            <input type="text" name="q" value="{{ query }}" placeholder="Username, email, phone, hostel..." class="w-full bg-admin-950/80 border border-admin-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accent-500 transition-colors">
+        </div>
+
+        <div>
+            <label class="block text-xs font-bold text-admin-400 uppercase tracking-wider mb-2">Staff Privilege</label>
+            <select name="is_staff" class="w-full bg-admin-950/80 border border-admin-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accent-500 transition-colors">
+                <option value="">All Accounts</option>
+                <option value="yes" {% if selected_staff == 'yes' %}selected{% endif %}>Staff Members</option>
+                <option value="no" {% if selected_staff == 'no' %}selected{% endif %}>Clients (Non-Staff)</option>
+            </select>
+        </div>
+
+        <div class="flex space-x-2">
+            <button type="submit" class="flex-1 bg-accent-600 hover:bg-accent-700 text-white font-bold text-sm py-2.5 px-4 rounded-xl shadow-md transition-colors">Filter</button>
+            <a href="{% url 'admin_users_list' %}" class="bg-admin-800 hover:bg-admin-700 text-white font-bold text-sm py-2.5 px-4 rounded-xl border border-admin-700 transition-colors text-center">Reset</a>
+        </div>
+    </form>
+</div>
+
+<!-- Users Table Container -->
+<div class="bg-admin-900/20 border border-admin-800 rounded-2xl overflow-hidden shadow-xl">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="border-b border-admin-800 bg-admin-900/50 text-xs font-bold text-admin-400 uppercase tracking-wider">
+                    <th class="px-6 py-4">User Details</th>
+                    <th class="px-6 py-4">Phone Number</th>
+                    <th class="px-6 py-4">Hostel / Area</th>
+                    <th class="px-6 py-4">Date Joined</th>
+                    <th class="px-6 py-4">Privileges</th>
+                    <th class="px-6 py-4 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-admin-800 text-sm">
+                {% for account in users %}
+                    <tr class="hover:bg-admin-900/20 transition-colors {% if account == request.user %}bg-accent-600/5{% endif %}">
+                        <!-- User Details -->
+                        <td class="px-6 py-4">
+                            <div class="flex items-center space-x-3">
+                                {% if account.profile.profile_picture %}
+                                    <img src="{{ account.profile.profile_picture.url }}" class="w-10 h-10 rounded-lg object-cover border border-admin-700" alt="Avatar">
+                                {% else %}
+                                    <div class="w-10 h-10 rounded-lg bg-accent-600/10 text-accent-500 flex items-center justify-center font-bold text-sm uppercase">
+                                        {{ account.username|slice:":2" }}
+                                    </div>
+                                {% endif %}
+                                <div class="min-w-0">
+                                    <h4 class="text-admin-900 font-bold truncate">
+                                        {{ account.first_name|default:account.username }}
+                                        {% if account == request.user %}
+                                            <span class="ml-1 text-[9px] font-bold bg-accent-600/20 text-accent-400 px-1.5 py-0.5 rounded-full uppercase tracking-wider">You</span>
+                                        {% endif %}
+                                    </h4>
+                                    <span class="text-xs text-admin-400 block mt-0.5">@{{ account.username }} &bull; {{ account.email|default:"No Email" }}</span>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Phone Number -->
+                        <td class="px-6 py-4 font-medium text-admin-300">
+                            {{ account.profile.phone_number|default:"N/A" }}
+                        </td>
+
+                        <!-- Hostel / Area -->
+                        <td class="px-6 py-4 text-admin-300">
+                            {{ account.profile.get_hostel_or_area_display|default:account.profile.hostel_or_area|default:"N/A" }}
+                        </td>
+
+                        <!-- Date Joined -->
+                        <td class="px-6 py-4 text-xs text-admin-400">
+                            {{ account.date_joined|date:"M d, Y" }}
+                        </td>
+
+                        <!-- Privileges -->
+                        <td class="px-6 py-4">
+                            {% if account == request.user %}
+                                <span class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-accent-600/20 text-accent-400 border border-accent-600/30 uppercase tracking-wide">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-accent-400"></span>
+                                    <span>Staff</span>
+                                </span>
+                            {% else %}
+                                <form action="{% url 'admin_toggle_user_staff' account.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <button type="submit" class="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-xs font-bold border transition-colors 
+                                        {% if account.is_staff %} bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20 
+                                        {% else %} bg-admin-900 text-admin-500 border-admin-800 hover:text-admin-300 hover:border-admin-700 {% endif %}">
+                                        <span class="w-1.5 h-1.5 rounded-full {% if account.is_staff %}bg-emerald-400{% else %}bg-admin-600{% endif %}"></span>
+                                        <span>Staff</span>
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </td>
+
+                        <!-- Actions -->
+                        <td class="px-6 py-4 text-right">
+                            {% if account != request.user %}
+                                <form action="{% url 'admin_delete_user' account.id %}" method="POST" onsubmit="return confirm('WARNING: Are you sure you want to permanently delete user @{{ account.username }}? This deletes their products, requests, messages, and profiles.');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="p-2 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white rounded-xl transition-all" title="Delete Account">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
+                                </form>
+                            {% else %}
+                                <span class="text-xs text-admin-600 font-bold italic">Protected</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center text-admin-400 text-xs">No user accounts matched the search criteria.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
