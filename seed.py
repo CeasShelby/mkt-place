@@ -49,16 +49,25 @@ seller = create_student("seller", "studentpass", "Akena", "akena@gulu.ac.ug", "2
 # 3. Create products with dummy pillow images
 try:
     from PIL import Image
-    os.makedirs('media/products', exist_ok=True)
+    import io
+    from django.core.files.base import ContentFile
+    from django.core.files.storage import default_storage
     
-    img_hp = Image.new('RGB', (300, 300), color='#10b981')
-    img_hp.save('media/products/hp.png')
+    def save_dummy_image(name, color):
+        img = Image.new('RGB', (300, 300), color=color)
+        f = io.BytesIO()
+        img.save(f, format='PNG')
+        f.seek(0)
+        # Save using Django's default_storage (saves locally in dev, uploads to Cloudinary in prod)
+        if not default_storage.exists(name):
+            default_storage.save(name, ContentFile(f.read()))
+            print(f"Saved image to storage: {name}")
+        else:
+            print(f"Image already exists in storage: {name}")
 
-    img_book = Image.new('RGB', (300, 300), color='#3b82f6')
-    img_book.save('media/products/book.png')
-
-    img_bed = Image.new('RGB', (300, 300), color='#f59e0b')
-    img_bed.save('media/products/bed.png')
+    save_dummy_image('products/hp.png', '#10b981')
+    save_dummy_image('products/book.png', '#3b82f6')
+    save_dummy_image('products/bed.png', '#f59e0b')
     
     print("Generated dummy listing images.")
 except Exception as e:

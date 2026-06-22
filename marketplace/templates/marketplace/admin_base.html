@@ -81,7 +81,7 @@
 <body class="font-sans antialiased text-admin-900 bg-admin-950 min-h-screen flex flex-col md:flex-row">
 
     <!-- Mobile Navigation Toggle -->
-    <div class="md:hidden w-full bg-admin-900 border-b border-admin-800 px-4 py-3 flex items-center justify-between z-50">
+    <div class="md:hidden w-full bg-admin-900 border-b border-admin-800 px-4 py-3 flex items-center justify-between sticky top-0 z-50">
         <a href="{% url 'admin_dashboard_home' %}" class="flex items-center space-x-2.5">
             <div class="w-8 h-8 bg-accent-600 text-white rounded-lg flex items-center justify-center font-heading text-lg font-black tracking-tighter">
                 U
@@ -94,7 +94,7 @@
     </div>
 
     <!-- Sidebar Container -->
-    <aside id="sidebar" class="hidden md:flex flex-col w-full md:w-64 bg-admin-900 border-r border-admin-800 p-5 shrink-0 fixed md:sticky top-0 h-[calc(100vh-57px)] md:h-screen z-40 transition-all duration-300 md:translate-x-0 text-earth-300">
+    <aside id="sidebar" class="hidden md:flex flex-col w-full md:w-64 bg-admin-900 border-r border-admin-800 p-5 shrink-0 fixed md:sticky top-[57px] md:top-0 left-0 h-[calc(100vh-57px)] md:h-screen z-40 overflow-y-auto text-earth-300">
         <div class="hidden md:flex items-center space-x-3 mb-8">
             <div class="w-9 h-9 bg-accent-600 text-earth-100 rounded-xl flex items-center justify-center font-heading text-xl font-black shadow-md shadow-accent-600/20">
                 U
