@@ -81,16 +81,32 @@
 <body class="font-sans antialiased text-admin-900 bg-admin-950 min-h-screen flex flex-col md:flex-row">
 
     <!-- Mobile Navigation Toggle -->
-    <div class="md:hidden w-full bg-admin-900 border-b border-admin-800 px-4 py-3 flex items-center justify-between sticky top-0 z-50">
-        <a href="{% url 'admin_dashboard_home' %}" class="flex items-center space-x-2.5">
+    <div class="md:hidden w-full bg-admin-900 border-b border-admin-800 px-4 py-3 flex items-center justify-between sticky top-0 z-50 gap-2">
+        <a href="{% url 'admin_dashboard_home' %}" class="flex items-center space-x-2.5 shrink-0">
             <div class="w-8 h-8 bg-accent-600 text-white rounded-lg flex items-center justify-center font-heading text-lg font-black tracking-tighter">
                 U
             </div>
             <span class="text-base font-black font-heading text-white">Ufind <span class="text-accent-500 uppercase text-[10px] tracking-wider">admin</span></span>
         </a>
-        <button id="mobile-menu-btn" class="p-1.5 hover:bg-admin-800 rounded-lg text-admin-400 hover:text-white transition-colors focus:outline-none flex items-center justify-center">
-            <i class="ph-bold ph-list text-[24px]"></i>
-        </button>
+        
+        <!-- Mobile Quick Profile & Sign Out -->
+        <div class="flex items-center space-x-2.5 ml-auto">
+            {% if user.profile.profile_picture %}
+                <img src="{{ user.profile.profile_picture.url }}" class="w-7 h-7 rounded-full object-cover border border-admin-700" alt="Avatar">
+            {% else %}
+                <div class="w-7 h-7 rounded-full bg-accent-600/20 text-accent-500 flex items-center justify-center font-bold text-[10px] uppercase border border-accent-600/30">
+                    {{ user.username|slice:":2" }}
+                </div>
+            {% endif %}
+            
+            <a href="{% url 'logout' %}" class="p-1.5 hover:bg-red-950/30 text-red-400 hover:text-red-300 rounded-lg transition-colors flex items-center justify-center" title="Sign Out">
+                <i class="ph-bold ph-sign-out text-[20px]"></i>
+            </a>
+            
+            <button id="mobile-menu-btn" class="p-1.5 hover:bg-admin-800 rounded-lg text-admin-400 hover:text-white transition-colors focus:outline-none flex items-center justify-center">
+                <i class="ph-bold ph-list text-[22px]"></i>
+            </button>
+        </div>
     </div>
 
     <!-- Sidebar Container -->
