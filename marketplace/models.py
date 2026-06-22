@@ -148,6 +148,9 @@ class Product(models.Model):
 
     def save(self, *args, **kwargs):
         if self.image:
+            transparent_img = make_image_background_transparent_floodfill(self.image)
+            if transparent_img:
+                self.image = transparent_img
             resized = resize_image_field(self.image, (800, 800))
             if resized:
                 self.image = resized
@@ -221,6 +224,9 @@ class ItemRequest(models.Model):
 
     def save(self, *args, **kwargs):
         if self.image:
+            transparent_img = make_image_background_transparent_floodfill(self.image)
+            if transparent_img:
+                self.image = transparent_img
             resized = resize_image_field(self.image, (800, 800))
             if resized:
                 self.image = resized
