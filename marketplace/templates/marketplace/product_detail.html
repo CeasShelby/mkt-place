@@ -155,7 +155,7 @@
             <div class="bg-earth-100 border border-earth-300 rounded-[1.5rem] p-5 mb-6 shadow-sm">
                 <h3 class="text-xs font-extrabold uppercase tracking-widest text-earth-700 mb-3 flex items-center justify-between">
                     <span>Owner Control Panel</span>
-                    <span class="px-2 py-0.5 bg-earth-300 text-earth-800 text-[10px] font-black rounded-md">Listing Admin</span>
+                    <span class="px-2 py-0.5 bg-earth-300 text-earth-800 text-[10px] font-black rounded-md">Owner: {{ product.seller.first_name|default:product.seller.username }}</span>
                 </h3>
                 <p class="text-xs text-earth-700 mb-3.5 font-semibold">Change your product availability. Sold or Archived listings will be hidden from student feeds.</p>
                 <form action="{% url 'update_product_status' product.id %}" method="POST" class="flex flex-wrap gap-2">
