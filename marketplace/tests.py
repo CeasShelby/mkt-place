@@ -1018,6 +1018,16 @@ class MarketplaceTests(TestCase):
         self.assertEqual(data_seller['notifications'][0]['other_user_name'], "BuyerName")
         self.assertEqual(data_seller['global_unread_count'], 1)
 
+    def test_flash_sales_page(self):
+        response = self.client.get(reverse('flash_sales'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'FLASH')
+
+    def test_bundles_page(self):
+        response = self.client.get(reverse('bundles'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'BUNDLES')
+
 
 
 

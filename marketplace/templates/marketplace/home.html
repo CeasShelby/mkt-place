@@ -202,7 +202,7 @@
                                 </div>
                             {% endif %}
                             
-                            <a href="#flash-sale-section" class="inline-flex items-center space-x-1 px-3 py-1 bg-earth-800 hover:bg-earth-850 text-xs md:text-sm font-black tracking-wider uppercase rounded-lg text-white shadow-xs transition-all">
+                            <a href="{% url 'flash_sales' %}" class="inline-flex items-center space-x-1 px-3 py-1 bg-earth-800 hover:bg-earth-850 text-xs md:text-sm font-black tracking-wider uppercase rounded-lg text-white shadow-xs transition-all">
                                 <span>SHOP NOW</span>
                                 <i class="ph-bold ph-caret-right text-[11px] md:text-xs"></i>
                             </a>
@@ -292,7 +292,7 @@
                                 <span>Save up to 30%</span>
                             </div>
                             
-                            <a href="{% url 'home_feed' %}?category=bundles" class="inline-flex items-center space-x-1 px-3 py-1 bg-earth-855 hover:bg-earth-800 text-xs md:text-sm font-black tracking-wider uppercase rounded-lg text-white shadow-xs transition-all">
+                            <a href="{% url 'bundles' %}" class="inline-flex items-center space-x-1 px-3 py-1 bg-earth-855 hover:bg-earth-800 text-xs md:text-sm font-black tracking-wider uppercase rounded-lg text-white shadow-xs transition-all">
                                 <span>VIEW BUNDLES</span>
                                 <i class="ph-bold ph-caret-right text-[11px] md:text-xs"></i>
                             </a>
@@ -390,152 +390,95 @@
             <button class="spotlight-dot w-2.5 h-2.5 rounded-full bg-earth-800/30 hover:bg-earth-800 transition-all duration-300" data-index="3" title="Slide 4"></button>
         </div>
     </div>
-</div>
-
-<!-- ⚡ Flash Sales Strip -->
-{% if flash_products %}
-<div class="-mx-4 md:-mx-8 xl:-mx-14 mb-8">
-    {% if flash_status.is_active %}
-    <!-- Active: dark red strip with live countdown -->
-    <div class="bg-[#1a0a0a] flex items-center justify-between px-4 md:px-8 xl:px-14 py-3 gap-4">
-        <div class="flex items-center gap-2.5 min-w-0">
-            <!-- Live pulsing dot -->
-            <span class="flex h-2.5 w-2.5 shrink-0 relative">
-                <span class="animate-ping absolute inline-flex h-2.5 w-2.5 rounded-full bg-red-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
-            </span>
-            <span class="text-xs md:text-sm font-black text-red-400 uppercase tracking-widest shrink-0">⚡ Flash Sale — Live</span>
-            <span class="text-[10px] text-white/50 font-semibold hidden sm:inline">·</span>
-            <span class="text-xs md:text-sm font-semibold text-white/70 hidden sm:inline truncate">Closes in:</span>
-            <span id="hero-flash-countdown" class="text-xs md:text-sm font-black font-heading text-white tracking-tight tabular-nums">00:00:00</span>
-        </div>
-        <a href="#flash-sale-section" class="shrink-0 flex items-center gap-1 text-xs md:text-sm font-black text-red-400 hover:text-red-300 uppercase tracking-wider transition-colors">
-            See All
-            <svg viewBox="0 0 24 24" fill="none" class="w-3.5 h-3.5"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
-    </div>
-    {% else %}
-    <!-- Inactive: terracotta teaser strip -->
-    <div class="bg-earth-800 flex items-center justify-between px-4 md:px-8 xl:px-14 py-3 gap-4">
-        <div class="flex items-center gap-2.5 min-w-0">
-            <span class="text-xs md:text-sm font-black text-earth-300 uppercase tracking-widest shrink-0">⚡ Flash Sale</span>
-            <span class="text-[10px] text-earth-300/50 font-semibold hidden sm:inline">·</span>
-            <span class="text-xs md:text-sm font-semibold text-earth-300/80 truncate">Every Friday 6–8 PM · Opens in:</span>
-            <span id="hero-flash-teaser" class="text-xs md:text-sm font-black font-heading text-earth-200 tracking-tight tabular-nums">00d 00h 00m</span>
-        </div>
-        <a href="#flash-sale-section" class="shrink-0 flex items-center gap-1 text-xs md:text-sm font-black text-earth-300 hover:text-earth-200 uppercase tracking-wider transition-colors">
-            See All
-            <svg viewBox="0 0 24 24" fill="none" class="w-3.5 h-3.5"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
-    </div>
-    {% endif %}
-</div>
-{% endif %}
-
-{% if flash_products %}
-<!-- Flash Sale Campus Hour Section -->
-<div id="flash-sale-section" class="mb-8 relative overflow-hidden rounded-[2.5rem] border border-earth-300 bg-white shadow-sm p-6 md:p-8 transition-all duration-500">
-    {% if flash_status.is_active %}
-        <!-- Active Flash Sale Hour -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-red-200 pb-4 mb-6">
-            <div class="flex items-center space-x-3">
-                <span class="flex h-3 w-3 relative">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-3 w-3 bg-red-600"></span>
-                </span>
-                <div>
-                    <h2 class="text-xl font-black font-heading text-red-700 tracking-tight flex items-center">
-                        ⚡ LIVE: CAMPUS HOUR FLASH SALE
-                    </h2>
-                    <p class="text-xs text-earth-700 font-bold mt-0.5">Heavy discounts on sneakers, power banks, speakers, and more!</p>
-                </div>
-            </div>
-            <!-- Live Countdown -->
-            <div class="bg-red-50 border border-red-200 rounded-full px-4 py-2 text-center shrink-0 flex items-center space-x-2">
-                <span class="text-xs font-black text-red-700 tracking-wider uppercase">CLOSES IN:</span>
-                <span id="flash-countdown" class="text-sm font-black font-heading text-red-600 tracking-tight">00:00:00</span>
-            </div>
-        </div>
-        
-        <!-- Flash Sale Deals horizontal scroll -->
-        <div class="flex overflow-x-auto whitespace-nowrap gap-4 pb-3 pt-1 no-scrollbar flex-nowrap items-center w-full">
-            {% for product in flash_products %}
-                <a href="{% url 'product_detail' product.pk %}" 
-                   class="shrink-0 group w-48 bg-[#fcfbfa]/60 rounded-3xl overflow-hidden border border-earth-300 shadow-sm hover:shadow transition-all flex flex-col justify-between h-72">
-                     <div class="relative aspect-square w-full bg-earth-100 overflow-hidden shrink-0">
-                        {% if product.image %}
-                            <img src="{{ product.image.url }}" alt="{{ product.title }}" class="object-cover w-full h-full group-hover:scale-105 transition-all duration-300">
-                        {% endif %}
-                        <span class="absolute top-2.5 left-2.5 px-2.5 py-1 text-[10px] font-black text-white bg-gradient-to-r from-red-600 to-earth-700 rounded-full uppercase tracking-wider shadow z-10 flex items-center space-x-1">
-                            <span>⚡</span> <span>Flash hour</span>
+</<!-- Unique Visual Indicators for Available Deals -->
+{% if flash_products or bundles %}
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+    
+    <!-- Flash Sales Premium Announcement Card -->
+    {% if flash_products %}
+    <div class="relative overflow-hidden rounded-[2rem] border border-earth-300 bg-white p-5 md:p-6 transition-all duration-300 shadow-sm hover:shadow-md flex flex-col justify-between min-h-[160px]">
+        <div class="flex items-start justify-between gap-4">
+            <div class="space-y-1">
+                <div class="flex items-center space-x-2">
+                    {% if flash_status.is_active %}
+                        <span class="flex h-2.5 w-2.5 shrink-0 relative">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
                         </span>
-                    </div>
-                    <div class="p-3 flex-1 flex flex-col justify-between whitespace-normal">
-                        <div>
-                            <span class="text-[10.5px] font-extrabold text-red-600 uppercase tracking-wider">⚡ Flash deal</span>
-                            <h3 class="text-sm font-bold text-earth-800 line-clamp-2 mt-0.5 leading-tight group-hover:text-earth-500 transition-colors">{{ product.title }}</h3>
-                        </div>
-                        <div class="flex flex-wrap items-center justify-between border-t border-earth-300/30 pt-2.5 mt-2 gap-1">
-                            <div class="flex flex-col">
-                                <span class="text-sm font-black text-red-600">{{ product.flash_sale_price|intcomma }} UGX</span>
-                                <span class="text-[10px] text-earth-700/60 line-through">{{ product.price|intcomma }} UGX</span>
-                            </div>
-                            <span class="text-[10px] text-red-700 bg-red-50 border border-red-200/50 px-1.5 py-0.5 rounded font-black uppercase">
-                                -{{ product.flash_sale_discount_percent }}% OFF
-                            </span>
-                        </div>
-                    </div>
-                </a>
-            {% endfor %}
-        </div>
-        
-    {% else %}
-        <!-- Teaser Flash Sale Window -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div class="space-y-2 max-w-md">
-                <span class="px-2.5 py-1 bg-earth-200 text-earth-800 text-[10.5px] font-black uppercase tracking-widest rounded-md inline-block">Weekly Campus Event</span>
-                <h2 class="text-2xl font-black text-earth-800 tracking-tight font-heading leading-none flex items-center">
-                    ⚡ The "Flash Sale" Campus Hour
-                </h2>
-                <p class="text-xs text-earth-700 leading-normal font-medium">
-                    Every Friday from **6:00 PM to 8:00 PM (Local Time)**, grab heavily discounted sneakers, power banks, subwoofers, and more. Set your alarm and don't miss out!
+                        <span class="text-[10px] font-black text-red-650 uppercase tracking-widest bg-red-50 px-2 py-0.5 rounded-full border border-red-200/50">Live Event</span>
+                    {% else %}
+                        <span class="text-[10px] font-black text-earth-700 uppercase tracking-widest bg-earth-200 px-2 py-0.5 rounded-full">Weekly Event</span>
+                    {% endif %}
+                </div>
+                <h3 class="text-lg font-black text-earth-800 font-heading mt-1">⚡ FLASH SALE CAMPUS HOUR</h3>
+                <p class="text-xs text-earth-700/80 font-medium">
+                    {% if flash_status.is_active %}
+                        Exclusive heavy discounts on sneakers, power banks, and host essentials are live!
+                    {% else %}
+                        Get ready for Friday 6–8 PM! Heavy discounts on electronics, shoes, and campus gear.
+                    {% endif %}
                 </p>
             </div>
             
-            <!-- Teaser Countdown Clock -->
-            <div class="bg-earth-100 border border-earth-300 rounded-3xl p-5 text-center shrink-0 flex flex-col justify-center min-w-[200px] shadow-inner">
-                <span class="text-xs font-extrabold text-earth-700 uppercase tracking-wider block mb-1">Sale opens in:</span>
-                <div id="flash-teaser-countdown" class="text-lg font-black font-heading text-earth-800 tracking-tight">00d 00h 00m 00s</div>
+            <!-- Icon/Badge decoration -->
+            <div class="w-12 h-12 rounded-2xl {% if flash_status.is_active %}bg-red-50 text-red-600{% else %}bg-earth-100 text-earth-500{% endif %} flex items-center justify-center text-xl shrink-0 shadow-xs border {% if flash_status.is_active %}border-red-100{% else %}border-earth-200{% endif %}">
+                <i class="ph-bold ph-lightning"></i>
             </div>
         </div>
         
-        <!-- Blurred Deal Previews for Hype -->
-        <div class="mt-6 pt-5 border-t border-earth-300/40">
-            <h4 class="text-xs font-extrabold uppercase tracking-widest text-earth-700/80 mb-3 px-1">Upcoming Friday deals peek:</h4>
-            <div class="flex overflow-x-auto whitespace-nowrap gap-4 pb-2 pt-0.5 no-scrollbar flex-nowrap w-full">
-                {% for product in flash_products %}
-                    <div class="shrink-0 w-44 bg-[#fcfbfa]/30 rounded-3xl overflow-hidden border border-earth-300/50 shadow-sm opacity-65 relative select-none">
-                        <!-- Blur overlay -->
-                        <div class="absolute inset-0 bg-white/20 backdrop-blur-[3px] z-10 flex flex-col items-center justify-center p-3 text-center">
-                            <span class="text-xs font-black text-earth-800 uppercase tracking-widest bg-white border border-earth-300 px-2.5 py-1 rounded-md shadow-sm">Locked &bull; Friday 6PM</span>
-                        </div>
-                        <div class="aspect-square w-full bg-earth-100 overflow-hidden shrink-0">
-                            {% if product.image %}
-                                <img src="{{ product.image.url }}" alt="Locked" class="object-cover w-full h-full filter blur-[1px]">
-                            {% endif %}
-                        </div>
-                        <div class="p-3 whitespace-normal">
-                            <h3 class="text-xs font-bold text-earth-700/65 line-clamp-1 leading-tight">{{ product.title }}</h3>
-                            <div class="flex items-baseline space-x-1.5 mt-1">
-                                <span class="text-[11px] font-black text-earth-700/60 line-through">{{ product.price|intcomma }} UGX</span>
-                                <span class="text-xs text-green-700 font-extrabold">??? UGX</span>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
+        <div class="flex items-center justify-between mt-4 pt-3 border-t border-earth-300/40 gap-3 flex-wrap">
+            <!-- Timer -->
+            <div class="flex items-center space-x-2">
+                <span class="text-[10px] font-black text-earth-700/60 uppercase tracking-wider">
+                    {% if flash_status.is_active %}Closes in:{% else %}Starts in:{% endif %}
+                </span>
+                <span id="landing-flash-timer" class="text-xs font-black font-heading tracking-tight text-earth-800 tabular-nums bg-earth-100 border border-earth-300/60 px-2.5 py-1 rounded-lg">
+                    00:00:00
+                </span>
+            </div>
+            
+            <a href="{% url 'flash_sales' %}" class="inline-flex items-center gap-1.5 px-4 py-1.5 bg-earth-800 hover:bg-earth-850 active:scale-95 text-[11px] font-black text-white uppercase tracking-wider rounded-xl transition-all shadow-xs">
+                <span>View Deals</span>
+                <i class="ph-bold ph-arrow-right text-[10px]"></i>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Setup Bundles Premium Announcement Card -->
+    {% if bundles %}
+    <div class="relative overflow-hidden rounded-[2rem] border-2 border-earth-500 bg-white p-5 md:p-6 transition-all duration-300 shadow-[0_8px_30px_rgba(199,138,88,0.06)] hover:shadow-[0_8px_30px_rgba(199,138,88,0.12)] flex flex-col justify-between min-h-[160px]">
+        <div class="flex items-start justify-between gap-4">
+            <div class="space-y-1">
+                <div>
+                    <span class="text-[10px] font-black text-earth-200 bg-gradient-to-r from-earth-500 to-earth-700 px-2.5 py-0.5 rounded-full uppercase tracking-widest shadow-xs">Hostel clearance</span>
+                </div>
+                <h3 class="text-lg font-black text-earth-800 font-heading mt-1">🎓 ROOM SETUP BUNDLES</h3>
+                <p class="text-xs text-earth-700/80 font-medium">
+                    Move-in ready room packages listed by departing students. Save up to 30% compared to buying items individually!
+                </p>
+            </div>
+            
+            <!-- Icon/Badge decoration -->
+            <div class="w-12 h-12 rounded-2xl bg-earth-100 text-earth-500 flex items-center justify-center text-xl shrink-0 shadow-xs border border-earth-200">
+                <i class="ph-bold ph-package"></i>
             </div>
         </div>
+        
+        <div class="flex items-center justify-between mt-4 pt-3 border-t border-earth-300/40 gap-3 flex-wrap">
+            <div class="flex items-center space-x-1.5">
+                <span class="w-2 h-2 rounded-full bg-green-500 shrink-0 shadow-xs"></span>
+                <span class="text-[11px] font-black text-green-700 uppercase tracking-tight">{{ active_bundles_count }} Bundle packages available</span>
+            </div>
+            
+            <a href="{% url 'bundles' %}" class="inline-flex items-center gap-1.5 px-4 py-1.5 bg-earth-800 hover:bg-earth-850 active:scale-95 text-[11px] font-black text-white uppercase tracking-wider rounded-xl transition-all shadow-xs">
+                <span>Browse Bundles</span>
+                <i class="ph-bold ph-arrow-right text-[10px]"></i>
+            </a>
+        </div>
+    </div>
     {% endif %}
+
 </div>
 {% endif %}
 
@@ -543,18 +486,16 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     {% if flash_status.is_active %}
-        // Countdown to close (active sale) — drives both #flash-countdown and #hero-flash-countdown
+        // Countdown to close (active sale) — drives #landing-flash-timer
         const rawEndDateStr = "{{ flash_status.end_time|date:'Y-m-d H:i:s' }}";
         const endTime = new Date(rawEndDateStr.replace(/-/g, "/")).getTime();
-        const countdownEl = document.getElementById('flash-countdown');
-        const heroCountdownEl = document.getElementById('hero-flash-countdown');
+        const countdownEl = document.getElementById('landing-flash-timer');
 
         function updateTimer() {
             const now = new Date().getTime();
             const distance = endTime - now;
             if (distance <= 0) {
                 if (countdownEl) countdownEl.innerHTML = "CLOSED";
-                if (heroCountdownEl) heroCountdownEl.innerHTML = "CLOSED";
                 setTimeout(() => window.location.reload(), 1500);
                 return;
             }
@@ -563,16 +504,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const seconds = String(Math.floor((distance % (1000 * 60)) / 1000)).padStart(2, '0');
             const formatted = `${hours}:${minutes}:${seconds}`;
             if (countdownEl) countdownEl.innerHTML = formatted;
-            if (heroCountdownEl) heroCountdownEl.innerHTML = formatted;
         }
         updateTimer();
         setInterval(updateTimer, 1000);
     {% else %}
-        // Countdown to open (teaser sale) — drives both #flash-teaser-countdown and #hero-flash-teaser
+        // Countdown to open (teaser sale) — drives #landing-flash-timer
         const rawDateStr = "{{ flash_status.next_start|date:'Y-m-d H:i:s' }}";
         const startTime = new Date(rawDateStr.replace(/-/g, "/")).getTime();
-        const teaserEl = document.getElementById('flash-teaser-countdown');
-        const heroTeaserEl = document.getElementById('hero-flash-teaser');
+        const teaserEl = document.getElementById('landing-flash-timer');
 
         function updateTeaser() {
             const now = new Date().getTime();
@@ -580,7 +519,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (distance <= 0) {
                 const msg = "OPENING!";
                 if (teaserEl) teaserEl.innerHTML = msg;
-                if (heroTeaserEl) heroTeaserEl.innerHTML = msg;
                 setTimeout(() => window.location.reload(), 1500);
                 return;
             }
@@ -590,7 +528,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const s = String(Math.floor((distance % (1000 * 60)) / 1000)).padStart(2, '0');
             const formatted = `${d}d ${h}h ${m}m ${s}s`;
             if (teaserEl) teaserEl.innerHTML = formatted;
-            if (heroTeaserEl) heroTeaserEl.innerHTML = formatted;
         }
         updateTeaser();
         setInterval(updateTeaser, 1000);
@@ -774,69 +711,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Smooth scroll and glowing interaction for See All Flash Sale links
-    document.querySelectorAll('a[href="#flash-sale-section"]').forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const target = document.getElementById('flash-sale-section');
-            if (target) {
-                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                // Interactive glowing border ring animation
-                target.classList.add('ring-earth-glow', 'scale-[1.01]');
-                setTimeout(() => {
-                    target.classList.remove('ring-earth-glow', 'scale-[1.01]');
-                }, 2000);
-            }
-        });
-    });
+
 });
 </script>
 
 
 
-<!-- Room Setup Bundles Feed (Separated Section) -->
-{% if bundles %}
-<div class="mb-10 bg-earth-100/50 border border-earth-300 rounded-[2rem] p-5 md:p-6">
-    <div class="mb-4">
-        <h2 class="text-lg md:text-xl font-black font-heading text-earth-800 uppercase tracking-tight">🎓 Room Setup Bundles</h2>
-        <p class="text-xs text-earth-700/75 mt-0.5">Move-in ready packages listed by graduating/moving students</p>
-    </div>
-    
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-4">
-        {% for product in bundles %}
-            <a href="{% url 'product_detail' product.pk %}" 
-               class="group bg-white rounded-3xl overflow-hidden transition-all flex flex-col justify-between h-full border-2 border-earth-500 shadow-[0_8px_30px_rgba(199,138,88,0.12)] ring-1 ring-earth-500/20 scale-[1.01] hover:scale-[1.03]">
-                <div class="relative aspect-square w-full bg-earth-100 overflow-hidden shrink-0">
-                    {% if product.image %}
-                        <img src="{{ product.image.url }}" alt="{{ product.title }}" class="object-cover w-full h-full group-hover:scale-105 transition-all duration-300">
-                    {% endif %}
-                    <span class="absolute top-2.5 left-2.5 px-2 py-0.5 text-[10px] font-black text-white bg-gradient-to-r from-earth-500 to-earth-700 rounded-full uppercase tracking-wider shadow z-10 flex items-center space-x-1">
-                        <span>🎓</span> <span>Room Setup</span>
-                    </span>
-                    <span class="absolute top-2.5 right-2.5 px-2 py-0.5 text-[10px] font-bold text-earth-700 bg-earth-200/90 backdrop-blur-sm rounded-full border border-earth-300/35 hidden sm:block">
-                        {{ product.created_at|timesince }} ago
-                    </span>
-                </div>
-                <div class="p-3 flex-1 flex flex-col justify-between">
-                    <div>
-                        <span class="text-[10.5px] font-extrabold text-earth-500 uppercase tracking-wider">{{ product.category.name|default:"General" }}</span>
-                        <h3 class="text-sm font-bold text-earth-800 line-clamp-2 mt-0.5 leading-tight group-hover:text-earth-500 transition-colors">{{ product.title }}</h3>
-                    </div>
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between border-t border-earth-300/30 pt-2.5 mt-2 gap-1.5">
-                        <div class="flex flex-col">
-                            <span class="text-sm font-black text-earth-800">{{ product.price|intcomma }} UGX</span>
-                            {% if product.bundle_savings > 0 %}
-                                <span class="text-[10px] font-extrabold text-green-700 uppercase tracking-tight">Save {{ product.bundle_savings|intcomma }} UGX</span>
-                            {% endif %}
-                        </div>
-                        <span class="text-[10px] text-earth-700 bg-earth-200 px-2 py-0.5 rounded-full font-bold uppercase self-start sm:self-center truncate max-w-[95px] sm:max-w-none">{{ product.seller.profile.get_hostel_or_area_display|default:"Gulu" }}</span>
-                    </div>
-                </div>
-            </a>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
+
 
 <!-- Fresh listings Feed -->
 <div class="mb-10" id="student-listings-section">

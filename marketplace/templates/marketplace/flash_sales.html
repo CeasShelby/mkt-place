@@ -1,0 +1,225 @@
+{% extends 'marketplace/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}⚡ Flash Sales - Ufind Marketplace{% endblock %}
+
+{% block content %}
+<style>
+@keyframes pulseRed {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+    50% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+}
+.animate-pulse-red {
+    animation: pulseRed 2s infinite;
+}
+.glow-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.glow-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -10px rgba(239, 68, 68, 0.3), 0 0 15px rgba(239, 68, 68, 0.2);
+}
+</style>
+
+<div class="max-w-6xl mx-auto py-4">
+    <!-- Breadcrumb -->
+    <div class="mb-6 flex items-center space-x-2 text-xs font-bold text-earth-700/60">
+        <a href="{% url 'home_feed' %}" class="hover:text-earth-800 transition-colors">Home</a>
+        <span>/</span>
+        <span class="text-earth-800">Flash Sales</span>
+    </div>
+
+    {% if flash_status.is_active %}
+        <!-- LIVE SALE HEADER -->
+        <div class="bg-gradient-to-r from-red-950 via-[#2a0e0e] to-red-950 border-2 border-red-500 rounded-[2.5rem] p-6 md:p-10 text-white mb-10 shadow-xl relative overflow-hidden">
+            <!-- Background lights decoration -->
+            <div class="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-red-600/10 blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-earth-500/10 blur-3xl pointer-events-none"></div>
+            
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+                <div class="space-y-3">
+                    <div class="flex items-center space-x-3">
+                        <span class="flex h-3.5 w-3.5 shrink-0 relative">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500"></span>
+                        </span>
+                        <span class="px-3 py-1 bg-red-500/20 border border-red-500/30 text-red-400 text-[10px] font-black uppercase tracking-widest rounded-full">Event Live</span>
+                    </div>
+                    <h1 class="text-3xl md:text-5xl font-black font-heading tracking-tight text-white leading-none">
+                        ⚡ CAMPUS HOUR FLASH SALE
+                    </h1>
+                    <p class="text-sm text-white/80 max-w-xl font-medium">
+                        Happening right now! Grab premium items listed by fellow students at heavily discounted clearance prices. Once the timer hits zero, these deals disappear!
+                    </p>
+                </div>
+
+                <!-- Live Countdown Clock -->
+                <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-5 md:p-6 text-center shrink-0 min-w-[220px] flex flex-col justify-center items-center shadow-lg">
+                    <span class="text-[10px] md:text-xs font-black text-red-400 uppercase tracking-widest block mb-1">CLOSING IN:</span>
+                    <div id="flash-countdown" class="text-2xl md:text-3xl font-black font-heading text-white tracking-tight tabular-nums animate-pulse">00:00:00</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRODUCTS GRID -->
+        <div class="mb-12">
+            <h2 class="text-lg md:text-xl font-black font-heading text-earth-800 uppercase tracking-tight mb-6">⚡ Live Flash Deals ({{ active_flash_count }})</h2>
+            
+            {% if flash_products %}
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    {% for product in flash_products %}
+                        <a href="{% url 'product_detail' product.pk %}" 
+                           class="group bg-white rounded-3xl overflow-hidden border border-earth-300 shadow-sm hover:shadow-md glow-card transition-all flex flex-col justify-between h-full">
+                            
+                            <div class="relative aspect-square w-full bg-earth-100 overflow-hidden shrink-0">
+                                {% if product.image %}
+                                    <img src="{{ product.image.url }}" alt="{{ product.title }}" class="object-cover w-full h-full group-hover:scale-105 transition-all duration-300">
+                                {% endif %}
+                                <span class="absolute top-3 left-3 px-2.5 py-1 text-[9px] font-black text-white bg-gradient-to-r from-red-600 to-red-500 rounded-full uppercase tracking-wider shadow z-10 flex items-center gap-1 animate-pulse">
+                                    <span>⚡</span> <span>Live deal</span>
+                                </span>
+                            </div>
+
+                            <div class="p-4 flex-1 flex flex-col justify-between">
+                                <div>
+                                    <span class="text-[10px] font-extrabold text-red-650 uppercase tracking-wider">{{ product.category.name|default:"General" }}</span>
+                                    <h3 class="text-sm font-bold text-earth-800 line-clamp-2 mt-0.5 leading-tight group-hover:text-earth-500 transition-colors">{{ product.title }}</h3>
+                                </div>
+                                
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between border-t border-earth-300/30 pt-3 mt-3 gap-1">
+                                    <div class="flex flex-col">
+                                        <span class="text-base font-black text-red-600 leading-none">{{ product.flash_sale_price|intcomma }} UGX</span>
+                                        <span class="text-[10px] text-earth-700/50 line-through mt-0.5">{{ product.price|intcomma }} UGX</span>
+                                    </div>
+                                    <span class="text-[10px] text-red-700 bg-red-50 border border-red-200/50 px-2 py-0.5 rounded-full font-black uppercase self-start sm:self-center shrink-0">
+                                        -{{ product.flash_sale_discount_percent }}% OFF
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="bg-white rounded-[2rem] p-12 border border-earth-300 text-center shadow-sm max-w-md mx-auto">
+                    <i class="ph-fill ph-warning-circle text-5xl text-red-500 mx-auto mb-3 block"></i>
+                    <p class="text-sm font-bold text-earth-800">No active products</p>
+                    <p class="text-xs text-earth-700 mt-1">There are currently no products configured for the Flash Sale event.</p>
+                </div>
+            {% endif %}
+        </div>
+
+    {% else %}
+        <!-- UPCOMING TEASER HEADER -->
+        <div class="bg-gradient-to-r from-earth-900 via-earth-850 to-earth-900 border border-earth-700 rounded-[2.5rem] p-6 md:p-10 text-earth-100 mb-10 shadow-lg relative overflow-hidden">
+            <!-- Background lights decoration -->
+            <div class="absolute -right-20 -top-20 w-85 h-85 rounded-full bg-earth-500/10 blur-3xl pointer-events-none"></div>
+            
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+                <div class="space-y-3">
+                    <span class="inline-block px-3 py-1 bg-earth-800 border border-earth-700 text-earth-300 text-[10px] font-black uppercase tracking-widest rounded-full">Weekly Event</span>
+                    <h1 class="text-3xl md:text-5xl font-black font-heading tracking-tight text-white leading-none">
+                        ⚡ FLASH SALE HOUR
+                    </h1>
+                    <p class="text-sm text-earth-200 max-w-xl font-medium leading-relaxed">
+                        Join us every Friday from <strong class="text-earth-500">6:00 PM to 8:00 PM</strong> for the Ufind Flash Sale! Fellow students unlock heavy discounts on electronics, room items, books, and fashion. Mark your calendar!
+                    </p>
+                </div>
+
+                <!-- Teaser Countdown Clock -->
+                <div class="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-5 md:p-6 text-center shrink-0 min-w-[220px] flex flex-col justify-center items-center shadow-inner">
+                    <span class="text-[10px] md:text-xs font-black text-earth-300 uppercase tracking-widest block mb-1">SALE OPENS IN:</span>
+                    <div id="flash-teaser-countdown" class="text-xl md:text-2xl font-black font-heading text-white tracking-tight tabular-nums">00d 00h 00m 00s</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LOCKED DEAL PREVIEWS -->
+        {% if flash_products %}
+        <div class="mb-12">
+            <h2 class="text-lg md:text-xl font-black font-heading text-earth-800 uppercase tracking-tight mb-6">🔒 Preview of Friday's Deals ({{ active_flash_count }})</h2>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {% for product in flash_products %}
+                    <div class="shrink-0 bg-white/40 rounded-3xl overflow-hidden border border-earth-300/60 shadow-xs opacity-75 relative select-none flex flex-col justify-between h-full">
+                        <!-- Blur Lock Overlay -->
+                        <div class="absolute inset-0 bg-[#ebe3cf]/10 backdrop-blur-[3.5px] z-10 flex flex-col items-center justify-center p-4 text-center">
+                            <span class="flex items-center gap-1.5 text-[9px] font-black text-earth-800 uppercase tracking-wider bg-white/95 border border-earth-300/80 px-2.5 py-1.5 rounded-xl shadow">
+                                <i class="ph-bold ph-lock text-xs text-earth-500"></i> Locked until Friday 6PM
+                            </span>
+                        </div>
+
+                        <div class="aspect-square w-full bg-earth-100 overflow-hidden shrink-0">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="Locked" class="object-cover w-full h-full filter blur-[1.5px] brightness-90">
+                            {% endif %}
+                        </div>
+
+                        <div class="p-4 whitespace-normal flex-1 flex flex-col justify-between">
+                            <div>
+                                <span class="text-[10px] font-extrabold text-earth-700/60 uppercase tracking-wider">{{ product.category.name|default:"General" }}</span>
+                                <h3 class="text-sm font-bold text-earth-800/60 line-clamp-2 mt-0.5 leading-tight">{{ product.title }}</h3>
+                            </div>
+                            <div class="flex items-baseline space-x-1.5 mt-3 pt-3 border-t border-earth-300/20">
+                                <span class="text-[11px] font-black text-earth-700/40 line-through">{{ product.price|intcomma }} UGX</span>
+                                <span class="text-sm text-green-700/70 font-extrabold">??? UGX</span>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    {% endif %}
+</div>
+
+<!-- JavaScript for Live Countdowns -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    {% if flash_status.is_active %}
+        // Countdown to close (active sale)
+        const rawEndDateStr = "{{ flash_status.end_time|date:'Y-m-d H:i:s' }}";
+        const endTime = new Date(rawEndDateStr.replace(/-/g, "/")).getTime();
+        const countdownEl = document.getElementById('flash-countdown');
+
+        function updateTimer() {
+            const now = new Date().getTime();
+            const distance = endTime - now;
+            if (distance <= 0) {
+                if (countdownEl) countdownEl.innerHTML = "CLOSED";
+                setTimeout(() => window.location.reload(), 1500);
+                return;
+            }
+            const hours = String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+            const minutes = String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+            const seconds = String(Math.floor((distance % (1000 * 60)) / 1000)).padStart(2, '0');
+            if (countdownEl) countdownEl.innerHTML = `${hours}:${minutes}:${seconds}`;
+        }
+        updateTimer();
+        setInterval(updateTimer, 1000);
+    {% else %}
+        // Countdown to open (teaser sale)
+        const rawDateStr = "{{ flash_status.next_start|date:'Y-m-d H:i:s' }}";
+        const startTime = new Date(rawDateStr.replace(/-/g, "/")).getTime();
+        const teaserEl = document.getElementById('flash-teaser-countdown');
+
+        function updateTeaser() {
+            const now = new Date().getTime();
+            const distance = startTime - now;
+            if (distance <= 0) {
+                if (teaserEl) teaserEl.innerHTML = "OPENING!";
+                setTimeout(() => window.location.reload(), 1500);
+                return;
+            }
+            const d = String(Math.floor(distance / (1000 * 60 * 60 * 24))).padStart(2, '0');
+            const h = String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+            const m = String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+            const s = String(Math.floor((distance % (1000 * 60)) / 1000)).padStart(2, '0');
+            if (teaserEl) teaserEl.innerHTML = `${d}d ${h}h ${m}m ${s}s`;
+        }
+        updateTeaser();
+        setInterval(updateTeaser, 1000);
+    {% endif %}
+});
+</script>
+{% endblock %}

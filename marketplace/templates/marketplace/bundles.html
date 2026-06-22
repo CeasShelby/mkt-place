@@ -1,0 +1,104 @@
+{% extends 'marketplace/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}🎓 Room Setup Bundles - Ufind Marketplace{% endblock %}
+
+{% block content %}
+<style>
+.bundle-glow-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.bundle-glow-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -10px rgba(199, 138, 88, 0.3), 0 0 15px rgba(199, 138, 88, 0.2);
+}
+</style>
+
+<div class="max-w-6xl mx-auto py-4">
+    <!-- Breadcrumb -->
+    <div class="mb-6 flex items-center space-x-2 text-xs font-bold text-earth-700/60">
+        <a href="{% url 'home_feed' %}" class="hover:text-earth-800 transition-colors">Home</a>
+        <span>/</span>
+        <span class="text-earth-800">Room Setup Bundles</span>
+    </div>
+
+    <!-- HEADER BLOCK -->
+    <div class="bg-gradient-to-r from-earth-900 via-earth-850 to-earth-900 border border-earth-700 rounded-[2.5rem] p-6 md:p-10 text-earth-100 mb-10 shadow-lg relative overflow-hidden">
+        <!-- Background decoration -->
+        <div class="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-earth-500/10 blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-earth-300/10 blur-3xl pointer-events-none"></div>
+        
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+            <div class="space-y-3">
+                <div class="flex items-center space-x-3">
+                    <span class="px-3 py-1 bg-earth-800 border border-earth-700 text-earth-300 text-[10px] font-black uppercase tracking-widest rounded-full">Graduation Clearance</span>
+                </div>
+                <h1 class="text-3xl md:text-5xl font-black font-heading tracking-tight text-white leading-none">
+                    🎓 ROOM SETUP BUNDLES
+                </h1>
+                <p class="text-sm text-earth-200 max-w-xl font-medium leading-relaxed">
+                    Moving to a new hostel or starting campus? Save big with move-in ready packages! Pre-packed bundles of hostel and room essentials listed by graduating or moving students.
+                </p>
+            </div>
+            
+            <div class="bg-white/5 border border-white/10 rounded-3xl p-5 text-center shrink-0 min-w-[200px] flex flex-col justify-center shadow-inner">
+                <span class="text-[10px] font-black text-earth-300 uppercase tracking-widest block mb-1">BUNDLE PROMO:</span>
+                <span class="text-2xl font-black text-white leading-none">SAVE UP TO 30%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- BUNDLES GRID -->
+    <div class="mb-12">
+        <h2 class="text-lg md:text-xl font-black font-heading text-earth-800 uppercase tracking-tight mb-6">📦 Move-In Bundles ({{ active_bundles_count }})</h2>
+        
+        {% if bundles %}
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {% for product in bundles %}
+                    <a href="{% url 'product_detail' product.pk %}" 
+                       class="group bg-white rounded-3xl overflow-hidden border-2 border-earth-500 shadow-[0_8px_30px_rgba(199,138,88,0.12)] ring-1 ring-earth-500/20 scale-[1.01] hover:scale-[1.03] transition-all flex flex-col justify-between h-full bundle-glow-card">
+                        
+                        <div class="relative aspect-square w-full bg-earth-100 overflow-hidden shrink-0">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="{{ product.title }}" class="object-cover w-full h-full group-hover:scale-105 transition-all duration-300">
+                            {% endif %}
+                            <span class="absolute top-2.5 left-2.5 px-2 py-0.5 text-[9px] font-black text-white bg-gradient-to-r from-earth-500 to-earth-700 rounded-full uppercase tracking-wider shadow z-10 flex items-center space-x-1">
+                                <span>🎓</span> <span>Room Setup</span>
+                            </span>
+                            <span class="absolute top-2.5 right-2.5 px-2 py-0.5 text-[9px] font-bold text-earth-750 bg-earth-200/90 backdrop-blur-sm rounded-full border border-earth-300/35 hidden sm:block">
+                                {{ product.created_at|timesince }} ago
+                            </span>
+                        </div>
+
+                        <div class="p-4 flex-1 flex flex-col justify-between">
+                            <div>
+                                <span class="text-[10px] font-extrabold text-earth-500 uppercase tracking-wider">{{ product.category.name|default:"General" }}</span>
+                                <h3 class="text-sm font-bold text-earth-800 line-clamp-2 mt-0.5 leading-tight group-hover:text-earth-500 transition-colors">{{ product.title }}</h3>
+                            </div>
+                            
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between border-t border-earth-300/30 pt-3 mt-3 gap-1.5">
+                                <div class="flex flex-col">
+                                    <span class="text-base font-black text-earth-850">{{ product.price|intcomma }} UGX</span>
+                                    {% if product.bundle_savings > 0 %}
+                                        <span class="text-[10px] font-extrabold text-green-700 uppercase tracking-tight mt-0.5">Save {{ product.bundle_savings|intcomma }} UGX</span>
+                                    {% endif %}
+                                </div>
+                                <span class="text-[9px] text-earth-700 bg-earth-200 px-2 py-0.5 rounded-full font-bold uppercase self-start sm:self-center truncate max-w-[85px] sm:max-w-none">
+                                    {{ product.seller.profile.get_hostel_or_area_display|default:"Gulu" }}
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="bg-white rounded-[2rem] p-12 border border-earth-300 text-center shadow-sm max-w-md mx-auto">
+                <i class="ph-fill ph-package text-5xl text-earth-300 mx-auto mb-3 block"></i>
+                <p class="text-sm font-bold text-earth-800">No Bundles Listed</p>
+                <p class="text-xs text-earth-700 mt-1">There are currently no active room setup packages available. Check back soon!</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

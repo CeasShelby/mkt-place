@@ -110,6 +110,36 @@ def home_feed(request):
     }
     return render(request, 'marketplace/home.html', context)
 
+def flash_sales_view(request):
+    flash_status = get_flash_sale_status()
+    # Filter flash sale products to stand out on their own page
+    flash_products = Product.objects.filter(is_flash_sale=True, status='available').order_by('-created_at')
+    
+    # Custom banner images
+    custom_flash_banners = BannerImage.objects.filter(card_type='flash_sales')
+
+    context = {
+        'flash_status': flash_status,
+        'flash_products': flash_products,
+        'active_flash_count': flash_products.count(),
+        'custom_flash_banners': custom_flash_banners,
+    }
+    return render(request, 'marketplace/flash_sales.html', context)
+
+def bundles_view(request):
+    # Filter bundles to stand out on their own page
+    bundles = Product.objects.filter(is_bundle=True, status='available').order_by('-created_at')
+    
+    # Custom banner images
+    custom_bundle_banners = BannerImage.objects.filter(card_type='bundles')
+
+    context = {
+        'bundles': bundles,
+        'active_bundles_count': bundles.count(),
+        'custom_bundle_banners': custom_bundle_banners,
+    }
+    return render(request, 'marketplace/bundles.html', context)
+
 def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk)
     flash_status = get_flash_sale_status()
