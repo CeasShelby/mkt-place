@@ -1,7 +1,7 @@
 {% extends 'marketplace/base.html' %}
 {% load humanize %}
 
-{% block title %}Chat with {{ other_user.first_name|default:other_user.username }} - simply marketplace{% endblock %}
+{% block title %}Chat with {{ other_user.first_name|default:other_user.username }} - Ufind marketplace{% endblock %}
 
 {% block content %}
 <!-- Back to Feed -->
@@ -25,14 +25,14 @@
             </div>
             <div>
                 <div class="flex items-center space-x-2">
-                    <h3 class="text-sm font-bold text-earth-800 line-clamp-1">{{ thread.product.title }}</h3>
+                    <h3 class="text-base font-bold text-earth-800 line-clamp-1">{{ thread.product.title }}</h3>
                     {% if thread.product.status != 'available' %}
-                        <span class="px-2 py-0.5 bg-red-600 text-white font-extrabold text-[8px] tracking-wide rounded uppercase shrink-0">
+                        <span class="px-2 py-0.5 bg-red-600 text-white font-extrabold text-[9px] tracking-wide rounded uppercase shrink-0">
                             {{ thread.product.get_status_display }}
                         </span>
                     {% endif %}
                 </div>
-                <p class="text-[10px] text-earth-700 font-bold mt-0.5">Seller: {{ thread.seller.first_name|default:thread.seller.username }}</p>
+                <p class="text-xs text-earth-700 font-bold mt-0.5">Seller: {{ thread.seller.first_name|default:thread.seller.username }}</p>
             </div>
         {% elif thread.item_request %}
             <div class="w-12 h-12 rounded-xl bg-earth-100 overflow-hidden relative border border-earth-300/60 flex items-center justify-center">
@@ -51,16 +51,16 @@
                 {% endif %}
             </div>
             <div>
-                <h3 class="text-sm font-bold text-earth-800 line-clamp-1">Request: {{ thread.item_request.title }}</h3>
-                <p class="text-[10px] text-earth-700 font-bold mt-0.5">Requester (Buyer): {{ thread.buyer.first_name|default:thread.buyer.username }}</p>
+                <h3 class="text-base font-bold text-earth-800 line-clamp-1">Request: {{ thread.item_request.title }}</h3>
+                <p class="text-xs text-earth-700 font-bold mt-0.5">Requester (Buyer): {{ thread.buyer.first_name|default:thread.buyer.username }}</p>
             </div>
         {% endif %}
     </div>
     <div class="text-right">
         {% if thread.product %}
-            <span class="text-xs font-black text-earth-800 bg-earth-300/40 px-3 py-1.5 rounded-xl border border-earth-300/50">{{ thread.product.price|intcomma }} UGX</span>
+            <span class="text-sm font-black text-earth-800 bg-earth-300/40 px-3 py-1.5 rounded-xl border border-earth-300/50">{{ thread.product.price|intcomma }} UGX</span>
         {% elif thread.item_request %}
-            <span class="text-xs font-black text-earth-800 bg-earth-300/40 px-3 py-1.5 rounded-xl border border-earth-300/50">Budget: {{ thread.item_request.budget|intcomma }} UGX</span>
+            <span class="text-sm font-black text-earth-800 bg-earth-300/40 px-3 py-1.5 rounded-xl border border-earth-300/50">Budget: {{ thread.item_request.budget|intcomma }} UGX</span>
         {% endif %}
     </div>
 </div>
@@ -69,22 +69,34 @@
 <div class="bg-white rounded-[2rem] border border-earth-300 shadow-sm overflow-hidden flex flex-col h-[500px]">
     
     <!-- Top Chat Status -->
-    <div class="bg-earth-100 border-b border-earth-300 px-4 py-3 flex items-center space-x-2">
-        <span class="w-2.5 h-2.5 bg-earth-500 rounded-full animate-pulse"></span>
-        <span class="text-xs font-extrabold text-earth-700">Live chat with {{ other_user.first_name|default:other_user.username }}</span>
+    <div class="bg-earth-100 border-b border-earth-300 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+            <span class="w-2.5 h-2.5 bg-earth-500 rounded-full animate-pulse"></span>
+            <span class="text-sm font-extrabold text-earth-700">Live chat with {{ other_user.first_name|default:other_user.username }}</span>
+        </div>
+        <!-- Delete Conversation Form -->
+        <form action="{% url 'delete_thread' thread.id %}" method="POST" onsubmit="return confirm('Are you sure you want to delete this entire conversation? This cannot be undone.');" class="m-0">
+            {% csrf_token %}
+            <button type="submit" class="text-xs font-bold text-red-650 hover:text-red-800 transition-colors flex items-center space-x-1" title="Delete Conversation">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                <span class="hidden sm:inline">Delete Chat</span>
+            </button>
+        </form>
     </div>
 
     {% if thread.product and user == thread.seller %}
         <!-- Seller Listing Availability Control Banner -->
-        <div class="bg-earth-100/80 border-b border-earth-300 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
+        <div class="bg-earth-100/80 border-b border-earth-300 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm">
             <div class="flex items-start space-x-2 flex-1">
                 <span class="text-base leading-none">⚙️</span>
                 <div>
-                    <span class="font-extrabold text-earth-800 block">Manage Listing Availability</span>
+                    <span class="font-extrabold text-earth-800 block text-[13px]">Manage Listing Availability</span>
                     {% if thread.product.status == 'available' %}
-                        <p class="text-[10px] text-earth-700 font-semibold mt-0.5">If this item is purchased, mark it as Sold to automatically hide it from listings.</p>
+                        <p class="text-xs text-earth-700 font-semibold mt-0.5">If this item is purchased, mark it as Sold to automatically hide it from listings.</p>
                     {% else %}
-                        <p class="text-[10px] text-earth-700 font-semibold mt-0.5">This item is currently <strong class="text-red-650 uppercase font-extrabold">{{ thread.product.get_status_display }}</strong> and hidden from feeds.</p>
+                        <p class="text-xs text-earth-700 font-semibold mt-0.5">This item is currently <strong class="text-red-650 uppercase font-extrabold">{{ thread.product.get_status_display }}</strong> and hidden from feeds.</p>
                     {% endif %}
                 </div>
             </div>
@@ -93,14 +105,14 @@
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{% url 'chat_room' thread.id %}">
                     {% if thread.product.status == 'available' %}
-                        <button type="submit" name="status" value="sold" class="px-3 py-1.5 bg-earth-800 hover:bg-earth-850 text-earth-200 text-[10px] font-black rounded-lg transition-all shadow-sm uppercase tracking-wide">
+                        <button type="submit" name="status" value="sold" class="px-3 py-1.5 bg-earth-800 hover:bg-earth-850 text-earth-200 text-[11px] font-black rounded-lg transition-all shadow-sm uppercase tracking-wide">
                             Mark as Sold
                         </button>
-                        <button type="submit" name="status" value="archived" class="px-3 py-1.5 bg-earth-300 hover:bg-earth-300/80 text-earth-800 text-[10px] font-black rounded-lg transition-all border border-earth-300 uppercase tracking-wide">
+                        <button type="submit" name="status" value="archived" class="px-3 py-1.5 bg-earth-300 hover:bg-earth-300/80 text-earth-800 text-[11px] font-black rounded-lg transition-all border border-earth-300 uppercase tracking-wide">
                             Archive
                         </button>
                     {% else %}
-                        <button type="submit" name="status" value="available" class="px-3 py-1.5 bg-earth-500 hover:bg-earth-600 text-white text-[10px] font-black rounded-lg transition-all shadow-sm uppercase tracking-wide">
+                        <button type="submit" name="status" value="available" class="px-3 py-1.5 bg-earth-500 hover:bg-earth-600 text-white text-[11px] font-black rounded-lg transition-all shadow-sm uppercase tracking-wide">
                             Relist as Available
                         </button>
                     {% endif %}
@@ -113,12 +125,19 @@
     <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-4 bg-earth-50/10 no-scrollbar">
         {% if chat_messages %}
             {% for message in chat_messages %}
-                <div class="flex {% if message.sender == user %} justify-end {% else %} justify-start {% endif %} message-row" data-message-id="{{ message.id }}">
-                    <div class="max-w-[75%]">
-                        <div class="text-[9px] font-extrabold text-earth-700 mb-1 px-1">
-                            {% if message.sender == user %} You {% else %} {{ message.sender.first_name|default:message.sender.username }} {% endif %}
+                <div class="flex {% if message.sender == user %} justify-end {% else %} justify-start {% endif %} message-row group relative" data-message-id="{{ message.id }}">
+                    <div class="max-w-[75%] relative">
+                        <div class="flex items-center {% if message.sender == user %} justify-end {% else %} justify-start {% endif %} text-[11px] font-extrabold text-earth-700 mb-1 px-1 gap-1.5">
+                            <span>{% if message.sender == user %} You {% else %} {{ message.sender.first_name|default:message.sender.username }} {% endif %}</span>
+                            {% if message.sender == user %}
+                                <button onclick="deleteMessage({{ message.id }}, this)" class="opacity-40 hover:opacity-100 transition-opacity text-red-500 p-0.5" title="Delete Message">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            {% endif %}
                         </div>
-                        <div class="px-4 py-2.5 text-xs font-semibold rounded-[1.25rem] shadow-sm
+                        <div class="px-4 py-2.5 text-sm font-semibold rounded-[1.25rem] shadow-sm
                             {% if message.sender == user %}
                                 bg-earth-800 text-white rounded-tr-none
                             {% else %}
@@ -126,7 +145,7 @@
                             {% endif %}">
                             <p class="leading-relaxed break-words">{{ message.text }}</p>
                         </div>
-                        <div class="text-[9px] text-earth-700 mt-1 text-right px-1">
+                        <div class="text-[10.5px] text-earth-700 mt-1 text-right px-1">
                             {{ message.created_at|date:"h:i A" }}
                         </div>
                     </div>
@@ -136,8 +155,8 @@
             <!-- Empty state -->
             <div id="empty-chat-state" class="text-center py-12 text-earth-300">
                 <i class="ph-fill ph-chats text-5xl text-earth-300 mx-auto mb-2 block"></i>
-                <p class="text-xs font-extrabold text-earth-700">Start the conversation</p>
-                <p class="text-[10px]">Send a message to inquire about Gulu listings.</p>
+                <p class="text-sm font-extrabold text-earth-700">Start the conversation</p>
+                <p class="text-xs">Send a message to inquire about Gulu listings.</p>
             </div>
         {% endif %}
     </div>
@@ -147,9 +166,18 @@
         <form id="message-form" class="flex items-center space-x-2">
             {% csrf_token %}
             <input type="text" id="message-text" placeholder="Type a message..." required autocomplete="off"
-                   class="flex-1 bg-earth-100 border border-earth-300 rounded-xl px-4 py-3.5 text-base md:text-xs text-earth-800 focus:outline-none focus:ring-2 focus:ring-earth-800 focus:bg-white transition-all">
-            <button type="submit" class="p-3.5 bg-earth-800 hover:bg-earth-850 active:scale-95 text-white rounded-xl shadow-md transition-all flex items-center justify-center">
-                <i class="ph-fill ph-paper-plane-right text-lg"></i>
+                   class="flex-1 bg-earth-100 border border-earth-300 rounded-xl px-4 py-3.5 text-base md:text-sm text-earth-800 focus:outline-none focus:ring-2 focus:ring-earth-800 focus:bg-white transition-all">
+            <button type="submit" class="p-3.5 bg-earth-800 hover:bg-earth-700 active:scale-95 rounded-xl shadow-md transition-all flex items-center justify-center shrink-0" title="Send message">
+                <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6">
+                    <!-- Golden outer paper plane body -->
+                    <path d="M6,32 L58,8 L42,56 L30,38 Z" stroke="#c78a58" stroke-width="5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+                    <!-- Golden top edge -->
+                    <line x1="58" y1="8" x2="30" y2="38" stroke="#c78a58" stroke-width="4.5" stroke-linecap="round"/>
+                    <!-- Light inner fold line -->
+                    <line x1="30" y1="38" x2="30" y2="56" stroke="#f5f0e6" stroke-width="3.5" stroke-linecap="round"/>
+                    <!-- Light accent streak -->
+                    <line x1="18" y1="32" x2="30" y2="38" stroke="#f5f0e6" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+                </svg>
             </button>
         </form>
     </div>
@@ -249,16 +277,25 @@
                             ? "bg-earth-800 text-white rounded-tr-none" 
                             : "bg-earth-100 text-earth-800 rounded-tl-none border border-earth-300/60";
 
+                        const deleteBtnHtml = msg.is_sender 
+                            ? `<button onclick="deleteMessage(${msg.id}, this)" class="opacity-40 hover:opacity-100 transition-opacity text-red-500 p-0.5" title="Delete Message">
+                                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                       <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                   </svg>
+                               </button>`
+                            : '';
+
                         msgDiv.innerHTML = `
-                            <div class="max-w-[75%]">
-                                <div class="text-[9px] font-extrabold text-earth-700 mb-1 px-1">
-                                    ${senderDisplayName}
+                            <div class="max-w-[75%] relative">
+                                <div class="flex items-center ${msg.is_sender ? 'justify-end' : 'justify-start'} text-[11px] font-extrabold text-earth-700 mb-1 px-1 gap-1.5">
+                                    <span>\${senderDisplayName}</span>
+                                    \${deleteBtnHtml}
                                 </div>
-                                <div class="px-4 py-2.5 text-xs font-semibold rounded-[1.25rem] shadow-sm ${bubbleClass}">
-                                    <p class="leading-relaxed break-words">${escapeHTML(msg.text)}</p>
+                                <div class="px-4 py-2.5 text-sm font-semibold rounded-[1.25rem] shadow-sm \${bubbleClass}">
+                                    <p class="leading-relaxed break-words">\${escapeHTML(msg.text)}</p>
                                 </div>
-                                <div class="text-[9px] text-earth-700 mt-1 text-right px-1">
-                                    ${msg.created_at}
+                                <div class="text-[10.5px] text-earth-700 mt-1 text-right px-1">
+                                    \${msg.created_at}
                                 </div>
                             </div>
                         `;
@@ -293,5 +330,38 @@
         // Poll messages every 4000ms
         setInterval(pollMessages, 4000);
     });
+
+    // Global Message Deletion Helper
+    function deleteMessage(messageId, btnElement) {
+        if (!confirm("Are you sure you want to delete this message?")) return;
+        
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        fetch(`/chat/message/${messageId}/delete/`, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                const row = btnElement.closest('.message-row');
+                if (row) {
+                    row.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    row.style.opacity = '0';
+                    row.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        row.remove();
+                    }, 300);
+                }
+            } else {
+                alert("Error deleting message: " + (data.error || "unknown error"));
+            }
+        })
+        .catch(error => {
+            console.error("Error deleting message:", error);
+        });
+    }
 </script>
 {% endblock %}

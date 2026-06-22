@@ -1,0 +1,47 @@
+{
+  "name": "Ufind Marketplace",
+  "short_name": "Ufind",
+  "description": "Buy and sell on your campus — fast, easy, and local.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f0e6",
+  "theme_color": "#3d2314",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["shopping", "lifestyle"],
+  "icons": [
+    {
+      "src": "/static/images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Browse Feed",
+      "short_name": "Feed",
+      "url": "/",
+      "description": "Browse the latest listings"
+    },
+    {
+      "name": "Sell an Item",
+      "short_name": "Sell",
+      "url": "/sell/",
+      "description": "List something for sale"
+    },
+    {
+      "name": "My Inbox",
+      "short_name": "Inbox",
+      "url": "/chat/inbox/",
+      "description": "View your messages"
+    }
+  ]
+}

@@ -37,6 +37,51 @@ def resize_image_field(image_field, max_size=(800, 800)):
         print(f"Error resizing image: {e}")
     return None
 
+def make_image_background_transparent_floodfill(image_field, tolerance=25):
+    if not image_field:
+        return None
+    try:
+        from PIL import ImageDraw
+        img = Image.open(image_field)
+        img = img.convert("RGBA")
+        width, height = img.size
+        
+        # Create a mask initialized to 0 (foreground)
+        mask = Image.new("L", (width, height), 0)
+        
+        # Flood fill from the four corners
+        corners = [(0, 0), (width - 1, 0), (0, height - 1), (width - 1, height - 1)]
+        for x, y in corners:
+            pixel = img.getpixel((x, y))
+            # Only floodfill if the corner pixel is relatively bright/light-colored
+            if sum(pixel[:3]) / 3 > 200:
+                ImageDraw.floodfill(mask, (x, y), 255, thresh=tolerance)
+        
+        # Convert pixels where mask is 255 to transparent
+        datas = img.getdata()
+        mask_datas = mask.getdata()
+        newData = []
+        for i in range(len(datas)):
+            if mask_datas[i] == 255:
+                newData.append((255, 255, 255, 0)) # transparent
+            else:
+                newData.append(datas[i])
+        
+        img.putdata(newData)
+        
+        # Save as PNG to preserve transparency
+        temp_handle = io.BytesIO()
+        img.save(temp_handle, format='PNG')
+        temp_handle.seek(0)
+        
+        # Get base name and change extension to png
+        base_name = os.path.splitext(os.path.basename(image_field.name))[0]
+        new_file = ContentFile(temp_handle.read(), name=f"{base_name}_transparent.png")
+        return new_file
+    except Exception as e:
+        print(f"Error in background removal: {e}")
+    return None
+
 class Profile(models.Model):
     HOSTEL_CHOICES = [
         ('main_campus', 'Main Campus'),
@@ -242,5 +287,12 @@ class BannerImage(models.Model):
 
     def __str__(self):
         return f"{self.get_card_type_display()} Image ({self.id})"
+
+    def save(self, *args, **kwargs):
+        if self.image:
+            transparent_img = make_image_background_transparent_floodfill(self.image)
+            if transparent_img:
+                self.image = transparent_img
+        super().save(*args, **kwargs)
 
 

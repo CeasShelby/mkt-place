@@ -1,7 +1,7 @@
 {% extends 'marketplace/base.html' %}
 {% load humanize %}
 
-{% block title %}Student Requests - simply marketplace{% endblock %}
+{% block title %}Student Requests - Ufind marketplace{% endblock %}
 
 {% block content %}
 <!-- Search & Filter Controls -->
@@ -26,7 +26,7 @@
         <p class="text-xs text-earth-300/80 leading-normal font-medium">Looking for something specific that is not listed on the feed? Post it here and let other students fulfill it for you!</p>
     </div>
     <div class="shrink-0">
-        <a href="{% url 'create_request' %}" class="px-5 py-3 bg-earth-500 hover:bg-earth-600 text-white text-[11px] font-black tracking-wider uppercase rounded-full transition-transform active:scale-95 inline-block shadow-md">
+        <a href="{% url 'create_request' %}" class="px-5 py-3 bg-earth-500 hover:bg-earth-600 text-white text-xs font-black tracking-wider uppercase rounded-full transition-transform active:scale-95 inline-block shadow-md">
             📢 Post a Request
         </a>
     </div>
@@ -37,7 +37,7 @@
     <div class="flex items-center justify-between mb-5 border-b border-earth-300 pb-3">
         <h2 class="text-lg md:text-xl font-black font-heading text-earth-800 uppercase tracking-tight">Open Requests</h2>
         {% if selected_category or query %}
-            <a href="{% url 'requests_feed' %}" class="text-[10px] font-bold text-earth-800 hover:underline">Clear Filters</a>
+            <a href="{% url 'requests_feed' %}" class="text-xs font-bold text-earth-800 hover:underline">Clear Filters</a>
         {% endif %}
     </div>
 
@@ -66,15 +66,15 @@
                     <!-- Requester Header -->
                     <div class="flex items-center justify-between mb-3.5 border-b border-earth-300/35 pb-2.5">
                         <div class="flex items-center space-x-2">
-                            <div class="w-7 h-7 rounded-full bg-earth-800 text-earth-200 flex items-center justify-center font-bold text-[10px] uppercase shrink-0">
+                            <div class="w-7 h-7 rounded-full bg-earth-800 text-earth-200 flex items-center justify-center font-bold text-xs uppercase shrink-0">
                                 {{ request_item.requester.username|slice:":2" }}
                             </div>
                             <div>
-                                <h4 class="text-[10px] font-black text-earth-800 leading-none">{{ request_item.requester.first_name|default:request_item.requester.username }}</h4>
-                                <span class="text-[8px] text-earth-700 font-bold uppercase tracking-wide bg-earth-200 px-1.5 py-0.5 rounded-md mt-0.5 inline-block">Area: {{ request_item.requester.profile.get_hostel_or_area_display|default:"Gulu" }}</span>
+                                <h4 class="text-xs font-black text-earth-800 leading-none">{{ request_item.requester.first_name|default:request_item.requester.username }}</h4>
+                                <span class="text-[10px] text-earth-700 font-bold uppercase tracking-wide bg-earth-200 px-1.5 py-0.5 rounded-md mt-0.5 inline-block">Area: {{ request_item.requester.profile.get_hostel_or_area_display|default:"Gulu" }}</span>
                             </div>
                         </div>
-                        <span class="text-[8px] font-bold text-earth-700/60 shrink-0">{{ request_item.created_at|timesince }} ago</span>
+                        <span class="text-[10px] font-bold text-earth-700/60 shrink-0">{{ request_item.created_at|timesince }} ago</span>
                     </div>
 
                     <!-- Category Icon Fallback / Custom Reference Photo -->
@@ -99,10 +99,10 @@
                                     {% elif request_item.category.slug == 'bundles' %}📦
                                     {% else %}🔍{% endif %}
                                 </span>
-                                <span class="text-[9px] font-black uppercase tracking-widest opacity-80">{{ request_item.category.name|default:"General" }}</span>
+                                <span class="text-[10.5px] font-black uppercase tracking-widest opacity-80">{{ request_item.category.name|default:"General" }}</span>
                             </div>
                         {% endif %}
-                        <span class="absolute top-2.5 right-2.5 px-2.5 py-1 text-[9px] font-black bg-earth-800 text-earth-200 rounded-full tracking-wide shadow">
+                        <span class="absolute top-2.5 right-2.5 px-2.5 py-1 text-xs font-black bg-earth-800 text-earth-200 rounded-full tracking-wide shadow">
                             Budget: {{ request_item.budget|intcomma }} UGX
                         </span>
                     </div>
@@ -110,8 +110,8 @@
                     <!-- Request Content -->
                     <div class="mt-3.5 flex-1 flex flex-col justify-between">
                         <div>
-                            <h3 class="text-xs font-bold text-earth-800 leading-snug">{{ request_item.title }}</h3>
-                            <p class="text-[10px] text-earth-700 mt-1.5 leading-relaxed line-clamp-3 bg-earth-100/50 p-2.5 border border-earth-300/35 rounded-xl">
+                            <h3 class="text-sm font-bold text-earth-800 leading-snug">{{ request_item.title }}</h3>
+                            <p class="text-xs text-earth-700 mt-1.5 leading-relaxed line-clamp-3 bg-earth-100/50 p-2.5 border border-earth-300/35 rounded-xl">
                                 {{ request_item.description }}
                             </p>
                         </div>
@@ -119,11 +119,11 @@
                         <!-- Fulfill Button / Own Request Badge -->
                         <div class="border-t border-earth-300/30 pt-3 mt-4">
                             {% if request_item.requester == user %}
-                                <div class="w-full text-center py-2.5 bg-earth-200 text-earth-800 text-[10px] font-black rounded-xl uppercase tracking-wider border border-earth-300/40">
+                                <div class="w-full text-center py-2.5 bg-earth-200 text-earth-800 text-xs font-black rounded-xl uppercase tracking-wider border border-earth-300/40">
                                     👤 Your Wishlist Request
                                 </div>
                             {% else %}
-                                <a href="{% url 'initiate_request_chat' request_item.id %}" class="w-full inline-flex items-center justify-center py-2.5 bg-earth-800 hover:bg-earth-850 active:scale-[0.98] text-earth-200 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all shadow-sm flex items-center justify-center space-x-1">
+                                <a href="{% url 'initiate_request_chat' request_item.id %}" class="w-full inline-flex items-center justify-center py-2.5 bg-earth-800 hover:bg-earth-850 active:scale-[0.98] text-earth-200 text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-sm flex items-center justify-center space-x-1">
                                     <i class="ph-fill ph-chat-circle-dots text-sm"></i>
                                     <span>Fulfill Request</span>
                                 </a>

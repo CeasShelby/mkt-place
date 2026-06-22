@@ -31,7 +31,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-0g-_-4&t(n-v6p#g(e(%45(ks2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
 
 # Application definition
@@ -42,13 +42,16 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',
     'django.contrib.staticfiles',
+    'cloudinary',
     'django.contrib.humanize',
     'marketplace.apps.MarketplaceConfig',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -56,6 +59,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 
 ROOT_URLCONF = 'campus_marketplace.urls'
 
@@ -133,6 +137,49 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Media files (User uploaded files)
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Storage configuration for production vs development
+if not DEBUG and os.getenv('CLOUDINARY_CLOUD_NAME'):
+    STORAGES = {
+        'default': {
+            'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage',
+        },
+        'staticfiles': {
+            'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+        },
+    }
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+        'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+        'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+    }
+elif not DEBUG:
+    # Production but without Cloudinary configured yet (fallback to local server storage)
+    STORAGES = {
+        'default': {
+            'BACKEND': 'django.core.files.storage.FileSystemStorage',
+        },
+        'staticfiles': {
+            'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+        },
+    }
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+else:
+    # Local development settings
+    STORAGES = {
+        'default': {
+            'BACKEND': 'django.core.files.storage.FileSystemStorage',
+        },
+        'staticfiles': {
+            'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+        },
+    }
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
 
 # Authentication URLs
 LOGIN_URL = 'login'

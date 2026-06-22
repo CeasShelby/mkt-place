@@ -4,7 +4,8 @@ import urllib.parse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
+from django.views.decorators.cache import cache_control
 from django.db.models import Q
 from django.contrib.auth import login as auth_login, logout as auth_logout, authenticate
 from django.contrib.auth.models import User
@@ -750,5 +751,41 @@ def update_product_status(request, pk):
     return redirect('product_detail', pk=pk)
 
 
+@cache_control(no_cache=True, must_revalidate=True)
+def service_worker(request):
+    """Serves the PWA service worker JS from the root scope (/sw.js)."""
+    import os
+    from django.conf import settings
+    sw_path = os.path.join(settings.BASE_DIR, 'static', 'sw.js')
+    with open(sw_path, 'r') as f:
+        content = f.read()
+    return HttpResponse(content, content_type='application/javascript')
 
 
+@login_required
+def delete_message(request, message_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST method required'}, status=405)
+        
+    message = get_object_or_404(Message, id=message_id)
+    if message.sender != request.user:
+        return JsonResponse({'error': 'Unauthorized: You can only delete your own messages.'}, status=403)
+        
+    message.delete()
+    return JsonResponse({'status': 'success'})
+
+
+@login_required
+def delete_thread(request, thread_id):
+    if request.method != 'POST':
+        messages.error(request, "POST method required to delete conversation.")
+        return redirect('inbox')
+        
+    thread = get_object_or_404(ChatThread, id=thread_id)
+    if request.user != thread.buyer and request.user != thread.seller:
+        messages.error(request, "You are not authorized to delete this conversation.")
+        return redirect('inbox')
+        
+    thread.delete()
+    messages.success(request, "Conversation deleted successfully.")
+    return redirect('inbox')

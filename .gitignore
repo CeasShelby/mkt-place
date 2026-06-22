@@ -31,3 +31,7 @@ Thumbs.db
 # Environment variables
 .env
 *.env
+
+# Static files compile directory
+staticfiles/
+
