@@ -540,13 +540,14 @@ def forgot_password_view(request):
         
     error = None
     if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
         email = request.POST.get('email', '').strip()
-        if not email:
-            error = "Email address is required."
+        if not username or not email:
+            error = "Username and email address are required."
         else:
-            user_qs = User.objects.filter(email__iexact=email)
+            user_qs = User.objects.filter(username__exact=username, email__iexact=email)
             if not user_qs.exists():
-                error = "No account found with this email address."
+                error = "No account found with this username and email address combination."
             else:
                 user = user_qs.first()
                 otp = f"{random.randint(100000, 999999)}"
@@ -560,7 +561,7 @@ def forgot_password_view(request):
                         fail_silently=False,
                     )
                     messages.success(request, f"A verification code has been sent to {user.email}.")
-                    return redirect(f"{reverse('verify_otp')}?email={urllib.parse.quote(user.email)}")
+                    return redirect(f"{reverse('verify_otp')}?email={urllib.parse.quote(user.email)}&username={urllib.parse.quote(user.username)}")
                 except Exception as e:
                     error = f"Error sending verification email: {str(e)}"
                     
@@ -571,22 +572,24 @@ def verify_otp_view(request):
         return redirect('home_feed')
         
     email = request.GET.get('email', '').strip()
+    username = request.GET.get('username', '').strip()
     error = None
     
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
+        username = request.POST.get('username', '').strip()
         otp = request.POST.get('otp', '').strip()
         password = request.POST.get('password', '').strip()
         confirm_password = request.POST.get('confirm_password', '').strip()
         
-        if not email or not otp or not password or not confirm_password:
+        if not email or not username or not otp or not password or not confirm_password:
             error = "All fields are required."
         elif password != confirm_password:
             error = "Passwords do not match."
         elif len(password) < 6:
             error = "Password must be at least 6 characters."
         else:
-            user_qs = User.objects.filter(email__iexact=email)
+            user_qs = User.objects.filter(username__exact=username, email__iexact=email)
             if not user_qs.exists():
                 error = "Invalid reset request."
             else:
@@ -603,7 +606,7 @@ def verify_otp_view(request):
                     messages.success(request, "Your password has been reset successfully. You can now login.")
                     return redirect('login')
                     
-    return render(request, 'marketplace/verify_otp.html', {'email': email, 'error': error})
+    return render(request, 'marketplace/verify_otp.html', {'email': email, 'username': username, 'error': error})
 
 def requests_feed(request):
     query = request.GET.get('q', '').strip()

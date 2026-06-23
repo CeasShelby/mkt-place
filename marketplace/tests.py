@@ -340,15 +340,21 @@ class MarketplaceTests(TestCase):
         self.assertContains(response, 'Interested in buying!')
 
     def test_forgot_password_email_lookup_failure(self):
-        response = self.client.post(reverse('forgot_password'), {'email': 'unknown@student.gu.ac.ug'})
+        response = self.client.post(reverse('forgot_password'), {
+            'username': 'nonexistent',
+            'email': 'unknown@student.gu.ac.ug'
+        })
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'No account found with this email address.')
+        self.assertContains(response, 'No account found with this username and email address combination.')
 
     def test_forgot_password_success_creates_otp_and_sends_email(self):
         self.buyer_user.email = 'buyer@student.gu.ac.ug'
         self.buyer_user.save()
         
-        response = self.client.post(reverse('forgot_password'), {'email': 'buyer@student.gu.ac.ug'})
+        response = self.client.post(reverse('forgot_password'), {
+            'username': self.buyer_user.username,
+            'email': 'buyer@student.gu.ac.ug'
+        })
         self.assertEqual(response.status_code, 302)
         
         otp_record = PasswordResetOTP.objects.filter(user=self.buyer_user).first()
@@ -366,6 +372,7 @@ class MarketplaceTests(TestCase):
         otp_record = PasswordResetOTP.objects.create(user=self.buyer_user, otp='987654')
         
         response = self.client.post(reverse('verify_otp'), {
+            'username': self.buyer_user.username,
             'email': 'buyer@student.gu.ac.ug',
             'otp': '987654',
             'password': 'newpassword123',
@@ -387,6 +394,7 @@ class MarketplaceTests(TestCase):
         PasswordResetOTP.objects.filter(id=otp_record.id).update(created_at=timezone.now() - datetime.timedelta(minutes=11))
         
         response = self.client.post(reverse('verify_otp'), {
+            'username': self.buyer_user.username,
             'email': 'buyer@student.gu.ac.ug',
             'otp': '987654',
             'password': 'newpassword123',
@@ -397,6 +405,7 @@ class MarketplaceTests(TestCase):
         
         otp_record_new = PasswordResetOTP.objects.create(user=self.buyer_user, otp='111222')
         response = self.client.post(reverse('verify_otp'), {
+            'username': self.buyer_user.username,
             'email': 'buyer@student.gu.ac.ug',
             'otp': '000000',
             'password': 'newpassword123',

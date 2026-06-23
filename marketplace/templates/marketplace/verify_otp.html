@@ -32,6 +32,13 @@
     <form method="POST" action="{% url 'verify_otp' %}" class="space-y-4">
         {% csrf_token %}
         
+        <!-- Username (Pre-filled) -->
+        <div>
+            <label for="username" class="block text-[10px] font-extrabold text-earth-850 uppercase tracking-widest mb-1.5 px-1">Username</label>
+            <input type="text" name="username" id="username" required value="{{ username }}" placeholder="e.g. johndoe"
+                   class="w-full bg-[#fcfbfa]/80 border border-earth-300 rounded-2xl px-4 py-3.5 text-base md:text-xs text-earth-800 placeholder-earth-800/35 focus:outline-none focus:ring-2 focus:ring-earth-800 focus:bg-white transition-all">
+        </div>
+        
         <!-- Email (Pre-filled) -->
         <div>
             <label for="email" class="block text-[10px] font-extrabold text-earth-850 uppercase tracking-widest mb-1.5 px-1">Email Address</label>
