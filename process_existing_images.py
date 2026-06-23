@@ -12,7 +12,7 @@ for product in Product.objects.all():
         print(f"Processing product image: {product.title} (ID: {product.id})")
         try:
             # Re-saving runs the make_image_background_transparent_floodfill
-            product.save()
+            product.save(force_image_process=True)
             print(f"-> Successfully processed {product.title}")
         except Exception as e:
             print(f"-> Error processing product {product.id}: {e}")
@@ -22,7 +22,7 @@ for req in ItemRequest.objects.all():
     if req.image:
         print(f"Processing request image: {req.title} (ID: {req.id})")
         try:
-            req.save()
+            req.save(force_image_process=True)
             print(f"-> Successfully processed {req.title}")
         except Exception as e:
             print(f"-> Error processing request {req.id}: {e}")
@@ -32,9 +32,10 @@ for banner in BannerImage.objects.all():
     if banner.image:
         print(f"Processing banner image ID: {banner.id}")
         try:
-            banner.save()
+            banner.save(force_image_process=True)
             print(f"-> Successfully processed banner {banner.id}")
         except Exception as e:
             print(f"-> Error processing banner {banner.id}: {e}")
 
 print("All existing images processed!")
+

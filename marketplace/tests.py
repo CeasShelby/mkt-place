@@ -62,8 +62,72 @@ class MarketplaceTests(TestCase):
     def test_whatsapp_link_property(self):
         expected_msg = "Hi SellerName, I saw your listing for 'iPhone 11' (1500000 UGX) on the Campus Marketplace. Is it still available?"
         encoded_msg = urllib.parse.quote(expected_msg)
+        
+        # Original format (256770000002)
         expected_link = f"https://wa.me/256770000002?text={encoded_msg}"
         self.assertEqual(self.product.whatsapp_link, expected_link)
+        
+        # Test leading plus
+        self.seller_profile.phone_number = '+256770000002'
+        self.seller_profile.save()
+        self.assertEqual(self.product.whatsapp_link, expected_link)
+        
+        # Test leading zero (local format)
+        self.seller_profile.phone_number = '0770000002'
+        self.seller_profile.save()
+        self.assertEqual(self.product.whatsapp_link, expected_link)
+        
+        # Test spaces and plus
+        self.seller_profile.phone_number = '+256 770 000 002'
+        self.seller_profile.save()
+        self.assertEqual(self.product.whatsapp_link, expected_link)
+        
+        # Test 9 digit number without prefix
+        self.seller_profile.phone_number = '770000002'
+        self.seller_profile.save()
+        self.assertEqual(self.product.whatsapp_link, expected_link)
+
+    def test_image_background_removal_and_png_preservation(self):
+        from PIL import Image as PILImage
+        import io
+        
+        # Create a 10x10 white RGB image (which should trigger the transparency filter)
+        white_img = PILImage.new('RGB', (100, 100), color='white')
+        f = io.BytesIO()
+        white_img.save(f, format='JPEG')
+        f.seek(0)
+        
+        uploaded_file = SimpleUploadedFile(
+            name='white_item.jpg',
+            content=f.read(),
+            content_type='image/jpeg'
+        )
+        
+        # Create product with this white background image
+        prod = Product.objects.create(
+            seller=self.seller_user,
+            category=self.category,
+            title='White Item Test',
+            description='Test product with a white background',
+            price=5000,
+            image=uploaded_file,
+            status='available'
+        )
+        
+        # Since it had a white background, it should have been converted to transparent PNG
+        self.assertTrue(prod.image.name.endswith('_transparent.png'))
+        
+        # Now read it back and verify it is indeed in PNG format and RGBA mode (transparent background)
+        img = PILImage.open(prod.image)
+        self.assertEqual(img.format, 'PNG')
+        self.assertEqual(img.mode, 'RGBA')
+        
+        # Test change-detection: saving without changing the image should be instant and not re-upload or rename the file
+        original_name = prod.image.name
+        prod.title = "Updated Title"
+        prod.save()
+        self.assertEqual(prod.image.name, original_name)
+
 
     def test_home_feed_view(self):
         response = self.client.get(reverse('home_feed'))

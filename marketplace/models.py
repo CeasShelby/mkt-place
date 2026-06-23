@@ -14,7 +14,10 @@ def resize_image_field(image_field, max_size=(800, 800)):
         # Open using PIL
         img = Image.open(image_field)
         if img.width > max_size[0] or img.height > max_size[1]:
-            img_format = img.format or 'JPEG'
+            # Determine format - check if name is png or mode indicates transparency
+            filename = getattr(image_field, 'name', '') or ''
+            is_png = filename.lower().endswith('.png') or img.mode in ('RGBA', 'LA')
+            img_format = 'PNG' if is_png else (img.format or 'JPEG')
             
             # For transparent images, convert RGBA/LA to RGB with a white background if saving as JPEG
             if img.mode in ('RGBA', 'LA') and img_format in ('JPEG', 'JPG'):
@@ -27,17 +30,22 @@ def resize_image_field(image_field, max_size=(800, 800)):
             img.thumbnail(max_size, Image.Resampling.LANCZOS)
             
             temp_handle = io.BytesIO()
-            img.save(temp_handle, format=img_format, quality=85)
+            if img_format == 'PNG':
+                img.save(temp_handle, format='PNG')
+            else:
+                img.save(temp_handle, format=img_format, quality=85)
             temp_handle.seek(0)
             
-            # Update the field's file content
-            new_file = ContentFile(temp_handle.read(), name=os.path.basename(image_field.name))
+            # Update the field's file content name extension if format changed to PNG
+            base_name, ext = os.path.splitext(os.path.basename(image_field.name))
+            new_ext = '.png' if img_format == 'PNG' else ext
+            new_file = ContentFile(temp_handle.read(), name=f"{base_name}{new_ext}")
             return new_file
     except Exception as e:
         print(f"Error resizing image: {e}")
     return None
 
-def make_image_background_transparent_floodfill(image_field, tolerance=25):
+def make_image_background_transparent_floodfill(image_field, tolerance=35):
     if not image_field:
         return None
     try:
@@ -49,13 +57,26 @@ def make_image_background_transparent_floodfill(image_field, tolerance=25):
         # Create a mask initialized to 0 (foreground)
         mask = Image.new("L", (width, height), 0)
         
-        # Flood fill from the four corners
-        corners = [(0, 0), (width - 1, 0), (0, height - 1), (width - 1, height - 1)]
-        for x, y in corners:
+        # Border points: 4 corners + 4 edge centers to detect backgrounds that are not perfectly clean
+        border_points = [
+            (0, 0), (width - 1, 0), (0, height - 1), (width - 1, height - 1),
+            (width // 2, 0), (width // 2, height - 1),
+            (0, height // 2), (width - 1, height // 2)
+        ]
+        
+        filled_any = False
+        for x, y in border_points:
             pixel = img.getpixel((x, y))
-            # Only floodfill if the corner pixel is relatively bright/light-colored
-            if sum(pixel[:3]) / 3 > 200:
+            # Average of R, G, B channels
+            brightness = sum(pixel[:3]) / 3
+            # Only floodfill if the pixel is not transparent and is relatively light/off-white (brightness > 180)
+            if (len(pixel) < 4 or pixel[3] > 0) and brightness > 180:
                 ImageDraw.floodfill(mask, (x, y), 255, thresh=tolerance)
+                filled_any = True
+                
+        # If no border points were light colored, we don't apply the mask
+        if not filled_any:
+            return None
         
         # Convert pixels where mask is 255 to transparent
         datas = img.getdata()
@@ -147,7 +168,20 @@ class Product(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        if self.image:
+        force_process = kwargs.pop('force_image_process', False)
+        
+        is_new_image = False
+        if not self.pk:
+            is_new_image = True
+        else:
+            try:
+                orig = Product.objects.get(pk=self.pk)
+                if orig.image != self.image:
+                    is_new_image = True
+            except Product.DoesNotExist:
+                is_new_image = True
+
+        if (is_new_image or force_process) and self.image:
             transparent_img = make_image_background_transparent_floodfill(self.image)
             if transparent_img:
                 self.image = transparent_img
@@ -192,10 +226,22 @@ class Product(models.Model):
         first_name = self.seller.first_name if self.seller.first_name else self.seller.username
         phone_number = self.seller.profile.phone_number if hasattr(self.seller, 'profile') else ""
         
+        # Clean the phone number for WhatsApp wa.me links
+        # 1. Remove all non-digits (spaces, dashes, parentheses, +, etc.)
+        cleaned_phone = "".join(c for c in phone_number if c.isdigit())
+        
+        # 2. Standardize prefix to international Gulu format (Uganda = 256)
+        if cleaned_phone.startswith('0'):
+            # Convert e.g. 0771234567 to 256771234567
+            cleaned_phone = '256' + cleaned_phone[1:]
+        elif not cleaned_phone.startswith('256') and len(cleaned_phone) == 9:
+            # If 9 digits and not starting with 256, prepend it
+            cleaned_phone = '256' + cleaned_phone
+            
         current_p = self.get_current_price()
         message = f"Hi {first_name}, I saw your listing for '{self.title}' ({current_p} UGX) on the Campus Marketplace. Is it still available?"
         encoded_message = urllib.parse.quote(message)
-        return f"https://wa.me/{phone_number}?text={encoded_message}"
+        return f"https://wa.me/{cleaned_phone}?text={encoded_message}"
 
 class BundleItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='bundle_items')
@@ -223,7 +269,20 @@ class ItemRequest(models.Model):
         return f"Request: {self.title} by {self.requester.username}"
 
     def save(self, *args, **kwargs):
-        if self.image:
+        force_process = kwargs.pop('force_image_process', False)
+        
+        is_new_image = False
+        if not self.pk:
+            is_new_image = True
+        else:
+            try:
+                orig = ItemRequest.objects.get(pk=self.pk)
+                if orig.image != self.image:
+                    is_new_image = True
+            except ItemRequest.DoesNotExist:
+                is_new_image = True
+
+        if (is_new_image or force_process) and self.image:
             transparent_img = make_image_background_transparent_floodfill(self.image)
             if transparent_img:
                 self.image = transparent_img
@@ -295,7 +354,20 @@ class BannerImage(models.Model):
         return f"{self.get_card_type_display()} Image ({self.id})"
 
     def save(self, *args, **kwargs):
-        if self.image:
+        force_process = kwargs.pop('force_image_process', False)
+        
+        is_new_image = False
+        if not self.pk:
+            is_new_image = True
+        else:
+            try:
+                orig = BannerImage.objects.get(pk=self.pk)
+                if orig.image != self.image:
+                    is_new_image = True
+            except BannerImage.DoesNotExist:
+                is_new_image = True
+
+        if (is_new_image or force_process) and self.image:
             transparent_img = make_image_background_transparent_floodfill(self.image)
             if transparent_img:
                 self.image = transparent_img
