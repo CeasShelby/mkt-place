@@ -71,7 +71,10 @@
             <!-- Flash Sales -->
             <div class="bg-admin-900/20 border border-admin-800 rounded-2xl p-4 flex flex-col justify-between min-h-[200px]">
                 <div>
-                    <h3 class="text-xs font-black text-admin-900 uppercase tracking-wider mb-2">⚡ Flash Sales</h3>
+                    <h3 class="text-xs font-black text-admin-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <img src="{% static 'images/hot_sale.png' %}" class="w-4 h-4 object-contain" alt="Hot Sale">
+                        Flash Sales
+                    </h3>
                     {% if flash_banners %}
                         {% for banner in flash_banners %}
                             <div class="bg-admin-900/40 border border-admin-800 rounded-xl overflow-hidden mb-2 relative">

@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from .models import Category, Product, Profile, ChatThread, Message, PasswordResetOTP, BundleItem, ItemRequest, BannerImage
 import urllib.parse
+from unittest.mock import patch
 
 class MarketplaceTests(TestCase):
     def setUp(self):
@@ -115,7 +116,7 @@ class MarketplaceTests(TestCase):
         )
         
         # Since it had a white background, it should have been converted to transparent PNG
-        self.assertTrue(prod.image.name.endswith('_transparent.png'))
+        self.assertTrue('_transparent' in prod.image.name and prod.image.name.endswith('.png'))
         
         # Now read it back and verify it is indeed in PNG format and RGBA mode (transparent background)
         img = PILImage.open(prod.image)
@@ -127,6 +128,75 @@ class MarketplaceTests(TestCase):
         prod.title = "Updated Title"
         prod.save()
         self.assertEqual(prod.image.name, original_name)
+
+    @patch('requests.post')
+    @patch.dict('os.environ', {'REMOVE_BG_API_KEY': 'test_key'})
+    def test_image_background_removal_via_remove_bg_api(self, mock_post):
+        from unittest.mock import MagicMock
+        from PIL import Image as PILImage
+        import io
+        
+        # Mock successful remove.bg API response with a 1x1 transparent PNG
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        # A valid 1x1 pixel transparent PNG byte sequence
+        mock_response.content = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\rIDATx\x9cc\x60\x60\x60\x60\x00\x00\x00\x05\x00\x01\xa5\xf6\x45\x40\x00\x00\x00\x00IEND\xae\x42\x60\x82'
+        mock_post.return_value = mock_response
+
+        # Create a simple image to upload
+        img = PILImage.new('RGB', (10, 10), color='blue')
+        f = io.BytesIO()
+        img.save(f, format='JPEG')
+        f.seek(0)
+        uploaded_file = SimpleUploadedFile(name='item.jpg', content=f.read(), content_type='image/jpeg')
+
+        prod = Product.objects.create(
+            seller=self.seller_user,
+            category=self.category,
+            title='API Item Test',
+            description='Test API background removal',
+            price=10000,
+            image=uploaded_file,
+            status='available'
+        )
+
+        # It should call requests.post
+        mock_post.assert_called_once()
+        # Verify the filename ends with _transparent and .png and the contents are the mock PNG
+        self.assertTrue('_transparent' in prod.image.name and prod.image.name.endswith('.png'))
+        prod.image.seek(0)
+        self.assertEqual(prod.image.read(), mock_response.content)
+
+        # Now test when API fails, it should fallback to local floodfill
+        mock_post.reset_mock()
+        mock_response.status_code = 400
+        
+        # Create a simple white image to upload (so floodfill runs and converts it to transparent)
+        white_img = PILImage.new('RGB', (100, 100), color='white')
+        f_white = io.BytesIO()
+        white_img.save(f_white, format='JPEG')
+        f_white.seek(0)
+        uploaded_file_white = SimpleUploadedFile(name='white_item.jpg', content=f_white.read(), content_type='image/jpeg')
+
+        prod_fallback = Product.objects.create(
+            seller=self.seller_user,
+            category=self.category,
+            title='API Fallback Test',
+            description='Test API fallback to local floodfill',
+            price=10000,
+            image=uploaded_file_white,
+            status='available'
+        )
+
+        # It should call requests.post, get 400, and fall back to local floodfill
+        mock_post.assert_called_once()
+        self.assertTrue('_transparent' in prod_fallback.image.name and prod_fallback.image.name.endswith('.png'))
+        
+        # Verify fallback transparent image is a valid PNG with RGBA mode
+        img_fallback = PILImage.open(prod_fallback.image)
+        self.assertEqual(img_fallback.format, 'PNG')
+        self.assertEqual(img_fallback.mode, 'RGBA')
+
 
 
     def test_home_feed_view(self):

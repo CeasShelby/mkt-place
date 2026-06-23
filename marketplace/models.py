@@ -11,6 +11,13 @@ def resize_image_field(image_field, max_size=(800, 800)):
     if not image_field:
         return None
     try:
+        if hasattr(image_field, 'open'):
+            try:
+                image_field.open()
+            except Exception:
+                pass
+        # Seek to 0 to read from the beginning
+        image_field.seek(0)
         # Open using PIL
         img = Image.open(image_field)
         if img.width > max_size[0] or img.height > max_size[1]:
@@ -49,8 +56,16 @@ def make_image_background_transparent_floodfill(image_field, tolerance=35):
     if not image_field:
         return None
     try:
+        if hasattr(image_field, 'open'):
+            try:
+                image_field.open()
+            except Exception:
+                pass
+        # Seek to 0 to read from the beginning
+        image_field.seek(0)
         from PIL import ImageDraw
         img = Image.open(image_field)
+
         img = img.convert("RGBA")
         width, height = img.size
         
@@ -101,6 +116,38 @@ def make_image_background_transparent_floodfill(image_field, tolerance=35):
         return new_file
     except Exception as e:
         print(f"Error in background removal: {e}")
+    return None
+
+def remove_background_via_api(image_field):
+    api_key = os.getenv('REMOVE_BG_API_KEY')
+    if not api_key:
+        return None
+    try:
+        import requests
+        if hasattr(image_field, 'open'):
+            try:
+                image_field.open()
+            except Exception:
+                pass
+        image_field.seek(0)
+        image_bytes = image_field.read()
+        image_field.seek(0)
+        
+        response = requests.post(
+            'https://api.remove.bg/v1.0/removebg',
+            files={'image_file': image_bytes},
+            data={'size': 'auto'},
+            headers={'X-Api-Key': api_key},
+            timeout=15
+        )
+        if response.status_code == 200:
+            base_name = os.path.splitext(os.path.basename(image_field.name))[0]
+            new_file = ContentFile(response.content, name=f"{base_name}_transparent.png")
+            return new_file
+        else:
+            print(f"Error from remove.bg API: {response.status_code} - {response.text}")
+    except Exception as e:
+        print(f"Exception during remove.bg API call: {e}")
     return None
 
 class Profile(models.Model):
@@ -182,7 +229,9 @@ class Product(models.Model):
                 is_new_image = True
 
         if (is_new_image or force_process) and self.image:
-            transparent_img = make_image_background_transparent_floodfill(self.image)
+            transparent_img = remove_background_via_api(self.image)
+            if not transparent_img:
+                transparent_img = make_image_background_transparent_floodfill(self.image)
             if transparent_img:
                 self.image = transparent_img
             resized = resize_image_field(self.image, (800, 800))
@@ -283,7 +332,9 @@ class ItemRequest(models.Model):
                 is_new_image = True
 
         if (is_new_image or force_process) and self.image:
-            transparent_img = make_image_background_transparent_floodfill(self.image)
+            transparent_img = remove_background_via_api(self.image)
+            if not transparent_img:
+                transparent_img = make_image_background_transparent_floodfill(self.image)
             if transparent_img:
                 self.image = transparent_img
             resized = resize_image_field(self.image, (800, 800))
@@ -368,7 +419,9 @@ class BannerImage(models.Model):
                 is_new_image = True
 
         if (is_new_image or force_process) and self.image:
-            transparent_img = make_image_background_transparent_floodfill(self.image)
+            transparent_img = remove_background_via_api(self.image)
+            if not transparent_img:
+                transparent_img = make_image_background_transparent_floodfill(self.image)
             if transparent_img:
                 self.image = transparent_img
         super().save(*args, **kwargs)

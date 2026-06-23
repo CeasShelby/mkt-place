@@ -1,4 +1,5 @@
 {% extends 'marketplace/base.html' %}
+{% load static %}
 {% load humanize %}
 
 {% block title %}{{ product.title }} - Ufind marketplace{% endblock %}
@@ -33,8 +34,8 @@
                 </span>
             </div>
         {% elif product.is_featured %}
-            <span class="absolute top-4 left-4 px-3 py-1 text-xs font-bold text-white bg-earth-500 rounded-full uppercase tracking-wider shadow-sm">
-                🔥 Premium Deal
+            <span class="absolute top-4 left-4 px-3 py-1 text-xs font-bold text-white bg-earth-500 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1.5">
+                <img src="{% static 'images/premium_flame.png' %}" class="w-4 h-4 object-contain" alt="Premium"> Premium Deal
             </span>
         {% endif %}
     </div>
@@ -104,7 +105,9 @@
                             <h2 class="text-xl md:text-2xl font-black tracking-tight font-heading mt-0.5">{{ product.flash_sale_price|intcomma }} UGX</h2>
                         </div>
                         <div class="text-right shrink-0">
-                            <span class="text-[11px] font-black bg-red-500/20 border border-red-400/40 px-2.5 py-1 rounded-md text-red-100 uppercase tracking-wider">⚡ FLASH DEALS</span>
+                            <span class="text-[11px] font-black bg-red-500/20 border border-red-400/40 px-2.5 py-1 rounded-md text-red-100 uppercase tracking-wider flex items-center gap-1">
+                                <img src="{% static 'images/hot_sale.png' %}" class="w-4 h-4 object-contain" alt="Hot Sale"> FLASH DEALS
+                            </span>
                         </div>
                     </div>
                     <div class="border-t border-white/10 mt-3 pt-3 flex flex-wrap items-center justify-between text-xs gap-2">

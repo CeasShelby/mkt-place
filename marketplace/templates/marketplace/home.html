@@ -162,9 +162,11 @@
 <div class="relative w-[calc(100%+2rem)] -mx-4 md:w-[calc(100%+4rem)] md:-mx-8 xl:w-[calc(100%+7rem)] xl:-mx-14 overflow-hidden mb-0 text-earth-100 bg-[#f9f6f0]">
     
     <!-- Top Announcement Strip -->
-    <div class="w-full bg-gradient-to-r from-earth-900 via-earth-800 to-earth-900 py-2.5 text-center border-b border-earth-700/50">
-        <span class="text-[9px] md:text-xs font-black tracking-[0.2em] text-earth-200 uppercase">
-            🔥 UFIND CAMPUS DEALS | HOSTEL SPOTLIGHTS & REQUESTS 🔥
+    <div class="w-full bg-gradient-to-r from-earth-900 via-earth-800 to-earth-900 py-2.5 text-center border-b border-earth-700/50 flex justify-center">
+        <span class="text-[9px] md:text-xs font-black tracking-[0.2em] text-earth-200 uppercase flex items-center justify-center gap-2">
+            <img src="{% static 'images/premium_flame.png' %}" class="w-3.5 h-3.5 object-contain" alt="Flame">
+            UFIND CAMPUS DEALS | HOSTEL SPOTLIGHTS & REQUESTS
+            <img src="{% static 'images/premium_flame.png' %}" class="w-3.5 h-3.5 object-contain" alt="Flame">
         </span>
     </div>
 
@@ -410,7 +412,7 @@
                         <span class="text-[10px] font-black text-earth-700 uppercase tracking-widest bg-earth-200 px-2 py-0.5 rounded-full">Weekly Event</span>
                     {% endif %}
                 </div>
-                <h3 class="text-lg font-black text-earth-800 font-heading mt-1">⚡ FLASH SALE CAMPUS HOUR</h3>
+                <h3 class="text-lg font-black text-earth-800 font-heading mt-1 flex items-center gap-1.5"><img src="{% static 'images/hot_sale.png' %}" class="w-6 h-6 object-contain" alt="Hot Sale"> FLASH SALE CAMPUS HOUR</h3>
                 <p class="text-xs text-earth-700/80 font-medium">
                     {% if flash_status.is_active %}
                         Exclusive heavy discounts on sneakers, power banks, and host essentials are live!
@@ -421,8 +423,8 @@
             </div>
             
             <!-- Icon/Badge decoration -->
-            <div class="w-12 h-12 rounded-2xl {% if flash_status.is_active %}bg-red-50 text-red-600{% else %}bg-earth-100 text-earth-500{% endif %} flex items-center justify-center text-xl shrink-0 shadow-xs border {% if flash_status.is_active %}border-red-100{% else %}border-earth-200{% endif %}">
-                <i class="ph-bold ph-lightning"></i>
+            <div class="w-12 h-12 rounded-2xl {% if flash_status.is_active %}bg-red-50{% else %}bg-earth-100{% endif %} flex items-center justify-center shrink-0 shadow-xs border {% if flash_status.is_active %}border-red-100{% else %}border-earth-200{% endif %}">
+                <img src="{% static 'images/hot_sale.png' %}" class="w-7 h-7 object-contain" alt="Hot Sale">
             </div>
         </div>
         
@@ -721,7 +723,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Fresh listings Feed -->
 <div class="mb-10" id="student-listings-section">
-    <h2 class="text-lg md:text-xl font-black font-heading text-earth-800 uppercase tracking-tight mb-5">🛍️ Student listings</h2>
+    <h2 class="text-lg md:text-xl font-black font-heading text-earth-800 uppercase tracking-tight mb-5 flex items-center gap-2"><img src="{% static 'images/shopping_bags.png' %}" class="w-6 h-6 object-contain" alt="Shopping Bags"> Student listings</h2>
     
     {% if recent_products or featured_products %}
         <!-- Responsive Catalog Grid -->
@@ -733,8 +735,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         {% if product.image %}
                             <img src="{{ product.image.url }}" alt="{{ product.title }}" class="object-cover w-full h-full group-hover:scale-105 transition-all duration-300">
                         {% endif %}
-                        <span class="absolute top-3 left-3 px-2.5 py-1 text-[10px] font-black text-white bg-earth-500 rounded-full uppercase tracking-wider shadow-sm">
-                            🔥 Premium
+                        <span class="absolute top-3 left-3 px-2.5 py-1 text-[10px] font-black text-white bg-earth-500 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1">
+                            <img src="{% static 'images/premium_flame.png' %}" class="w-3.5 h-3.5 object-contain" alt="Premium"> Premium
                         </span>
                     </div>
                     <div class="p-3 flex-1 flex flex-col justify-between">
