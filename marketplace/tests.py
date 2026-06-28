@@ -1171,6 +1171,67 @@ class MarketplaceTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'BUNDLES')
 
+    def test_forgot_password_username_case_insensitive(self):
+        self.buyer_user.email = 'buyer@student.gu.ac.ug'
+        self.buyer_user.save()
+        
+        response = self.client.post(reverse('forgot_password'), {
+            'username': 'TESTBUYER',
+            'email': 'buyer@student.gu.ac.ug'
+        })
+        self.assertEqual(response.status_code, 302)
+        
+        otp_record = PasswordResetOTP.objects.filter(user=self.buyer_user).first()
+        self.assertIsNotNone(otp_record)
+
+    def test_verify_otp_username_case_insensitive(self):
+        self.buyer_user.email = 'buyer@student.gu.ac.ug'
+        self.buyer_user.save()
+        
+        otp_record = PasswordResetOTP.objects.create(user=self.buyer_user, otp='987654')
+        
+        response = self.client.post(reverse('verify_otp'), {
+            'username': 'TESTBUYER',
+            'email': 'buyer@student.gu.ac.ug',
+            'otp': '987654',
+            'password': 'newpassword123',
+            'confirm_password': 'newpassword123'
+        })
+        self.assertEqual(response.status_code, 302)
+        
+        self.buyer_user.refresh_from_db()
+        self.assertTrue(self.buyer_user.check_password('newpassword123'))
+
+    def test_delete_request_by_owner(self):
+        req = ItemRequest.objects.create(
+            requester=self.buyer_user,
+            title='Needed: Notebook',
+            description='A simple notebook',
+            budget=5000,
+            category=self.category,
+            status='open'
+        )
+        
+        self.client.login(username='testbuyer', password='testpassword')
+        response = self.client.post(reverse('delete_request', args=[req.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(ItemRequest.objects.filter(id=req.id).exists())
+
+    def test_delete_request_by_non_owner(self):
+        req = ItemRequest.objects.create(
+            requester=self.buyer_user,
+            title='Needed: Notebook',
+            description='A simple notebook',
+            budget=5000,
+            category=self.category,
+            status='open'
+        )
+        
+        self.client.login(username='testseller', password='testpassword')
+        response = self.client.post(reverse('delete_request', args=[req.id]))
+        self.assertEqual(response.status_code, 403)
+        self.assertTrue(ItemRequest.objects.filter(id=req.id).exists())
+
 
 
 

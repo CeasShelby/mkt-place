@@ -35,6 +35,7 @@ urlpatterns = [
     # Student requests paths
     path('requests/', views.requests_feed, name='requests_feed'),
     path('requests/create/', views.create_request, name='create_request'),
+    path('requests/delete/<int:request_id>/', views.delete_request_view, name='delete_request'),
     path('requests/initiate/<int:request_id>/', views.initiate_request_chat, name='initiate_request_chat'),
     
     # Profile paths

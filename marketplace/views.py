@@ -13,6 +13,7 @@ from django.db import transaction
 from django.contrib import messages
 from django.urls import reverse
 from django.core.mail import send_mail
+from django.conf import settings
 
 from .models import Product, Category, ChatThread, Message, Profile, PasswordResetOTP, BundleItem, ItemRequest, BannerImage
 
@@ -545,7 +546,7 @@ def forgot_password_view(request):
         if not username or not email:
             error = "Username and email address are required."
         else:
-            user_qs = User.objects.filter(username__exact=username, email__iexact=email)
+            user_qs = User.objects.filter(username__iexact=username, email__iexact=email)
             if not user_qs.exists():
                 error = "No account found with this username and email address combination."
             else:
@@ -556,7 +557,7 @@ def forgot_password_view(request):
                     send_mail(
                         'Password Reset OTP - simply marketplace',
                         f'Hi {user.first_name or user.username},\n\nYour one-time password reset OTP is {otp}.\n\nThis code is valid for 10 minutes.\n\nBest regards,\nThe simply Team',
-                        'noreply@simplymkt.com',
+                        settings.DEFAULT_FROM_EMAIL,
                         [user.email],
                         fail_silently=False,
                     )
@@ -589,7 +590,7 @@ def verify_otp_view(request):
         elif len(password) < 6:
             error = "Password must be at least 6 characters."
         else:
-            user_qs = User.objects.filter(username__exact=username, email__iexact=email)
+            user_qs = User.objects.filter(username__iexact=username, email__iexact=email)
             if not user_qs.exists():
                 error = "Invalid reset request."
             else:
@@ -675,6 +676,20 @@ def create_request(request):
         'categories': categories,
         'error': error
     })
+
+@login_required
+def delete_request_view(request, request_id):
+    if request.method != 'POST':
+        messages.error(request, "POST method required to delete request.")
+        return redirect('requests_feed')
+        
+    item_request = get_object_or_404(ItemRequest, id=request_id)
+    if item_request.requester != request.user:
+        raise PermissionDenied("You are not authorized to delete this request.")
+        
+    item_request.delete()
+    messages.success(request, "Your wishlist request has been deleted successfully.")
+    return redirect('requests_feed')
 
 @login_required
 def initiate_request_chat(request, request_id):
