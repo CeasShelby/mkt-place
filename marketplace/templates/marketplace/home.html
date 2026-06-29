@@ -218,10 +218,10 @@
                         <!-- Shadow on Podium -->
                         <div class="absolute bottom-2 md:bottom-6 w-[70%] h-[8%] bg-black/10 rounded-full blur-xs"></div>
                         
-                        {% if flash_products and flash_products.first.image %}
-                            <img src="{{ flash_products.first.image.url }}" class="relative z-10 h-[80%] md:h-[85%] w-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300 mb-2 md:mb-4">
-                        {% elif custom_flash_banners %}
+                        {% if custom_flash_banners %}
                             <img src="{{ custom_flash_banners.first.image.url }}" class="relative z-10 h-[80%] md:h-[85%] w-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300 mb-2 md:mb-4">
+                        {% elif flash_products and flash_products.first.image %}
+                            <img src="{{ flash_products.first.image.url }}" class="relative z-10 h-[80%] md:h-[85%] w-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300 mb-2 md:mb-4">
                         {% else %}
                             <svg class="relative z-10 h-[65%] md:h-[70%] w-auto drop-shadow-xl text-earth-800 animate-pulse mb-4 md:mb-6" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
@@ -307,10 +307,10 @@
                         <!-- Shadow on Podium -->
                         <div class="absolute bottom-2 md:bottom-6 w-[70%] h-[8%] bg-black/10 rounded-full blur-xs"></div>
                         
-                        {% if bundles and bundles.first.image %}
-                            <img src="{{ bundles.first.image.url }}" class="relative z-10 h-[80%] md:h-[85%] w-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300 mb-2 md:mb-4">
-                        {% elif custom_bundle_banners %}
+                        {% if custom_bundle_banners %}
                             <img src="{{ custom_bundle_banners.first.image.url }}" class="relative z-10 h-[80%] md:h-[85%] w-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300 mb-2 md:mb-4">
+                        {% elif bundles and bundles.first.image %}
+                            <img src="{{ bundles.first.image.url }}" class="relative z-10 h-[80%] md:h-[85%] w-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300 mb-2 md:mb-4">
                         {% else %}
                             <svg class="relative z-10 h-[65%] md:h-[70%] w-auto drop-shadow-xl text-white mb-4 md:mb-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="16.5" y1="9.4" x2="7.5" y2="4.21" />
@@ -355,10 +355,10 @@
                         <!-- Shadow on Podium -->
                         <div class="absolute bottom-2 md:bottom-6 w-[70%] h-[8%] bg-black/10 rounded-full blur-xs"></div>
                         
-                        {% if recent_products and recent_products.first.image %}
-                            <img src="{{ recent_products.first.image.url }}" class="relative z-10 h-[80%] md:h-[85%] w-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300 mb-2 md:mb-4">
-                        {% elif custom_big_banners %}
+                        {% if custom_big_banners %}
                             <img src="{{ custom_big_banners.first.image.url }}" class="relative z-10 h-[80%] md:h-[85%] w-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300 mb-2 md:mb-4">
+                        {% elif recent_products and recent_products.first.image %}
+                            <img src="{{ recent_products.first.image.url }}" class="relative z-10 h-[80%] md:h-[85%] w-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300 mb-2 md:mb-4">
                         {% else %}
                             <svg class="relative z-10 h-[65%] md:h-[70%] w-auto drop-shadow-xl text-white mb-4 md:mb-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
