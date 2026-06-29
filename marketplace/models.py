@@ -165,7 +165,7 @@ class Profile(models.Model):
         choices=HOSTEL_CHOICES,
         default='main_campus'
     )
-    profile_picture = models.ImageField(upload_to='profiles/', null=True, blank=True)
+    profile_picture = models.ImageField(upload_to='profiles/', null=True, blank=True, max_length=255)
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
@@ -203,7 +203,7 @@ class Product(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
     price = models.PositiveIntegerField(help_text="Price in UGX")
-    image = models.ImageField(upload_to='products/')
+    image = models.ImageField(upload_to='products/', max_length=255)
     is_featured = models.BooleanField(default=False)
     is_bundle = models.BooleanField(default=False)
     is_flash_sale = models.BooleanField(default=False)
@@ -306,7 +306,7 @@ class ItemRequest(models.Model):
     description = models.TextField()
     budget = models.PositiveIntegerField(help_text="Budget in UGX")
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='item_requests')
-    image = models.ImageField(upload_to='requests/', null=True, blank=True)
+    image = models.ImageField(upload_to='requests/', null=True, blank=True, max_length=255)
     status = models.CharField(
         max_length=20,
         choices=[('open', 'Open'), ('fulfilled', 'Fulfilled'), ('cancelled', 'Cancelled')],
@@ -395,7 +395,7 @@ class BannerImage(models.Model):
         ('bundles', 'Setup Bundles Card'),
     ]
     card_type = models.CharField(max_length=20, choices=CARD_CHOICES)
-    image = models.ImageField(upload_to='banners/')
+    image = models.ImageField(upload_to='banners/', max_length=255)
     order = models.PositiveIntegerField(default=0, help_text="Order of display for big card slideshow")
 
     class Meta:
