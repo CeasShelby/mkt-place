@@ -141,17 +141,17 @@ MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # Storage configuration for production vs development
-if not DEBUG and os.getenv("CLOUDINARY_CLOUD_NAME"):
+if os.getenv("CLOUDINARY_CLOUD_NAME"):
     STORAGES = {
         "default": {
             "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
         },
         "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage" if not DEBUG else "django.contrib.staticfiles.storage.StaticFilesStorage",
         },
     }
     DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage" if not DEBUG else "django.contrib.staticfiles.storage.StaticFilesStorage"
     CLOUDINARY_STORAGE = {
         "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
         "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
@@ -190,14 +190,20 @@ LOGOUT_REDIRECT_URL = "home_feed"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
+
 # Email configurations (defaults to console for development/testing)
-# If EMAIL_HOST_USER is provided in env, defaults to SMTP email backend.
-EMAIL_BACKEND = os.getenv(
-    "EMAIL_BACKEND",
-    "django.core.mail.backends.smtp.EmailBackend"
-    if os.getenv("EMAIL_HOST_USER")
-    else "django.core.mail.backends.console.EmailBackend",
-)
+# If RESEND_API_KEY is provided, uses our custom Resend HTTP backend.
+# If EMAIL_HOST_USER is provided, defaults to SMTP email backend.
+if RESEND_API_KEY:
+    EMAIL_BACKEND = "campus_marketplace.email_backends.ResendBackend"
+else:
+    EMAIL_BACKEND = os.getenv(
+        "EMAIL_BACKEND",
+        "django.core.mail.backends.smtp.EmailBackend"
+        if os.getenv("EMAIL_HOST_USER")
+        else "django.core.mail.backends.console.EmailBackend",
+    )
 EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
 EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True") == "True"
@@ -205,6 +211,8 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
 DEFAULT_FROM_EMAIL = os.getenv(
     "DEFAULT_FROM_EMAIL",
-    os.getenv("EMAIL_HOST_USER", "ceasermakpwe@gmail.com"),
+    "onboarding@resend.dev"
+    if RESEND_API_KEY
+    else os.getenv("EMAIL_HOST_USER", "ceasermakpwe@gmail.com"),
 )
 EMAIL_TIMEOUT = int(os.getenv("EMAIL_TIMEOUT", "10"))
