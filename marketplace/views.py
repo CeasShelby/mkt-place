@@ -839,3 +839,18 @@ def delete_thread(request, thread_id):
     thread.delete()
     messages.success(request, "Conversation deleted successfully.")
     return redirect('inbox')
+
+
+@login_required
+def delete_product(request, pk):
+    if request.method != 'POST':
+        messages.error(request, "POST method required to delete listing.")
+        return redirect('product_detail', pk=pk)
+        
+    product = get_object_or_404(Product, pk=pk)
+    if product.seller != request.user:
+        raise PermissionDenied("You are not authorized to delete this listing.")
+        
+    product.delete()
+    messages.success(request, f"Your listing '{product.title}' has been deleted successfully.")
+    return redirect('home_feed')

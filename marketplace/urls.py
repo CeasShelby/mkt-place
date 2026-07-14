@@ -23,6 +23,7 @@ urlpatterns = [
     path('', views.home_feed, name='home_feed'),
     path('product/<int:pk>/', views.product_detail, name='product_detail'),
     path('product/<int:pk>/update-status/', views.update_product_status, name='update_product_status'),
+    path('product/<int:pk>/delete/', views.delete_product, name='delete_product'),
     path('product/create/', views.create_product, name='create_product'),
     path('product/create-bundle/', views.create_bundle, name='create_bundle'),
     path('chat/initiate/<int:product_id>/', views.initiate_chat, name='initiate_chat'),

@@ -176,6 +176,13 @@
                         </button>
                     {% endif %}
                 </form>
+                <form action="{% url 'delete_product' product.id %}" method="POST" class="mt-2.5" onsubmit="return confirm('Are you sure you want to permanently delete this listing? This action cannot be undone.');">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full px-4 py-2.5 bg-red-650 hover:bg-red-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-1.5">
+                        <i class="ph-bold ph-trash text-sm"></i>
+                        Delete Listing Permanently
+                    </button>
+                </form>
             </div>
             {% endif %}
 
@@ -188,6 +195,7 @@
             </div>
         </div>
 
+        {% if product.status == 'available' %}
         <!-- Inline Widescreen Desktop Action Buttons -->
         <div class="hidden md:flex items-center space-x-3 mt-6 pt-6 border-t border-earth-300/40">
             <!-- In-App Chat -->
@@ -202,9 +210,18 @@
                 <span>WhatsApp Me</span>
             </a>
         </div>
+        {% else %}
+        <div class="hidden md:block mt-6 pt-6 border-t border-earth-300/40 text-center">
+            <div class="inline-flex items-center space-x-2 text-red-650 bg-red-50 border border-red-200/60 px-4 py-3 rounded-2xl w-full justify-center">
+                <i class="ph-bold ph-info text-lg"></i>
+                <span class="font-extrabold text-xs uppercase tracking-wider">This listing is no longer available (Sold/Archived)</span>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
 
+{% if product.status == 'available' %}
 <!-- Sticky Bottom Action Bar (Mobile Only) -->
 <div class="fixed bottom-14 left-0 right-0 z-40 bg-earth-200/95 backdrop-blur-md border-t border-earth-300 py-4 px-6 shadow-[0_-8px_20px_rgba(61,35,20,0.05)] md:hidden">
     <div class="max-w-md mx-auto flex items-center space-x-3">
@@ -221,4 +238,5 @@
         </a>
     </div>
 </div>
+{% endif %}
 {% endblock %}
