@@ -1,20 +1,25 @@
 {% extends 'marketplace/admin_base.html' %}
 {% load static %}
 
-{% block title %}Manage Hero Banners - simply marketplace admin{% endblock %}
-{% block header_title %}Hero Banner Settings{% endblock %}
+{% block title %}Manage Hero Banners - Ufind marketplace admin{% endblock %}
+{% block header_title %}Banners{% endblock %}
+{% block desktop_header_title %}Hero Banner Settings{% endblock %}
 
 {% block content %}
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-    
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
+
     <!-- Left Column: Upload Form -->
-    <div class="bg-admin-900/30 border border-admin-800 rounded-2xl p-5 backdrop-blur-md">
-        <h2 class="text-sm font-black text-admin-900 uppercase tracking-wider mb-4">Upload Banner Image</h2>
+    <div class="bg-white border border-earth-300 rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center space-x-2 mb-5">
+            <i class="ph-fill ph-image text-earth-700 text-base sm:text-lg shrink-0"></i>
+            <h2 class="text-sm font-black text-earth-800 font-heading">Upload Banner Image</h2>
+        </div>
+
         <form method="POST" enctype="multipart/form-data" class="space-y-4">
             {% csrf_token %}
             <div>
-                <label class="block text-xs font-bold text-admin-400 uppercase tracking-wider mb-2">Card Section</label>
-                <select name="card_type" required class="w-full bg-admin-950/80 border border-admin-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accent-500 transition-colors">
+                <label class="block text-[10px] font-black text-earth-500 uppercase tracking-widest mb-1.5">Card Section</label>
+                <select name="card_type" required class="w-full bg-earth-50 border border-earth-300 rounded-xl px-4 py-2.5 text-sm text-earth-800 focus:outline-none focus:border-accent-500 transition-colors">
                     <option value="" disabled selected>Select destination card...</option>
                     {% for value, label in card_choices %}
                         <option value="{{ value }}">{{ label }}</option>
@@ -23,117 +28,125 @@
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-admin-400 uppercase tracking-wider mb-2">Background Image</label>
-                <input type="file" name="image" accept="image/*" required class="w-full text-xs text-admin-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-admin-800 file:text-white hover:file:bg-admin-700 cursor-pointer file:cursor-pointer">
+                <label class="block text-[10px] font-black text-earth-500 uppercase tracking-widest mb-1.5">Background Image</label>
+                <input type="file" name="image" accept="image/*" required
+                    class="w-full text-xs text-earth-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-accent-100 file:text-accent-600 hover:file:bg-accent-500 hover:file:text-white cursor-pointer file:cursor-pointer file:transition-colors">
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-admin-400 uppercase tracking-wider mb-2">Display Order (Big Card only)</label>
-                <input type="number" name="order" value="0" min="0" class="w-full bg-admin-950/80 border border-admin-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accent-500 transition-colors">
-                <span class="text-[10px] text-admin-400 block mt-1.5 leading-normal">Defines the slideshow order for the Big Card. Ignored for other cards.</span>
+                <label class="block text-[10px] font-black text-earth-500 uppercase tracking-widest mb-1.5">Display Order (Big Card only)</label>
+                <input type="number" name="order" value="0" min="0"
+                    class="w-full bg-earth-50 border border-earth-300 rounded-xl px-4 py-2.5 text-sm text-earth-800 focus:outline-none focus:border-accent-500 transition-colors">
+                <span class="text-[10px] text-earth-400 font-medium block mt-1.5 leading-normal">Defines the slideshow order for the Big Card. Ignored for other cards.</span>
             </div>
 
-            <button type="submit" class="w-full bg-accent-600 hover:bg-accent-700 text-white font-extrabold text-xs py-3 rounded-xl shadow-md transition-colors uppercase tracking-wider mt-2">Upload Image</button>
+            <button type="submit" class="w-full bg-accent-500 hover:bg-accent-600 text-white font-bold text-sm py-3 rounded-xl shadow-sm transition-colors mt-2">
+                Upload Image
+            </button>
         </form>
     </div>
 
     <!-- Right Column: Current Banners Grid -->
-    <div class="lg:col-span-2 space-y-8">
-        
-        <!-- Big Hero Card Banners -->
-        <div class="bg-admin-900/20 border border-admin-800 rounded-2xl p-5">
-            <h2 class="text-sm font-black text-admin-900 uppercase tracking-wider mb-3">Big Card Slideshow Images</h2>
-            {% if big_card_banners %}
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    {% for banner in big_card_banners %}
-                        <div class="bg-admin-900/40 border border-admin-800 rounded-xl overflow-hidden flex flex-col justify-between">
-                            <div class="aspect-[16/9] w-full bg-admin-950 overflow-hidden border-b border-admin-800 relative">
-                                <img src="{{ banner.image.url }}" class="object-cover w-full h-full" alt="Big Card Image">
-                                <span class="absolute top-2 left-2 px-2 py-0.5 bg-admin-900/80 backdrop-blur-md rounded border border-admin-800 text-[9px] text-accent-500 font-bold">Order: {{ banner.order }}</span>
-                            </div>
-                            <div class="p-3 flex items-center justify-between">
-                                <span class="text-[10px] font-bold text-admin-400">ID: {{ banner.id }}</span>
-                                <form action="{% url 'admin_delete_banner' banner.id %}" method="POST" onsubmit="return confirm('Delete this banner image?');">
-                                    {% csrf_token %}
-                                    <button type="submit" class="text-[10px] font-black text-red-400 hover:text-red-300 uppercase tracking-wide">Delete</button>
-                                </form>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="text-xs text-admin-400 italic">No custom slideshow images uploaded. Using default: <code class="bg-admin-900 px-1 rounded text-[10px]">static/images/simply_hero_bg.png</code></p>
-            {% endif %}
-        </div>
+    <div class="lg:col-span-2 space-y-5">
 
-        <!-- Small Highlights Cards Banners -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            <!-- Flash Sales -->
-            <div class="bg-admin-900/20 border border-admin-800 rounded-2xl p-4 flex flex-col justify-between min-h-[200px]">
-                <div>
-                    <h3 class="text-xs font-black text-admin-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                        <img src="{% static 'images/hot_sale.png' %}" class="w-4 h-4 object-contain" alt="Hot Sale">
-                        Flash Sales
-                    </h3>
-                    {% if flash_banners %}
-                        {% for banner in flash_banners %}
-                            <div class="bg-admin-900/40 border border-admin-800 rounded-xl overflow-hidden mb-2 relative">
-                                <img src="{{ banner.image.url }}" class="aspect-[2/1] object-cover w-full" alt="Flash Sale Background">
-                                <form action="{% url 'admin_delete_banner' banner.id %}" method="POST" onsubmit="return confirm('Delete this banner image?');" class="absolute bottom-2 right-2">
-                                    {% csrf_token %}
-                                    <button type="submit" class="px-2 py-1 bg-red-650 hover:bg-red-700 text-white rounded text-[8px] font-bold uppercase transition-colors">Delete</button>
-                                </form>
+        <!-- Big Hero Card Banners -->
+        <div class="bg-white border border-earth-300 rounded-2xl overflow-hidden shadow-sm">
+            <div class="flex items-center space-x-2 px-6 py-4 border-b border-earth-200">
+                <i class="ph-fill ph-image text-earth-700 text-base sm:text-lg shrink-0"></i>
+                <h2 class="text-sm font-black text-earth-800 font-heading">Big Card Slideshow Images</h2>
+            </div>
+            <div class="p-5">
+                {% if big_card_banners %}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        {% for banner in big_card_banners %}
+                            <div class="bg-earth-100 border border-earth-300 rounded-xl overflow-hidden flex flex-col justify-between">
+                                <div class="aspect-[16/9] w-full bg-earth-200 overflow-hidden border-b border-earth-300 relative">
+                                    <img src="{{ banner.image.url }}" class="object-cover w-full h-full" alt="Big Card Image">
+                                    <span class="absolute top-2 left-2 px-2 py-0.5 bg-white/90 rounded-lg text-[9px] text-accent-600 font-black border border-earth-300">Order: {{ banner.order }}</span>
+                                </div>
+                                <div class="p-3 flex items-center justify-between">
+                                    <span class="text-[10px] font-bold text-earth-500">ID: {{ banner.id }}</span>
+                                    <form action="{% url 'admin_delete_banner' banner.id %}" method="POST" onsubmit="return confirm('Delete this banner?');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="text-[10px] font-black text-red-500 hover:text-red-700 uppercase tracking-wide transition-colors">Delete</button>
+                                    </form>
+                                </div>
                             </div>
                         {% endfor %}
-                    {% else %}
-                        <p class="text-[10px] text-admin-400 italic mt-2">No custom background. Using default: <code class="bg-admin-900 px-1 rounded text-[9px]">flash_sales_bg.png</code></p>
-                    {% endif %}
+                    </div>
+                {% else %}
+                    <p class="text-xs text-earth-400 italic">No custom slideshow images uploaded. Using default: <code class="bg-earth-100 border border-earth-300 px-1.5 py-0.5 rounded text-[10px] text-earth-600 font-mono">simply_hero_bg.png</code></p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Small Highlight Cards Banners -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+            <!-- Flash Sales -->
+            <div class="bg-white border border-earth-300 rounded-2xl p-4 shadow-sm">
+                <div class="flex items-center gap-2 mb-3">
+                    <img src="{% static 'images/hot_sale.png' %}" class="w-5 h-5 object-contain" alt="Hot Sale">
+                    <h3 class="text-xs font-black text-earth-800 uppercase tracking-wider">Flash Sales</h3>
                 </div>
+                {% if flash_banners %}
+                    {% for banner in flash_banners %}
+                        <div class="border border-earth-300 rounded-xl overflow-hidden mb-2 relative">
+                            <img src="{{ banner.image.url }}" class="aspect-[2/1] object-cover w-full" alt="Flash Sale Background">
+                            <form action="{% url 'admin_delete_banner' banner.id %}" method="POST" onsubmit="return confirm('Delete?');" class="absolute bottom-2 right-2">
+                                {% csrf_token %}
+                                <button type="submit" class="px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded-lg text-[8px] font-bold uppercase transition-colors">Delete</button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-[10px] text-earth-400 italic leading-relaxed">No custom background. Default: <code class="font-mono text-[9px]">flash_sales_bg.png</code></p>
+                {% endif %}
             </div>
 
             <!-- Requests -->
-            <div class="bg-admin-900/20 border border-admin-800 rounded-2xl p-4 flex flex-col justify-between min-h-[200px]">
-                <div>
-                    <h3 class="text-xs font-black text-admin-900 uppercase tracking-wider mb-2 flex items-center gap-1.5"><i class="ph-bold ph-megaphone text-sm"></i> Requests</h3>
-                    {% if requests_banners %}
-                        {% for banner in requests_banners %}
-                            <div class="bg-admin-900/40 border border-admin-800 rounded-xl overflow-hidden mb-2 relative">
-                                <img src="{{ banner.image.url }}" class="aspect-[2/1] object-cover w-full" alt="Requests Background">
-                                <form action="{% url 'admin_delete_banner' banner.id %}" method="POST" onsubmit="return confirm('Delete this banner image?');" class="absolute bottom-2 right-2">
-                                    {% csrf_token %}
-                                    <button type="submit" class="px-2 py-1 bg-red-650 hover:bg-red-700 text-white rounded text-[8px] font-bold uppercase transition-colors">Delete</button>
-                                </form>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <p class="text-[10px] text-admin-400 italic mt-2">No custom background. Using default: <code class="bg-admin-900 px-1 rounded text-[9px]">requests_bg.png</code></p>
-                    {% endif %}
+            <div class="bg-white border border-earth-300 rounded-2xl p-4 shadow-sm">
+                <div class="flex items-center gap-2 mb-3">
+                    <i class="ph-bold ph-megaphone text-earth-600 text-base"></i>
+                    <h3 class="text-xs font-black text-earth-800 uppercase tracking-wider">Requests</h3>
                 </div>
+                {% if requests_banners %}
+                    {% for banner in requests_banners %}
+                        <div class="border border-earth-300 rounded-xl overflow-hidden mb-2 relative">
+                            <img src="{{ banner.image.url }}" class="aspect-[2/1] object-cover w-full" alt="Requests Background">
+                            <form action="{% url 'admin_delete_banner' banner.id %}" method="POST" onsubmit="return confirm('Delete?');" class="absolute bottom-2 right-2">
+                                {% csrf_token %}
+                                <button type="submit" class="px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded-lg text-[8px] font-bold uppercase transition-colors">Delete</button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-[10px] text-earth-400 italic leading-relaxed">No custom background. Default: <code class="font-mono text-[9px]">requests_bg.png</code></p>
+                {% endif %}
             </div>
 
             <!-- Setup Bundles -->
-            <div class="bg-admin-900/20 border border-admin-800 rounded-2xl p-4 flex flex-col justify-between min-h-[200px]">
-                <div>
-                    <h3 class="text-xs font-black text-admin-900 uppercase tracking-wider mb-2 flex items-center gap-1.5"><i class="ph-bold ph-package text-sm"></i> Setup Bundles</h3>
-                    {% if bundles_banners %}
-                        {% for banner in bundles_banners %}
-                            <div class="bg-admin-900/40 border border-admin-800 rounded-xl overflow-hidden mb-2 relative">
-                                <img src="{{ banner.image.url }}" class="aspect-[2/1] object-cover w-full" alt="Bundles Background">
-                                <form action="{% url 'admin_delete_banner' banner.id %}" method="POST" onsubmit="return confirm('Delete this banner image?');" class="absolute bottom-2 right-2">
-                                    {% csrf_token %}
-                                    <button type="submit" class="px-2 py-1 bg-red-650 hover:bg-red-700 text-white rounded text-[8px] font-bold uppercase transition-colors">Delete</button>
-                                </form>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <p class="text-[10px] text-admin-400 italic mt-2">No custom background. Using default: <code class="bg-admin-900 px-1 rounded text-[9px]">setup_bundles_bg.png</code></p>
-                    {% endif %}
+            <div class="bg-white border border-earth-300 rounded-2xl p-4 shadow-sm">
+                <div class="flex items-center gap-2 mb-3">
+                    <i class="ph-bold ph-package text-earth-600 text-base"></i>
+                    <h3 class="text-xs font-black text-earth-800 uppercase tracking-wider">Setup Bundles</h3>
                 </div>
+                {% if bundles_banners %}
+                    {% for banner in bundles_banners %}
+                        <div class="border border-earth-300 rounded-xl overflow-hidden mb-2 relative">
+                            <img src="{{ banner.image.url }}" class="aspect-[2/1] object-cover w-full" alt="Bundles Background">
+                            <form action="{% url 'admin_delete_banner' banner.id %}" method="POST" onsubmit="return confirm('Delete?');" class="absolute bottom-2 right-2">
+                                {% csrf_token %}
+                                <button type="submit" class="px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded-lg text-[8px] font-bold uppercase transition-colors">Delete</button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-[10px] text-earth-400 italic leading-relaxed">No custom background. Default: <code class="font-mono text-[9px]">setup_bundles_bg.png</code></p>
+                {% endif %}
             </div>
 
         </div>
-
     </div>
 </div>
 {% endblock %}

@@ -2,111 +2,147 @@
 {% load humanize %}
 
 {% block title %}Manage Requests - Ufind marketplace admin{% endblock %}
-{% block header_title %}Buyer Requests Feed{% endblock %}
+{% block header_title %}Requests{% endblock %}
+{% block desktop_header_title %}Buyer Requests Feed{% endblock %}
 
 {% block content %}
-<!-- Search and Filters Panel -->
-<div class="bg-admin-900/30 border border-admin-800 rounded-2xl p-5 mb-8 backdrop-blur-md">
-    <form method="GET" action="{% url 'admin_requests_list' %}" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-        <div>
-            <label class="block text-xs font-bold text-admin-400 uppercase tracking-wider mb-2">Search Requests</label>
-            <input type="text" name="q" value="{{ query }}" placeholder="Title, description, buyer..." class="w-full bg-admin-950/80 border border-admin-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accent-500 transition-colors">
+<!-- Filters -->
+<div class="bg-white border border-earth-300 rounded-2xl p-4 sm:p-5 mb-5 shadow-sm">
+    <form method="GET" action="{% url 'admin_requests_list' %}" class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 items-end">
+        <div class="sm:col-span-1">
+            <label class="block text-[10px] font-black text-earth-500 uppercase tracking-widest mb-1.5">Search Requests</label>
+            <input type="text" name="q" value="{{ query }}" placeholder="Title, buyer..." class="w-full bg-earth-50 border border-earth-300 rounded-xl px-4 py-2.5 text-sm text-earth-800 placeholder-earth-400 focus:outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30 transition-colors">
         </div>
-
         <div>
-            <label class="block text-xs font-bold text-admin-400 uppercase tracking-wider mb-2">Status</label>
-            <select name="status" class="w-full bg-admin-950/80 border border-admin-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accent-500 transition-colors">
+            <label class="block text-[10px] font-black text-earth-500 uppercase tracking-widest mb-1.5">Status</label>
+            <select name="status" class="w-full bg-earth-50 border border-earth-300 rounded-xl px-3 py-2.5 text-sm text-earth-800 focus:outline-none focus:border-accent-500 transition-colors">
                 <option value="">All Statuses</option>
                 <option value="open" {% if selected_status == 'open' %}selected{% endif %}>Open</option>
                 <option value="fulfilled" {% if selected_status == 'fulfilled' %}selected{% endif %}>Fulfilled</option>
                 <option value="cancelled" {% if selected_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
             </select>
         </div>
-
         <div class="flex space-x-2">
-            <button type="submit" class="flex-1 bg-accent-600 hover:bg-accent-700 text-white font-bold text-sm py-2.5 px-4 rounded-xl shadow-md transition-colors">Filter</button>
-            <a href="{% url 'admin_requests_list' %}" class="bg-admin-800 hover:bg-admin-700 text-white font-bold text-sm py-2.5 px-4 rounded-xl border border-admin-700 transition-colors text-center">Reset</a>
+            <button type="submit" class="flex-1 bg-accent-500 hover:bg-accent-600 text-white font-bold text-sm py-2.5 px-4 rounded-xl shadow-sm transition-colors">Filter</button>
+            <a href="{% url 'admin_requests_list' %}" class="bg-earth-100 hover:bg-earth-200 text-earth-700 font-bold text-sm py-2.5 px-4 rounded-xl border border-earth-300 transition-colors text-center">Reset</a>
         </div>
     </form>
 </div>
 
-<!-- Requests Table Container -->
-<div class="bg-admin-900/20 border border-admin-800 rounded-2xl overflow-hidden shadow-xl">
+<!-- ===== MOBILE CARDS ===== -->
+<div class="md:hidden space-y-3 mb-4">
+    {% for req in item_requests %}
+    <div class="bg-white border border-earth-300 rounded-2xl p-4 shadow-sm">
+        <div class="flex items-start gap-3 mb-3">
+            {% if req.image %}
+                <img src="{{ req.image.url }}" class="w-12 h-12 rounded-xl object-cover border border-earth-300 shrink-0" alt="{{ req.title }}">
+            {% endif %}
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider
+                        {% if req.status == 'open' %}bg-green-100 text-green-700 border border-green-200
+                        {% elif req.status == 'fulfilled' %}bg-blue-100 text-blue-700 border border-blue-200
+                        {% else %}bg-earth-200 text-earth-600 border border-earth-300{% endif %}">
+                        {{ req.status }}
+                    </span>
+                    <span class="text-[10px] text-earth-400 font-medium">{{ req.created_at|date:"M d, Y" }}</span>
+                </div>
+                <h4 class="text-sm font-bold text-earth-800 truncate">{{ req.title }}</h4>
+                <p class="text-xs text-earth-500 mt-1 line-clamp-2">{{ req.description }}</p>
+            </div>
+        </div>
+        <div class="flex items-center justify-between gap-2 pt-3 border-t border-earth-100">
+            <div class="flex flex-col min-w-0">
+                <span class="text-[10px] text-earth-500 font-medium">@{{ req.requester.username }}</span>
+                <span class="text-xs font-bold text-accent-500">{{ req.budget|intcomma }} UGX</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <form action="{% url 'admin_update_request_status' req.id %}" method="POST">
+                    {% csrf_token %}
+                    <select name="status" onchange="this.form.submit()" class="bg-earth-50 border border-earth-300 rounded-lg px-2 py-1.5 text-xs text-earth-800 font-semibold focus:outline-none">
+                        <option value="open" {% if req.status == 'open' %}selected{% endif %}>Open</option>
+                        <option value="fulfilled" {% if req.status == 'fulfilled' %}selected{% endif %}>Fulfilled</option>
+                        <option value="cancelled" {% if req.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                    </select>
+                </form>
+                <form action="{% url 'admin_delete_request' req.id %}" method="POST" onsubmit="return confirm('Delete this request?');">
+                    {% csrf_token %}
+                    <button type="submit" class="w-8 h-8 inline-flex items-center justify-center bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all border border-red-200 hover:border-red-500 font-bold text-xs" title="Delete">
+                        ✕
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="bg-white border border-earth-300 rounded-2xl p-10 text-center shadow-sm">
+        <i class="ph-fill ph-file-text text-earth-300 text-4xl mb-2 block"></i>
+        <p class="text-sm text-earth-400 font-semibold">No buyer requests found.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- ===== DESKTOP TABLE ===== -->
+<div class="hidden md:block bg-white border border-earth-300 rounded-2xl overflow-hidden shadow-sm">
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
             <thead>
-                <tr class="border-b border-admin-800 bg-admin-900/50 text-xs font-bold text-admin-400 uppercase tracking-wider">
-                    <th class="px-6 py-4">Request Details</th>
-                    <th class="px-6 py-4">Category</th>
-                    <th class="px-6 py-4">Budget</th>
-                    <th class="px-6 py-4">Requester</th>
-                    <th class="px-6 py-4">Date Posted</th>
-                    <th class="px-6 py-4">Status</th>
-                    <th class="px-6 py-4 text-right">Actions</th>
+                <tr class="border-b border-earth-200 bg-earth-50 text-[10px] font-black text-earth-500 uppercase tracking-widest">
+                    <th class="px-6 py-3.5">Request Details</th>
+                    <th class="px-6 py-3.5">Category</th>
+                    <th class="px-6 py-3.5">Budget</th>
+                    <th class="px-6 py-3.5">Requester</th>
+                    <th class="px-6 py-3.5">Date</th>
+                    <th class="px-6 py-3.5">Status</th>
+                    <th class="px-6 py-3.5 text-right">Actions</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-admin-800 text-sm">
-                {% for request in item_requests %}
-                    <tr class="hover:bg-admin-900/20 transition-colors">
-                        <!-- Request Details -->
-                        <td class="px-6 py-4 max-w-xs sm:max-w-md">
+            <tbody class="divide-y divide-earth-100 text-sm">
+                {% for req in item_requests %}
+                    <tr class="hover:bg-earth-50 transition-colors">
+                        <td class="px-6 py-4 max-w-xs">
                             <div class="flex items-start space-x-3">
-                                {% if request.image %}
-                                    <img src="{{ request.image.url }}" class="w-10 h-10 rounded-lg object-cover border border-admin-700 mt-0.5 shrink-0" alt="{{ request.title }}">
+                                {% if req.image %}
+                                    <img src="{{ req.image.url }}" class="w-10 h-10 rounded-xl object-cover border border-earth-300 mt-0.5 shrink-0" alt="{{ req.title }}">
                                 {% endif %}
                                 <div class="min-w-0">
-                                    <h4 class="text-admin-900 font-bold truncate">{{ request.title }}</h4>
-                                    <p class="text-xs text-admin-400 mt-1 line-clamp-2">{{ request.description }}</p>
+                                    <h4 class="text-earth-800 font-bold truncate max-w-[180px]">{{ req.title }}</h4>
+                                    <p class="text-xs text-earth-500 mt-1 line-clamp-2">{{ req.description }}</p>
                                 </div>
                             </div>
                         </td>
-
-                        <!-- Category -->
-                        <td class="px-6 py-4 text-admin-300 font-semibold">
-                            {{ request.category.name|default:"Uncategorized" }}
-                        </td>
-
-                        <!-- Budget -->
-                        <td class="px-6 py-4 font-bold text-admin-900">
-                            {{ request.budget|intcomma }} UGX
-                        </td>
-
-                        <!-- Requester -->
+                        <td class="px-6 py-4 text-earth-600 font-semibold">{{ req.category.name|default:"Uncategorized" }}</td>
+                        <td class="px-6 py-4 font-bold text-earth-800">{{ req.budget|intcomma }} UGX</td>
                         <td class="px-6 py-4">
-                            <div class="text-admin-900 font-semibold">{{ request.requester.first_name|default:request.requester.username }}</div>
-                            <div class="text-xs text-admin-400 font-medium">@{{ request.requester.username }}</div>
+                            <div class="text-earth-800 font-semibold">{{ req.requester.first_name|default:req.requester.username }}</div>
+                            <div class="text-[10px] text-earth-400 font-medium mt-0.5">@{{ req.requester.username }}</div>
                         </td>
-
-                        <!-- Date Posted -->
-                        <td class="px-6 py-4 text-xs text-admin-400">
-                            {{ request.created_at|date:"M d, Y" }}
-                        </td>
-
-                        <!-- Status -->
+                        <td class="px-6 py-4 text-xs text-earth-500 font-medium">{{ req.created_at|date:"M d, Y" }}</td>
                         <td class="px-6 py-4">
-                            <form action="{% url 'admin_update_request_status' request.id %}" method="POST">
+                            <form action="{% url 'admin_update_request_status' req.id %}" method="POST">
                                 {% csrf_token %}
-                                <select name="status" onchange="this.form.submit()" class="bg-admin-950 border border-admin-800 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-accent-500 cursor-pointer">
-                                    <option value="open" {% if request.status == 'open' %}selected{% endif %}>Open</option>
-                                    <option value="fulfilled" {% if request.status == 'fulfilled' %}selected{% endif %}>Fulfilled</option>
-                                    <option value="cancelled" {% if request.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                                <select name="status" onchange="this.form.submit()" class="bg-earth-50 border border-earth-300 rounded-lg px-2 py-1.5 text-xs text-earth-800 font-semibold focus:outline-none focus:border-accent-500 cursor-pointer">
+                                    <option value="open" {% if req.status == 'open' %}selected{% endif %}>Open</option>
+                                    <option value="fulfilled" {% if req.status == 'fulfilled' %}selected{% endif %}>Fulfilled</option>
+                                    <option value="cancelled" {% if req.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
                                 </select>
                             </form>
                         </td>
-
-                        <!-- Actions -->
                         <td class="px-6 py-4 text-right">
-                            <form action="{% url 'admin_delete_request' request.id %}" method="POST" onsubmit="return confirm('Are you sure you want to delete this request: \'{{ request.title }}\'?');">
+                            <form action="{% url 'admin_delete_request' req.id %}" method="POST" onsubmit="return confirm('Delete \'{{ req.title }}\'?');">
                                 {% csrf_token %}
-                                <button type="submit" class="p-2 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white rounded-xl transition-all flex items-center justify-center" title="Delete Request">
-                                    <i class="ph-fill ph-trash text-base"></i>
+                                <button type="submit" class="w-8 h-8 inline-flex items-center justify-center bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all border border-red-200 hover:border-red-500 font-bold text-xs" title="Delete">
+                                    ✕
                                 </button>
                             </form>
                         </td>
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="7" class="px-6 py-8 text-center text-admin-400 text-xs">No buyer requests matched the filters.</td>
+                        <td colspan="7" class="px-6 py-10 text-center">
+                            <i class="ph-fill ph-file-text text-earth-300 text-3xl mb-2 block"></i>
+                            <p class="text-xs text-earth-400 font-semibold">No buyer requests matched the filters.</p>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>

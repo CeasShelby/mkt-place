@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Admin Control - Ufind marketplace{% endblock %}</title>
-    <!-- Google Fonts: Bricolage Grotesque & Plus Jakarta Sans -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -26,31 +26,20 @@
                             100: '#f9f6f0',
                             200: '#f5f0e6',
                             300: '#ebe3cf',
+                            400: '#d6c4a0',
                             500: '#c78a58',
+                            600: '#b5703e',
                             700: '#5c3d2e',
                             800: '#3d2314',
                             850: '#4a2c11',
                         },
-                        admin: {
-                            50: '#fcfbfa',
-                            100: '#f9f6f0',
-                            200: '#f5f0e6', // Cream base background
-                            300: '#ebe3cf', // Light sand border
-                            400: '#ebe3cf', // Sidebar light text
-                            500: '#8c6b53', // Secondary text
-                            600: '#5c3d2e', // Warm brown
-                            700: '#ebe3cf',
-                            800: '#ebe3cf', // Borders
-                            900: '#3d2314', // Dark chocolate
-                            950: '#f5f0e6', // Main body bg (cream)
-                        },
                         accent: {
-                            50: '#fcfbfa',
-                            100: '#f9f6f0',
-                            500: '#c78a58', // Terracotta orange
-                            600: '#c78a58', // Terracotta orange
-                            700: '#4a2c11', // Dark brown button hover
-                            800: '#3d2314',
+                            50: '#fdf8f4',
+                            100: '#faeede',
+                            400: '#dfa068',
+                            500: '#c78a58',
+                            600: '#b5703e',
+                            700: '#4a2c11',
                         }
                     }
                 }
@@ -58,160 +47,263 @@
         }
     </script>
     <style>
-        body {
-            background-color: #f5f0e6;
-        }
+        body { background-color: #f5f0e6; }
+        #sidebar { background: #ffffff; }
+
         /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #f5f0e6; }
+        ::-webkit-scrollbar-thumb { background: #d6c4a0; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #c78a58; }
+
+        /* Sidebar nav items */
+        .nav-link-active {
+            background-color: #faeede;
+            color: #b5703e;
+            font-weight: 700;
+            border-left: 3px solid #c78a58;
         }
-        ::-webkit-scrollbar-track {
-            background: #f5f0e6;
+        .nav-link-inactive {
+            color: #5c3d2e;
+            border-left: 3px solid transparent;
         }
-        ::-webkit-scrollbar-thumb {
-            background: #ebe3cf;
-            border-radius: 4px;
+        .nav-link-inactive:hover {
+            background-color: #f5f0e6;
+            color: #3d2314;
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #c78a58;
+
+        /* Sidebar overlay on mobile */
+        #sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(61, 35, 20, 0.35);
+            z-index: 39;
         }
+        #sidebar-overlay.active { display: block; }
+
+        /* Sidebar slide-in on mobile */
+        #sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #sidebar.open { transform: translateX(0); }
+
+        @media (min-width: 768px) {
+            #sidebar {
+                transform: none !important;
+                transition: none;
+            }
+        }
+
+        header.admin-header {
+            background: #ffffff;
+            border-bottom: 1px solid #ebe3cf;
+        }
+        main.admin-main { background: #f5f0e6; }
     </style>
 </head>
-<body class="font-sans antialiased text-admin-900 bg-admin-950 min-h-screen flex flex-col md:flex-row">
+<body class="font-sans antialiased min-h-screen flex flex-col md:flex-row" style="background:#f5f0e6;">
 
-    <!-- Mobile Navigation Toggle -->
-    <div class="md:hidden w-full bg-admin-900 border-b border-admin-800 px-4 py-3 flex items-center justify-between sticky top-0 z-50 gap-2">
-        <a href="{% url 'admin_dashboard_home' %}" class="flex items-center space-x-2.5 shrink-0">
-            <div class="w-8 h-8 bg-accent-600 text-white rounded-lg flex items-center justify-center font-heading text-lg font-black tracking-tighter">
-                U
-            </div>
-            <span class="text-base font-black font-heading text-white">Ufind <span class="text-accent-500 uppercase text-[10px] tracking-wider">admin</span></span>
-        </a>
-        
-        <!-- Mobile Quick Profile & Sign Out -->
-        <div class="flex items-center space-x-2.5 ml-auto">
+    <!-- ===== MOBILE TOP BAR ===== -->
+    <div class="md:hidden w-full bg-white border-b border-earth-300 px-3 py-2.5 flex items-center justify-between sticky top-0 z-50 shadow-sm gap-2">
+
+        <!-- Left: Hamburger + Logo -->
+        <div class="flex items-center gap-2.5 shrink-0">
+            <button id="mobile-menu-btn" aria-label="Open navigation menu"
+                class="w-10 h-10 bg-earth-800 hover:bg-earth-850 rounded-xl text-white transition-colors focus:outline-none flex items-center justify-center shadow-sm">
+                <!-- Inline SVG Hamburger Icon -->
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+            <a href="{% url 'admin_dashboard_home' %}" class="flex items-center space-x-1.5">
+                <div class="w-8 h-8 bg-accent-500 text-white rounded-lg flex items-center justify-center font-heading text-base font-black shadow-sm">U</div>
+                <span class="text-sm font-black font-heading text-earth-800 leading-none">Ufind</span>
+            </a>
+        </div>
+
+        <!-- Right: User avatar + Sign Out -->
+        <div class="flex items-center gap-2 shrink-0">
+            <!-- Avatar -->
             {% if user.profile.profile_picture %}
-                <img src="{{ user.profile.profile_picture.url }}" class="w-7 h-7 rounded-full object-cover border border-admin-700" alt="Avatar">
+                <img src="{{ user.profile.profile_picture.url }}" class="w-8 h-8 rounded-xl object-cover border border-earth-300" alt="You">
             {% else %}
-                <div class="w-7 h-7 rounded-full bg-accent-600/20 text-accent-500 flex items-center justify-center font-bold text-[10px] uppercase border border-accent-600/30">
+                <div class="w-8 h-8 rounded-xl bg-accent-100 text-accent-500 flex items-center justify-center font-bold text-xs uppercase border border-accent-400/30">
                     {{ user.username|slice:":2" }}
                 </div>
             {% endif %}
-            
-            <a href="{% url 'logout' %}" class="p-1.5 hover:bg-red-950/30 text-red-400 hover:text-red-300 rounded-lg transition-colors flex items-center justify-center" title="Sign Out">
-                <i class="ph-bold ph-sign-out text-[20px]"></i>
+
+            <!-- Sign Out — always visible -->
+            <a href="{% url 'logout' %}"
+               class="flex items-center gap-1.5 px-3 py-2 bg-red-50 hover:bg-red-500 text-red-500 hover:text-white border border-red-200 hover:border-red-500 rounded-xl text-xs font-bold transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                </svg>
+                <span>Sign Out</span>
             </a>
-            
-            <button id="mobile-menu-btn" class="p-1.5 hover:bg-admin-800 rounded-lg text-admin-400 hover:text-white transition-colors focus:outline-none flex items-center justify-center">
-                <i class="ph-bold ph-list text-[22px]"></i>
-            </button>
         </div>
     </div>
 
-    <!-- Sidebar Container -->
-    <aside id="sidebar" class="hidden md:flex flex-col w-full md:w-64 bg-admin-900 border-r border-admin-800 p-5 pb-28 md:pb-5 shrink-0 fixed md:sticky top-[57px] md:top-0 left-0 h-[calc(100dvh-57px)] md:h-screen z-40 overflow-y-auto text-earth-300">
-        <div class="hidden md:flex items-center space-x-3 mb-8">
-            <div class="w-9 h-9 bg-accent-600 text-earth-100 rounded-xl flex items-center justify-center font-heading text-xl font-black shadow-md shadow-accent-600/20">
+    <!-- Mobile overlay -->
+    <div id="sidebar-overlay"></div>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside id="sidebar" class="fixed md:sticky top-0 left-0 w-72 md:w-64 h-screen z-40 overflow-y-auto border-r border-earth-300 shadow-lg md:shadow-sm flex flex-col">
+
+        <!-- Logo -->
+        <div class="flex items-center space-x-3 px-5 py-4 border-b border-earth-200">
+            <div class="w-9 h-9 bg-accent-500 text-white rounded-xl flex items-center justify-center font-heading text-xl font-black shadow-md shadow-accent-500/20 shrink-0">
                 U
             </div>
-            <div class="flex flex-col -space-y-1">
-                <span class="text-lg font-black tracking-tight font-heading text-white">Ufind</span>
-                <span class="text-[9px] font-black text-accent-500 uppercase tracking-widest">admin center</span>
+            <div class="flex flex-col leading-tight">
+                <span class="text-base font-black tracking-tight font-heading text-earth-800">Ufind</span>
+                <span class="text-[9px] font-black text-accent-500 uppercase tracking-widest">Admin Center</span>
             </div>
+            <!-- Close button (mobile only) -->
+            <button id="sidebar-close-btn" aria-label="Close sidebar"
+                class="md:hidden ml-auto p-1.5 hover:bg-earth-200 rounded-lg text-earth-500 hover:text-earth-800 transition-colors flex items-center">
+                <!-- Inline SVG Close Icon -->
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
         </div>
 
-        <!-- Admin user profile info -->
-        <div class="bg-earth-850/40 border border-earth-700 rounded-xl p-3 flex items-center space-x-3 mb-6">
+        <!-- Admin user profile -->
+        <div class="mx-4 mt-4 mb-1 bg-earth-100 border border-earth-300 rounded-xl p-3 flex items-center space-x-3">
             {% if user.profile.profile_picture %}
-                <img src="{{ user.profile.profile_picture.url }}" class="w-9 h-9 rounded-lg object-cover border border-earth-800" alt="Avatar">
+                <img src="{{ user.profile.profile_picture.url }}" class="w-9 h-9 rounded-lg object-cover border border-earth-300 shrink-0" alt="Avatar">
             {% else %}
-                <div class="w-9 h-9 rounded-lg bg-accent-600/20 text-accent-500 flex items-center justify-center font-bold text-sm uppercase">
+                <div class="w-9 h-9 rounded-lg bg-accent-100 text-accent-500 flex items-center justify-center font-bold text-sm uppercase shrink-0 border border-accent-400/30">
                     {{ user.username|slice:":2" }}
                 </div>
             {% endif %}
             <div class="flex-1 min-w-0">
-                <p class="text-xs font-bold text-earth-100 truncate">{{ user.first_name|default:user.username }}</p>
-                <span class="text-[9px] font-medium text-earth-300 bg-earth-850 px-1.5 py-0.5 rounded-full inline-block mt-0.5 uppercase tracking-wide">Staff</span>
+                <p class="text-xs font-bold text-earth-800 truncate">{{ user.first_name|default:user.username }}</p>
+                <span class="text-[9px] font-semibold text-earth-600 bg-earth-300 px-1.5 py-0.5 rounded-full inline-block mt-0.5 uppercase tracking-wide">Staff</span>
             </div>
         </div>
 
         <!-- Nav Links -->
-        <nav class="flex-1 space-y-1.5">
-            <a href="{% url 'admin_dashboard_home' %}" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all {% if active_page == 'dashboard' %} bg-accent-600/10 text-accent-500 border border-accent-600/20 {% else %} text-admin-400 hover:bg-admin-800 hover:text-white {% endif %}">
-                <i class="ph-fill ph-squares-four text-base"></i>
+        <nav class="flex-1 px-3 space-y-0.5 pb-2 pt-2">
+
+            <a href="{% url 'admin_dashboard_home' %}" onclick="closeSidebar()"
+               class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-all hover:bg-earth-100
+               {% if active_page == 'dashboard' %}border-l-[3px] border-accent-500 text-accent-600 font-bold bg-accent-50{% else %}border-l-[3px] border-transparent text-earth-700 font-semibold{% endif %}">
+                <i class="ph-fill ph-squares-four text-xl shrink-0"></i>
                 <span>Dashboard</span>
             </a>
-            <a href="{% url 'admin_products_list' %}" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all {% if active_page == 'products' %} bg-accent-600/10 text-accent-500 border border-accent-600/20 {% else %} text-admin-400 hover:bg-admin-800 hover:text-white {% endif %}">
-                <i class="ph-fill ph-shopping-bag text-base"></i>
+
+            <a href="{% url 'admin_products_list' %}" onclick="closeSidebar()"
+               class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-all hover:bg-earth-100
+               {% if active_page == 'products' %}border-l-[3px] border-accent-500 text-accent-600 font-bold bg-accent-50{% else %}border-l-[3px] border-transparent text-earth-700 font-semibold{% endif %}">
+                <i class="ph-fill ph-shopping-bag text-xl shrink-0"></i>
                 <span>Products</span>
             </a>
-            <a href="{% url 'admin_requests_list' %}" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all {% if active_page == 'requests' %} bg-accent-600/10 text-accent-500 border border-accent-600/20 {% else %} text-admin-400 hover:bg-admin-800 hover:text-white {% endif %}">
-                <i class="ph-fill ph-file-text text-base"></i>
+
+            <a href="{% url 'admin_requests_list' %}" onclick="closeSidebar()"
+               class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-all hover:bg-earth-100
+               {% if active_page == 'requests' %}border-l-[3px] border-accent-500 text-accent-600 font-bold bg-accent-50{% else %}border-l-[3px] border-transparent text-earth-700 font-semibold{% endif %}">
+                <i class="ph-fill ph-file-text text-xl shrink-0"></i>
                 <span>Requests</span>
             </a>
-            <a href="{% url 'admin_users_list' %}" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all {% if active_page == 'users' %} bg-accent-600/10 text-accent-500 border border-accent-600/20 {% else %} text-admin-400 hover:bg-admin-800 hover:text-white {% endif %}">
-                <i class="ph-fill ph-users text-base"></i>
+
+            <a href="{% url 'admin_users_list' %}" onclick="closeSidebar()"
+               class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-all hover:bg-earth-100
+               {% if active_page == 'users' %}border-l-[3px] border-accent-500 text-accent-600 font-bold bg-accent-50{% else %}border-l-[3px] border-transparent text-earth-700 font-semibold{% endif %}">
+                <i class="ph-fill ph-users text-xl shrink-0"></i>
                 <span>Users</span>
             </a>
-            <a href="{% url 'admin_categories_list' %}" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all {% if active_page == 'categories' %} bg-accent-600/10 text-accent-500 border border-accent-600/20 {% else %} text-admin-400 hover:bg-admin-800 hover:text-white {% endif %}">
-                <i class="ph-fill ph-tag text-base"></i>
+
+            <a href="{% url 'admin_categories_list' %}" onclick="closeSidebar()"
+               class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-all hover:bg-earth-100
+               {% if active_page == 'categories' %}border-l-[3px] border-accent-500 text-accent-600 font-bold bg-accent-50{% else %}border-l-[3px] border-transparent text-earth-700 font-semibold{% endif %}">
+                <i class="ph-fill ph-tag text-xl shrink-0"></i>
                 <span>Categories</span>
             </a>
-            <a href="{% url 'admin_banners_list' %}" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all {% if active_page == 'banners' %} bg-accent-600/10 text-accent-500 border border-accent-600/20 {% else %} text-admin-400 hover:bg-admin-800 hover:text-white {% endif %}">
-                <i class="ph-fill ph-image text-base"></i>
+
+            <a href="{% url 'admin_banners_list' %}" onclick="closeSidebar()"
+               class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-all hover:bg-earth-100
+               {% if active_page == 'banners' %}border-l-[3px] border-accent-500 text-accent-600 font-bold bg-accent-50{% else %}border-l-[3px] border-transparent text-earth-700 font-semibold{% endif %}">
+                <i class="ph-fill ph-image text-xl shrink-0"></i>
                 <span>Hero Banners</span>
             </a>
+
         </nav>
 
-        <!-- Exit and Logout Links -->
-        <div class="border-t border-admin-800 pt-4 mt-auto space-y-1">
-            <a href="{% url 'home_feed' %}" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-bold text-admin-300 hover:bg-admin-800 hover:text-white transition-colors">
-                <i class="ph-bold ph-arrow-left text-sm"></i>
-                <span>Client Site</span>
+        <!-- Bottom: Exit & Logout -->
+        <div class="border-t border-earth-200 pt-3 mx-3 mb-4 space-y-0.5">
+            <a href="{% url 'home_feed' %}" onclick="closeSidebar()"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-earth-600 hover:bg-earth-100 font-semibold transition-all border-l-[3px] border-transparent">
+                <i class="ph-bold ph-arrow-square-out text-xl shrink-0"></i>
+                <span>View Live Site</span>
             </a>
-            <a href="{% url 'logout' %}" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-bold text-red-400 hover:bg-red-950/30 hover:text-red-300 transition-colors">
-                <i class="ph-bold ph-sign-out text-sm"></i>
+            <a href="{% url 'logout' %}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-red-500 hover:bg-red-50 font-semibold transition-all border-l-[3px] border-transparent">
+                <i class="ph-bold ph-sign-out text-xl shrink-0"></i>
                 <span>Sign Out</span>
             </a>
+
         </div>
+
     </aside>
 
-    <!-- Main Workspace -->
+    <!-- ===== MAIN WORKSPACE ===== -->
     <div class="flex-1 flex flex-col min-w-0">
-        
-        <!-- Header -->
-        <header class="hidden md:flex items-center justify-between px-8 py-4 bg-admin-100 border-b border-admin-800">
-            <h1 class="text-lg font-bold text-admin-900 tracking-tight font-heading">
-                {% block header_title %}Overview{% endblock %}
-            </h1>
-            
+
+        <!-- Desktop Header Bar -->
+        <header class="admin-header hidden md:flex items-center justify-between px-8 py-3.5 sticky top-0 z-30">
+            <div>
+                <p class="text-[10px] font-semibold text-earth-400 uppercase tracking-widest">Admin Center</p>
+                <h1 class="text-base font-black text-earth-800 tracking-tight font-heading leading-tight">
+                    {% block desktop_header_title %}Overview{% endblock %}
+                </h1>
+            </div>
             <div class="flex items-center space-x-4">
-                <span class="text-xs font-medium text-admin-900 bg-admin-100 px-2.5 py-1 rounded-lg border border-admin-800" id="current-time"></span>
+                <span class="text-xs font-semibold text-earth-600 bg-earth-100 px-3 py-1.5 rounded-lg border border-earth-300 hidden lg:inline" id="current-time"></span>
+                <div class="flex items-center space-x-2.5 bg-earth-100 border border-earth-300 rounded-xl px-3 py-2">
+                    {% if user.profile.profile_picture %}
+                        <img src="{{ user.profile.profile_picture.url }}" class="w-7 h-7 rounded-lg object-cover border border-earth-300" alt="Avatar">
+                    {% else %}
+                        <div class="w-7 h-7 rounded-lg bg-accent-100 text-accent-500 flex items-center justify-center font-bold text-[11px] uppercase border border-accent-400/30">
+                            {{ user.username|slice:":2" }}
+                        </div>
+                    {% endif %}
+                    <div class="leading-tight">
+                        <p class="text-xs font-bold text-earth-800">{{ user.first_name|default:user.username }}</p>
+                        <p class="text-[9px] text-earth-500 font-medium">Administrator</p>
+                    </div>
+                </div>
             </div>
         </header>
 
         <!-- View Body Content -->
-        <main class="flex-1 px-4 md:px-8 py-6 max-w-6xl w-full mx-auto">
+        <main class="admin-main flex-1 px-3 sm:px-5 md:px-8 py-5 max-w-7xl w-full mx-auto">
             {% block content %}
             {% endblock %}
         </main>
     </div>
 
-    <!-- Messages / Notifications Container -->
+    <!-- ===== Toast Notifications ===== -->
     {% if messages %}
-        <div class="fixed bottom-6 right-6 z-50 max-w-sm w-full space-y-2">
+        <div class="fixed bottom-4 right-4 z-50 max-w-[calc(100vw-2rem)] sm:max-w-sm w-full space-y-2">
             {% for message in messages %}
-                <div class="px-4 py-3.5 rounded-xl border shadow-xl text-xs font-semibold flex items-center justify-between transition-all duration-300 bg-admin-900 border-admin-800 text-white border-l-4 {% if message.tags == 'success' %} border-l-green-500 {% elif message.tags == 'error' %} border-l-red-500 {% else %} border-l-accent-500 {% endif %}">
-                    <span>{{ message }}</span>
-                    <button onclick="this.parentElement.remove()" class="ml-3 font-bold text-base leading-none text-admin-400 hover:text-white">&times;</button>
+                <div class="px-4 py-3.5 bg-white rounded-2xl border border-earth-300 shadow-lg text-xs font-semibold flex items-center justify-between gap-3 border-l-4
+                    {% if message.tags == 'success' %}border-l-green-500{% elif message.tags == 'error' %}border-l-red-500{% else %}border-l-accent-500{% endif %}">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <i class="text-sm shrink-0
+                            {% if message.tags == 'success' %}ph-fill ph-check-circle text-green-500{% elif message.tags == 'error' %}ph-fill ph-warning-circle text-red-500{% else %}ph-fill ph-info text-accent-500{% endif %}"></i>
+                        <span class="text-earth-800 truncate">{{ message }}</span>
+                    </div>
+                    <button onclick="this.parentElement.remove()" class="font-bold text-base leading-none text-earth-400 hover:text-earth-700 shrink-0">&times;</button>
                 </div>
             {% endfor %}
         </div>
         <script>
             setTimeout(() => {
-                const notifications = document.querySelectorAll('.fixed.bottom-6 > div');
-                notifications.forEach(el => {
+                document.querySelectorAll('.fixed.bottom-4 > div').forEach(el => {
+                    el.style.transition = 'opacity 0.3s ease';
                     el.style.opacity = '0';
                     setTimeout(() => el.remove(), 300);
                 });
@@ -219,24 +311,34 @@
         </script>
     {% endif %}
 
-    <!-- Script to toggle mobile sidebar -->
+    <!-- ===== Scripts ===== -->
     <script>
-        const menuBtn = document.getElementById('mobile-menu-btn');
         const sidebar = document.getElementById('sidebar');
-        
-        if(menuBtn && sidebar) {
-            menuBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('hidden');
-                sidebar.classList.toggle('flex');
-            });
+        const overlay = document.getElementById('sidebar-overlay');
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const closeBtn = document.getElementById('sidebar-close-btn');
+
+        function openSidebar() {
+            sidebar.classList.add('open');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeSidebar() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
         }
 
-        // Live Clock in Admin Header
+        if (menuBtn) menuBtn.addEventListener('click', openSidebar);
+        if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+        if (overlay) overlay.addEventListener('click', closeSidebar);
+
+        // Live Clock (desktop only)
         const timeEl = document.getElementById('current-time');
         if (timeEl) {
             const updateTime = () => {
                 const now = new Date();
-                timeEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' - ' + now.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                timeEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + '  ·  ' + now.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
             };
             updateTime();
             setInterval(updateTime, 1000);
