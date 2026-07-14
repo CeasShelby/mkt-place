@@ -69,9 +69,6 @@ def make_image_background_transparent_floodfill(image_field, tolerance=35):
         img = img.convert("RGBA")
         width, height = img.size
         
-        # Create a mask initialized to 0 (foreground)
-        mask = Image.new("L", (width, height), 0)
-        
         # Border points: 4 corners + 4 edge centers to detect backgrounds that are not perfectly clean
         border_points = [
             (0, 0), (width - 1, 0), (0, height - 1), (width - 1, height - 1),
@@ -86,24 +83,12 @@ def make_image_background_transparent_floodfill(image_field, tolerance=35):
             brightness = sum(pixel[:3]) / 3
             # Only floodfill if the pixel is not transparent and is relatively light/off-white (brightness > 180)
             if (len(pixel) < 4 or pixel[3] > 0) and brightness > 180:
-                ImageDraw.floodfill(mask, (x, y), 255, thresh=tolerance)
+                ImageDraw.floodfill(img, (x, y), (255, 255, 255, 0), thresh=tolerance)
                 filled_any = True
                 
-        # If no border points were light colored, we don't apply the mask
+        # If no border points were light colored, we don't apply the changes
         if not filled_any:
             return None
-        
-        # Convert pixels where mask is 255 to transparent
-        datas = img.getdata()
-        mask_datas = mask.getdata()
-        newData = []
-        for i in range(len(datas)):
-            if mask_datas[i] == 255:
-                newData.append((255, 255, 255, 0)) # transparent
-            else:
-                newData.append(datas[i])
-        
-        img.putdata(newData)
         
         # Save as PNG to preserve transparency
         temp_handle = io.BytesIO()
