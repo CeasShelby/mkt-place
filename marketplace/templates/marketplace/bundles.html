@@ -2,7 +2,7 @@
 {% load static %}
 {% load humanize %}
 
-{% block title %}🎓 Room Setup Bundles - Ufind Marketplace{% endblock %}
+{% block title %}Room Setup Bundles - Ufind Marketplace{% endblock %}
 
 {% block content %}
 <style>
@@ -34,8 +34,9 @@
                 <div class="flex items-center space-x-3">
                     <span class="px-3 py-1 bg-earth-800 border border-earth-700 text-earth-300 text-[10px] font-black uppercase tracking-widest rounded-full">Graduation Clearance</span>
                 </div>
-                <h1 class="text-3xl md:text-5xl font-black font-heading tracking-tight text-white leading-none">
-                    🎓 ROOM SETUP BUNDLES
+                <h1 class="text-3xl md:text-5xl font-black font-heading tracking-tight text-white leading-none flex items-center gap-3">
+                    <i class="ph-bold ph-graduation-cap text-3xl md:text-5xl"></i>
+                    <span>ROOM SETUP BUNDLES</span>
                 </h1>
                 <p class="text-sm text-earth-200 max-w-xl font-medium leading-relaxed">
                     Moving to a new hostel or starting campus? Save big with move-in ready packages! Pre-packed bundles of hostel and room essentials listed by graduating or moving students.
@@ -51,7 +52,10 @@
 
     <!-- BUNDLES GRID -->
     <div class="mb-12">
-        <h2 class="text-lg md:text-xl font-black font-heading text-earth-800 uppercase tracking-tight mb-6">📦 Move-In Bundles ({{ active_bundles_count }})</h2>
+        <h2 class="text-lg md:text-xl font-black font-heading text-earth-800 uppercase tracking-tight mb-6 flex items-center gap-2">
+            <i class="ph-bold ph-package text-xl"></i>
+            <span>Move-In Bundles ({{ active_bundles_count }})</span>
+        </h2>
         
         {% if bundles %}
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -63,8 +67,8 @@
                             {% if product.image %}
                                 <img src="{{ product.image.url }}" alt="{{ product.title }}" class="object-cover w-full h-full group-hover:scale-105 transition-all duration-300">
                             {% endif %}
-                            <span class="absolute top-2.5 left-2.5 px-2 py-0.5 text-[9px] font-black text-white bg-gradient-to-r from-earth-500 to-earth-700 rounded-full uppercase tracking-wider shadow z-10 flex items-center space-x-1">
-                                <span>🎓</span> <span>Room Setup</span>
+                            <span class="absolute top-2.5 left-2.5 px-2 py-0.5 text-[9px] font-black text-white bg-gradient-to-r from-earth-500 to-earth-700 rounded-full uppercase tracking-wider shadow z-10 flex items-center gap-1">
+                                <i class="ph-bold ph-graduation-cap text-xs"></i> <span>Room Setup</span>
                             </span>
                             <span class="absolute top-2.5 right-2.5 px-2 py-0.5 text-[9px] font-bold text-earth-750 bg-earth-200/90 backdrop-blur-sm rounded-full border border-earth-300/35 hidden sm:block">
                                 {{ product.created_at|timesince }} ago

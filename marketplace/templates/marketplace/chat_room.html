@@ -40,13 +40,16 @@
                     <img src="{{ thread.item_request.image.url }}" alt="{{ thread.item_request.title }}" class="object-cover w-full h-full">
                 {% else %}
                     <!-- System Category Vector Suggestion Fallback Icon -->
-                    <div class="w-full h-full flex items-center justify-center font-bold text-lg text-earth-700 bg-earth-200">
-                        {% if thread.item_request.category.slug == 'textbooks' %}📚
-                        {% elif thread.item_request.category.slug == 'electronics' %}🔌
-                        {% elif thread.item_request.category.slug == 'furniture' %}🛋️
-                        {% elif thread.item_request.category.slug == 'services' %}🛠️
-                        {% elif thread.item_request.category.slug == 'bundles' %}📦
-                        {% else %}🔍{% endif %}
+                    <div class="w-full h-full flex items-center justify-center text-xl text-earth-700 bg-earth-200">
+                        {% if thread.item_request.category.slug == 'textbooks' %}<i class="ph-bold ph-book-open"></i>
+                        {% elif thread.item_request.category.slug == 'electronics' %}<i class="ph-bold ph-device-mobile"></i>
+                        {% elif thread.item_request.category.slug == 'furniture' %}<i class="ph-bold ph-couch"></i>
+                        {% elif thread.item_request.category.slug == 'services' %}<i class="ph-bold ph-wrench"></i>
+                        {% elif thread.item_request.category.slug == 'bundles' %}<i class="ph-bold ph-package"></i>
+                        {% elif thread.item_request.category.slug == 'clothing' %}<i class="ph-bold ph-t-shirt"></i>
+                        {% elif thread.item_request.category.slug == 'shoes' %}<i class="ph-bold ph-sneaker"></i>
+                        {% elif thread.item_request.category.slug == 'kitchenware' %}<i class="ph-bold ph-cooking-pot"></i>
+                        {% else %}<i class="ph-bold ph-tag"></i>{% endif %}
                     </div>
                 {% endif %}
             </div>
@@ -90,7 +93,7 @@
         <!-- Seller Listing Availability Control Banner -->
         <div class="bg-earth-100/80 border-b border-earth-300 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm">
             <div class="flex items-start space-x-2 flex-1">
-                <span class="text-base leading-none">⚙️</span>
+                <i class="ph-bold ph-gear text-base text-earth-700 leading-none"></i>
                 <div>
                     <span class="font-extrabold text-earth-800 block text-[13px]">Manage Listing Availability</span>
                     {% if thread.product.status == 'available' %}

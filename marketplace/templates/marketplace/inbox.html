@@ -5,7 +5,7 @@
 {% block content %}
 <div class="max-w-2xl mx-auto mb-8">
     <h1 class="text-2xl font-black text-earth-800 font-heading tracking-tight mb-2 flex items-center space-x-2">
-        <i class="ph-fill ph-chats text-earth-800 text-3xl mr-1"></i>
+        <i class="ph-bold ph-chats text-earth-800 text-3xl mr-1"></i>
         <span>Your Conversations</span>
     </h1>
     <p class="text-sm text-earth-700/80 mb-6 font-medium">Connect with buyers and sellers for active listings.</p>
@@ -25,13 +25,16 @@
                                     <img src="{{ thread.item_request.image.url }}" alt="{{ thread.item_request.title }}" class="object-cover w-full h-full">
                                 {% elif thread.item_request %}
                                     <!-- System Category Vector Suggestion Fallback Icon -->
-                                    <div class="w-full h-full flex items-center justify-center font-bold text-lg text-earth-700 bg-earth-200">
-                                        {% if thread.item_request.category.slug == 'textbooks' %}📚
-                                        {% elif thread.item_request.category.slug == 'electronics' %}🔌
-                                        {% elif thread.item_request.category.slug == 'furniture' %}🛋️
-                                        {% elif thread.item_request.category.slug == 'services' %}🛠️
-                                        {% elif thread.item_request.category.slug == 'bundles' %}📦
-                                        {% else %}🔍{% endif %}
+                                    <div class="w-full h-full flex items-center justify-center text-xl text-earth-700 bg-earth-200">
+                                        {% if thread.item_request.category.slug == 'textbooks' %}<i class="ph-bold ph-book-open"></i>
+                                        {% elif thread.item_request.category.slug == 'electronics' %}<i class="ph-bold ph-device-mobile"></i>
+                                        {% elif thread.item_request.category.slug == 'furniture' %}<i class="ph-bold ph-couch"></i>
+                                        {% elif thread.item_request.category.slug == 'services' %}<i class="ph-bold ph-wrench"></i>
+                                        {% elif thread.item_request.category.slug == 'bundles' %}<i class="ph-bold ph-package"></i>
+                                        {% elif thread.item_request.category.slug == 'clothing' %}<i class="ph-bold ph-t-shirt"></i>
+                                        {% elif thread.item_request.category.slug == 'shoes' %}<i class="ph-bold ph-sneaker"></i>
+                                        {% elif thread.item_request.category.slug == 'kitchenware' %}<i class="ph-bold ph-cooking-pot"></i>
+                                        {% else %}<i class="ph-bold ph-tag"></i>{% endif %}
                                     </div>
                                 {% else %}
                                     <div class="w-full h-full flex items-center justify-center text-earth-300 text-[10px] font-heading font-black">Gulu</div>

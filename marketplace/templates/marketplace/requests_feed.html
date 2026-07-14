@@ -26,8 +26,9 @@
         <p class="text-xs text-earth-300/80 leading-normal font-medium">Looking for something specific that is not listed on the feed? Post it here and let other students fulfill it for you!</p>
     </div>
     <div class="shrink-0">
-        <a href="{% url 'create_request' %}" class="px-5 py-3 bg-earth-500 hover:bg-earth-600 text-white text-xs font-black tracking-wider uppercase rounded-full transition-transform active:scale-95 inline-block shadow-md">
-            📢 Post a Request
+        <a href="{% url 'create_request' %}" class="px-5 py-3 bg-earth-500 hover:bg-earth-600 text-white text-xs font-black tracking-wider uppercase rounded-full transition-transform active:scale-95 inline-flex items-center gap-1.5 shadow-md">
+            <i class="ph-bold ph-megaphone text-sm"></i>
+            <span>Post a Request</span>
         </a>
     </div>
 </div>
@@ -89,15 +90,21 @@
                                 {% elif request_item.category.slug == 'furniture' %} from-yellow-400/90 to-amber-500/90 text-white
                                 {% elif request_item.category.slug == 'services' %} from-purple-400/90 to-pink-500/90 text-white
                                 {% elif request_item.category.slug == 'bundles' %} from-emerald-400/90 to-teal-500/90 text-white
+                                {% elif request_item.category.slug == 'clothing' %} from-pink-400/90 to-rose-500/90 text-white
+                                {% elif request_item.category.slug == 'shoes' %} from-cyan-400/90 to-teal-500/90 text-white
+                                {% elif request_item.category.slug == 'kitchenware' %} from-amber-400/90 to-orange-500/90 text-white
                                 {% else %} from-earth-300 to-earth-500 text-earth-800 {% endif %}">
                                 
-                                <span class="text-3xl mb-1.5 animate-bounce-subtle">
-                                    {% if request_item.category.slug == 'textbooks' %}📚
-                                    {% elif request_item.category.slug == 'electronics' %}🔌
-                                    {% elif request_item.category.slug == 'furniture' %}🛋️
-                                    {% elif request_item.category.slug == 'services' %}🛠️
-                                    {% elif request_item.category.slug == 'bundles' %}📦
-                                    {% else %}🔍{% endif %}
+                                <span class="text-4xl mb-1.5 animate-bounce-subtle flex items-center justify-center">
+                                    {% if request_item.category.slug == 'textbooks' %}<i class="ph-bold ph-book-open"></i>
+                                    {% elif request_item.category.slug == 'electronics' %}<i class="ph-bold ph-device-mobile"></i>
+                                    {% elif request_item.category.slug == 'furniture' %}<i class="ph-bold ph-couch"></i>
+                                    {% elif request_item.category.slug == 'services' %}<i class="ph-bold ph-wrench"></i>
+                                    {% elif request_item.category.slug == 'bundles' %}<i class="ph-bold ph-package"></i>
+                                    {% elif request_item.category.slug == 'clothing' %}<i class="ph-bold ph-t-shirt"></i>
+                                    {% elif request_item.category.slug == 'shoes' %}<i class="ph-bold ph-sneaker"></i>
+                                    {% elif request_item.category.slug == 'kitchenware' %}<i class="ph-bold ph-cooking-pot"></i>
+                                    {% else %}<i class="ph-bold ph-tag"></i>{% endif %}
                                 </span>
                                 <span class="text-[10.5px] font-black uppercase tracking-widest opacity-80">{{ request_item.category.name|default:"General" }}</span>
                             </div>
@@ -120,8 +127,9 @@
                         <div class="border-t border-earth-300/30 pt-3 mt-4">
                             {% if request_item.requester == user %}
                                 <div class="flex flex-col gap-2">
-                                    <div class="w-full text-center py-2 bg-earth-200 text-earth-800 text-[10.5px] font-black rounded-xl uppercase tracking-wider border border-earth-300/40 select-none">
-                                        👤 Your Wishlist Request
+                                    <div class="w-full text-center py-2 bg-earth-200 text-earth-800 text-[10.5px] font-black rounded-xl uppercase tracking-wider border border-earth-300/40 select-none flex items-center justify-center gap-1.5">
+                                        <i class="ph-bold ph-user text-sm"></i>
+                                        <span>Your Wishlist Request</span>
                                     </div>
                                     <form method="POST" action="{% url 'delete_request' request_item.id %}" onsubmit="return confirm('Are you sure you want to delete this wishlist request?');" class="m-0">
                                         {% csrf_token %}
@@ -133,7 +141,7 @@
                                 </div>
                             {% else %}
                                 <a href="{% url 'initiate_request_chat' request_item.id %}" class="w-full inline-flex items-center justify-center py-2.5 bg-earth-800 hover:bg-earth-850 active:scale-[0.98] text-earth-200 text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-sm flex items-center justify-center space-x-1">
-                                    <i class="ph-fill ph-chat-circle-dots text-sm"></i>
+                                    <i class="ph-bold ph-chat-circle-dots text-sm"></i>
                                     <span>Fulfill Request</span>
                                 </a>
                             {% endif %}
@@ -145,7 +153,7 @@
         </div>
     {% else %}
         <div class="bg-white rounded-[2rem] p-12 border border-earth-300 text-center shadow-sm max-w-md mx-auto">
-            <i class="ph-fill ph-package text-5xl text-earth-300 mx-auto mb-3 block"></i>
+            <i class="ph-bold ph-package text-5xl text-earth-300 mx-auto mb-3 block"></i>
             <p class="text-sm font-bold text-earth-800">No open requests found</p>
             <p class="text-xs text-earth-700 mt-1">Be the first to post a request if you need something, or refine your filters!</p>
         </div>
