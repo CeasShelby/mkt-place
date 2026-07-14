@@ -85,6 +85,7 @@ def home_feed(request):
 
     featured_products = standard_products.filter(is_featured=True)
     recent_products = standard_products.filter(is_featured=False).order_by('-created_at')
+    recent_requests = ItemRequest.objects.filter(status='open').order_by('-created_at')
 
     # Fetch custom hero banners
     custom_big_banners = BannerImage.objects.filter(card_type='big_card')
@@ -102,6 +103,7 @@ def home_feed(request):
         'flash_status': flash_status,
         'flash_products': flash_products,
         'open_requests_count': ItemRequest.objects.filter(status='open').count(),
+        'recent_requests': recent_requests,
         'active_flash_count': flash_products.count(),
         'active_bundles_count': bundles.count(),
         'custom_big_banners': custom_big_banners,

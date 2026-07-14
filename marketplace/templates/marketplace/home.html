@@ -265,6 +265,8 @@
                         
                         {% if custom_request_banners %}
                             <img src="{{ custom_request_banners.first.image.url }}" class="relative z-10 h-[80%] md:h-[85%] w-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300 mb-2 md:mb-4">
+                        {% elif recent_requests and recent_requests.first.image %}
+                            <img src="{{ recent_requests.first.image.url }}" class="relative z-10 h-[80%] md:h-[85%] w-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300 mb-2 md:mb-4">
                         {% else %}
                             <svg class="relative z-10 h-[65%] md:h-[70%] w-auto drop-shadow-xl text-white mb-4 md:mb-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
