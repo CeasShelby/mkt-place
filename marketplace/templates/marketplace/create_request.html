@@ -28,7 +28,7 @@
     {% endif %}
 
     <!-- Request Form -->
-    <form method="POST" action="{% url 'create_request' %}" enctype="multipart/form-data" class="space-y-4">
+    <form method="POST" action="{% url 'create_request' %}" enctype="multipart/form-data" class="space-y-4" onsubmit="disableSubmitButton(this);">
         {% csrf_token %}
         
         <!-- Title -->
@@ -99,6 +99,18 @@ function toggleNewCategoryInput(selectEl, containerId) {
     } else {
         container.classList.add('hidden');
         input.removeAttribute('required');
+    }
+}
+
+function disableSubmitButton(form) {
+    const button = form.querySelector('button[type="submit"]');
+    if (button) {
+        button.disabled = true;
+        button.classList.add('opacity-50', 'cursor-not-allowed');
+        const span = button.querySelector('span');
+        if (span) {
+            span.textContent = "Publishing...";
+        }
     }
 }
 </script>
