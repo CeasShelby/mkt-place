@@ -88,6 +88,21 @@ class MarketplaceTests(TestCase):
         self.seller_profile.save()
         self.assertEqual(self.product.whatsapp_link, expected_link)
 
+    def test_item_request_whatsapp_link_property(self):
+        item_request = ItemRequest.objects.create(
+            requester=self.buyer_user,
+            title='Study Table',
+            description='Looking for a wooden study table',
+            budget=45000,
+            category=self.category,
+            status='open'
+        )
+        expected_msg = "Hi BuyerName, I saw your wishlist request for 'Study Table' (45000 UGX) on Campus Marketplace. I can fulfill it!"
+        encoded_msg = urllib.parse.quote(expected_msg)
+        
+        expected_link = f"https://wa.me/256770000001?text={encoded_msg}"
+        self.assertEqual(item_request.whatsapp_link, expected_link)
+
     def test_image_background_removal_and_png_preservation(self):
         from PIL import Image as PILImage
         import io
@@ -329,13 +344,27 @@ class MarketplaceTests(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_inbox_view_authenticated(self):
-        thread = ChatThread.objects.create(product=self.product, buyer=self.buyer_user, seller=self.seller_user)
-        Message.objects.create(thread=thread, sender=self.buyer_user, text="Interested in buying!")
+        # Create a thread with messages
+        thread1 = ChatThread.objects.create(product=self.product, buyer=self.buyer_user, seller=self.seller_user)
+        Message.objects.create(thread=thread1, sender=self.buyer_user, text="Interested in buying!")
+
+        # Create a second thread with NO messages
+        # In a real scenario, this happens when a buyer initiates a chat but hasn't sent a message yet
+        product2 = Product.objects.create(
+            seller=self.seller_user,
+            category=self.category,
+            title='Textbook',
+            description='Django course textbook',
+            price=20000,
+            status='available'
+        )
+        thread2 = ChatThread.objects.create(product=product2, buyer=self.buyer_user, seller=self.seller_user)
 
         self.client.login(username='testseller', password='testpassword')
         response = self.client.get(reverse('inbox'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'iPhone 11')
+        self.assertContains(response, 'Textbook')
         self.assertContains(response, 'BuyerName')
         self.assertContains(response, 'Interested in buying!')
 

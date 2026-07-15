@@ -533,7 +533,7 @@ def inbox_view(request):
         thread.last_message = thread.messages.last()
         
     # Sort threads by the creation time of the last message (most recent first)
-    threads_list.sort(key=lambda t: t.last_message.created_at if t.last_message else t.id, reverse=True)
+    threads_list.sort(key=lambda t: t.last_message.created_at.timestamp() if t.last_message else float(t.id), reverse=True)
         
     return render(request, 'marketplace/inbox.html', {'threads': threads_list})
 

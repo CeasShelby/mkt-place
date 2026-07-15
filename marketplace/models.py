@@ -299,6 +299,25 @@ class ItemRequest(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def whatsapp_link(self):
+        first_name = self.requester.first_name if self.requester.first_name else self.requester.username
+        phone_number = self.requester.profile.phone_number if hasattr(self.requester, 'profile') else ""
+        
+        # Clean the phone number for WhatsApp wa.me links
+        # 1. Remove all non-digits
+        cleaned_phone = "".join(c for c in phone_number if c.isdigit())
+        
+        # 2. Standardize prefix to international Gulu format (Uganda = 256)
+        if cleaned_phone.startswith('0'):
+            cleaned_phone = '256' + cleaned_phone[1:]
+        elif not cleaned_phone.startswith('256') and len(cleaned_phone) == 9:
+            cleaned_phone = '256' + cleaned_phone
+            
+        message = f"Hi {first_name}, I saw your wishlist request for '{self.title}' ({self.budget} UGX) on Campus Marketplace. I can fulfill it!"
+        encoded_message = urllib.parse.quote(message)
+        return f"https://wa.me/{cleaned_phone}?text={encoded_message}"
+
     def __str__(self):
         return f"Request: {self.title} by {self.requester.username}"
 

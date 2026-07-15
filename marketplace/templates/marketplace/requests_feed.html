@@ -151,10 +151,16 @@
                                     </form>
                                 </div>
                             {% else %}
-                                <a href="{% url 'initiate_request_chat' request_item.id %}" class="w-full inline-flex items-center justify-center py-2.5 bg-earth-800 hover:bg-earth-850 active:scale-[0.98] text-earth-200 text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-sm flex items-center justify-center space-x-1">
-                                    <i class="ph-bold ph-chat-circle-dots text-sm"></i>
-                                    <span>Fulfill Request</span>
-                                </a>
+                                <div class="flex gap-2">
+                                    <a href="{% url 'initiate_request_chat' request_item.id %}" class="flex-1 inline-flex items-center justify-center py-2.5 bg-earth-800 hover:bg-earth-850 active:scale-[0.98] text-earth-200 text-[10.5px] font-black uppercase tracking-wider rounded-xl transition-all shadow-sm flex items-center justify-center space-x-1">
+                                        <i class="ph-bold ph-chat-circle-dots text-[13px]"></i>
+                                        <span>In-App Chat</span>
+                                    </a>
+                                    <a href="{{ request_item.whatsapp_link }}" target="_blank" class="flex-1 inline-flex items-center justify-center py-2.5 bg-earth-500 hover:bg-earth-600 active:scale-[0.98] text-white text-[10.5px] font-black uppercase tracking-wider rounded-xl transition-all shadow-sm flex items-center justify-center space-x-1">
+                                        <i class="ph-bold ph-whatsapp-logo text-[13px]"></i>
+                                        <span>WhatsApp</span>
+                                    </a>
+                                </div>
                             {% endif %}
                         </div>
                     </div>
