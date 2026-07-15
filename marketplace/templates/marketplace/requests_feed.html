@@ -81,7 +81,18 @@
                     <!-- Category Icon Fallback / Custom Reference Photo -->
                     <div class="relative aspect-[16/9] w-full rounded-2xl overflow-hidden bg-earth-100 shrink-0 border border-earth-300/40 flex items-center justify-center">
                         {% if request_item.image %}
-                            <img src="{{ request_item.image.url }}" alt="{{ request_item.title }}" class="object-cover w-full h-full">
+                            <img 
+                                src="{{ request_item.image.url }}" 
+                                alt="{{ request_item.title }}" 
+                                class="object-cover w-full h-full cursor-zoom-in hover:scale-105 transition-transform duration-300"
+                                onclick="openLightbox('{{ request_item.image.url }}', '{{ request_item.title|escapejs }}')"
+                                title="Click to enlarge"
+                            >
+                            <!-- Zoom hint badge -->
+                            <span class="absolute bottom-2 right-2 flex items-center gap-1 px-2 py-1 bg-black/50 text-white text-[9px] font-bold rounded-full backdrop-blur-sm pointer-events-none">
+                                <i class="ph-bold ph-magnifying-glass-plus text-[10px]"></i>
+                                Tap to zoom
+                            </span>
                         {% else %}
                             <!-- Category Illustration Gradients & Big Icons -->
                             <div class="w-full h-full flex flex-col items-center justify-center text-center p-3 select-none bg-gradient-to-br
@@ -168,5 +179,63 @@
 .animate-bounce-subtle {
     animation: bounceSubtle 1.8s ease-in-out infinite;
 }
+
+/* Lightbox styles */
+#req-lightbox {
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+}
+#req-lightbox.active {
+    opacity: 1;
+    pointer-events: all;
+}
+#req-lightbox img {
+    transform: scale(0.92);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+#req-lightbox.active img {
+    transform: scale(1);
+}
 </style>
+
+<!-- Image Lightbox Modal -->
+<div id="req-lightbox" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md" onclick="closeLightbox()">
+    <div class="relative max-w-3xl w-full" onclick="event.stopPropagation()">
+        <!-- Close Button -->
+        <button onclick="closeLightbox()" class="absolute -top-10 right-0 text-white/80 hover:text-white flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider transition-colors">
+            <i class="ph-bold ph-x text-base"></i>
+            Close
+        </button>
+        <!-- Image -->
+        <img id="req-lightbox-img" src="" alt="" class="w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl block">
+        <!-- Caption -->
+        <p id="req-lightbox-caption" class="text-center text-white/60 text-xs font-semibold mt-3 tracking-wide"></p>
+    </div>
+</div>
+
+<script>
+function openLightbox(src, caption) {
+    const lb = document.getElementById('req-lightbox');
+    const img = document.getElementById('req-lightbox-img');
+    const cap = document.getElementById('req-lightbox-caption');
+    img.src = src;
+    cap.textContent = caption;
+    lb.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+    const lb = document.getElementById('req-lightbox');
+    lb.classList.remove('active');
+    document.body.style.overflow = '';
+    // Clear src after fade out
+    setTimeout(() => {
+        document.getElementById('req-lightbox-img').src = '';
+    }, 300);
+}
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeLightbox();
+});
+</script>
 {% endblock %}

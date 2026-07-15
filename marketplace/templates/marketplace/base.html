@@ -376,161 +376,121 @@
                 <h3 class="text-base font-black font-heading text-earth-800 uppercase tracking-tight">Browse Collections</h3>
                 <button onclick="toggleCategoriesDrawer(false)" class="text-earth-700 hover:text-earth-800 text-sm font-black uppercase">&times; Close</button>
             </div>
-            
-            <div class="grid grid-cols-2 gap-3 mb-6">
-                <!-- Room Setup Bundles -->
-                <a href="{% url 'bundles' %}" class="group flex items-center space-x-3 p-3.5 rounded-2xl bg-gradient-to-br from-earth-500 to-earth-700 text-white font-extrabold text-xs shadow-sm border border-earth-300/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-150">
-                    <span class="flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl shrink-0 group-hover:bg-white/30 transition-colors">
-                        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6">
-                            <!-- White outer box -->
-                            <rect x="6" y="18" width="52" height="40" rx="5" stroke="white" stroke-width="5" fill="none"/>
-                            <!-- White ribbon/bow on top -->
-                            <line x1="32" y1="18" x2="32" y2="58" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
-                            <!-- White lid -->
-                            <rect x="3" y="12" width="58" height="12" rx="4" stroke="white" stroke-width="4.5" fill="none"/>
-                            <!-- Ribbon knot -->
-                            <circle cx="32" cy="12" r="5" fill="white" opacity="0.7"/>
+
+            <!-- App icon grid: 4 cols — Featured -->
+            <p class="text-[10px] font-black uppercase tracking-[0.18em] text-earth-700/40 mb-3">Featured</p>
+            <div class="grid grid-cols-4 gap-x-2 gap-y-5 mb-7">
+
+                <!-- Room Bundles -->
+                <a href="{% url 'bundles' %}" class="group flex flex-col items-center gap-2 active:scale-90 transition-transform duration-150" onclick="toggleCategoriesDrawer(false)">
+                    <span class="w-[58px] h-[58px] flex items-center justify-center">
+                        <svg class="w-7 h-7 text-earth-800 group-hover:scale-110 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                            <line x1="12" y1="22.08" x2="12" y2="12"></line>
                         </svg>
                     </span>
-                    <span>Room Bundles</span>
+                    <span class="text-[10.5px] font-bold text-earth-800 text-center leading-tight">Bundles</span>
                 </a>
 
                 <!-- Flash Sales -->
-                <a href="{% url 'flash_sales' %}" class="group flex items-center space-x-3 p-3.5 rounded-2xl bg-gradient-to-br from-red-500 to-red-700 text-white font-extrabold text-xs shadow-sm border border-red-300/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-150">
-                    <span class="flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl shrink-0 group-hover:bg-white/30 transition-colors">
-                        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6">
-                            <!-- White lightning bolt -->
-                            <polygon points="36,3 14,35 28,35 24,61 50,27 34,27 40,3" stroke="white" stroke-width="4.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
-                            <!-- Inner accent line -->
-                            <line x1="28" y1="20" x2="34" y2="14" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+                <a href="{% url 'flash_sales' %}" class="group flex flex-col items-center gap-2 active:scale-90 transition-transform duration-150" onclick="toggleCategoriesDrawer(false)">
+                    <span class="w-[58px] h-[58px] flex items-center justify-center">
+                        <svg class="w-7 h-7 text-earth-800 group-hover:scale-110 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
                         </svg>
                     </span>
-                    <span>Flash Sales</span>
+                    <span class="text-[10.5px] font-bold text-earth-800 text-center leading-tight">Flash Sales</span>
                 </a>
 
-                <!-- Iterate global categories -->
+                <!-- Requests -->
+                <a href="{% url 'requests_feed' %}" class="group flex flex-col items-center gap-2 active:scale-90 transition-transform duration-150" onclick="toggleCategoriesDrawer(false)">
+                    <span class="w-[58px] h-[58px] flex items-center justify-center">
+                        <svg class="w-7 h-7 text-earth-800 group-hover:scale-110 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+                            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                        </svg>
+                    </span>
+                    <span class="text-[10.5px] font-bold text-earth-800 text-center leading-tight">Requests</span>
+                </a>
+
+                <!-- All Items -->
+                <a href="{% url 'home_feed' %}" class="group flex flex-col items-center gap-2 active:scale-90 transition-transform duration-150" onclick="toggleCategoriesDrawer(false)">
+                    <span class="w-[58px] h-[58px] flex items-center justify-center">
+                        <svg class="w-7 h-7 text-earth-800 group-hover:scale-110 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                    </span>
+                    <span class="text-[10.5px] font-bold text-earth-800 text-center leading-tight">All Items</span>
+                </a>
+            </div>
+
+            <!-- Browse by Category -->
+            <p class="text-[10px] font-black uppercase tracking-[0.18em] text-earth-700/40 mb-3">Shop by Category</p>
+            <div class="grid grid-cols-4 gap-x-2 gap-y-5 mb-7">
                 {% for category in global_categories %}
                     {% if category.slug != 'bundles' %}
-                        <a href="{% url 'home_feed' %}?category={{ category.slug }}" class="group flex items-center space-x-3 p-3.5 rounded-2xl bg-white border border-earth-300/80 text-earth-800 font-bold text-xs shadow-sm hover:bg-earth-50 hover:border-earth-400 hover:scale-[1.02] active:scale-[0.98] transition-all duration-150">
-                            <span class="flex items-center justify-center w-9 h-9 bg-earth-100 rounded-xl shrink-0 group-hover:bg-earth-200 transition-colors">
+                        <a href="{% url 'home_feed' %}?category={{ category.slug }}"
+                           class="group flex flex-col items-center gap-2 active:scale-90 transition-transform duration-150"
+                           onclick="toggleCategoriesDrawer(false)">
+                            <span class="w-[58px] h-[58px] flex items-center justify-center">
                                 {% if category.slug == 'textbooks' %}
-                                <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
-                                    <!-- Golden outer book cover -->
-                                    <path d="M8,8 Q8,4 12,4 L52,4 Q56,4 56,8 L56,52 Q56,56 52,56 L12,56 Q8,56 8,52 Z" stroke="#c78a58" stroke-width="5" fill="none"/>
-                                    <!-- Golden spine -->
-                                    <line x1="8" y1="4" x2="8" y2="56" stroke="#c78a58" stroke-width="5" stroke-linecap="round"/>
-                                    <!-- Dark inner text lines -->
-                                    <line x1="20" y1="18" x2="46" y2="18" stroke="#3d2314" stroke-width="4" stroke-linecap="round"/>
-                                    <line x1="20" y1="28" x2="42" y2="28" stroke="#3d2314" stroke-width="4" stroke-linecap="round"/>
-                                    <line x1="20" y1="38" x2="36" y2="38" stroke="#3d2314" stroke-width="4" stroke-linecap="round"/>
-                                    <!-- Dark bookmark -->
-                                    <polygon points="40,4 40,20 44,16 48,20 48,4" fill="#3d2314"/>
-                                </svg>
-
+                                    <svg class="w-7 h-7 text-earth-800 group-hover:scale-110 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                                    </svg>
                                 {% elif category.slug == 'electronics' %}
-                                <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
-                                    <!-- Golden outer monitor frame -->
-                                    <rect x="4" y="6" width="56" height="38" rx="5" stroke="#c78a58" stroke-width="5" fill="none"/>
-                                    <!-- Dark inner screen -->
-                                    <rect x="12" y="13" width="40" height="24" rx="2" fill="#3d2314"/>
-                                    <!-- Golden screen glare -->
-                                    <line x1="16" y1="18" x2="26" y2="18" stroke="#c78a58" stroke-width="3" stroke-linecap="round"/>
-                                    <line x1="16" y1="23" x2="22" y2="23" stroke="#c78a58" stroke-width="3" stroke-linecap="round"/>
-                                    <!-- Golden stand -->
-                                    <line x1="32" y1="44" x2="32" y2="54" stroke="#c78a58" stroke-width="4.5" stroke-linecap="round"/>
-                                    <line x1="20" y1="56" x2="44" y2="56" stroke="#3d2314" stroke-width="5" stroke-linecap="round"/>
-                                </svg>
-
+                                    <svg class="w-7 h-7 text-earth-800 group-hover:scale-110 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                                        <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                                    </svg>
                                 {% elif category.slug == 'furniture' %}
-                                <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
-                                    <!-- Golden outer chair back -->
-                                    <path d="M12,8 Q12,4 16,4 L48,4 Q52,4 52,8 L52,32 L12,32 Z" stroke="#c78a58" stroke-width="5" fill="none" stroke-linejoin="round"/>
-                                    <!-- Dark seat cushion -->
-                                    <rect x="6" y="30" width="52" height="12" rx="4" stroke="#3d2314" stroke-width="5" fill="none"/>
-                                    <!-- Golden armrests -->
-                                    <path d="M6,28 Q2,28 2,32 L2,38 Q2,42 6,42" stroke="#c78a58" stroke-width="4.5" fill="none" stroke-linecap="round"/>
-                                    <path d="M58,28 Q62,28 62,32 L62,38 Q62,42 58,42" stroke="#c78a58" stroke-width="4.5" fill="none" stroke-linecap="round"/>
-                                    <!-- Dark legs -->
-                                    <line x1="14" y1="42" x2="14" y2="58" stroke="#3d2314" stroke-width="4.5" stroke-linecap="round"/>
-                                    <line x1="50" y1="42" x2="50" y2="58" stroke="#3d2314" stroke-width="4.5" stroke-linecap="round"/>
-                                </svg>
-
+                                    <svg class="w-7 h-7 text-earth-800 group-hover:scale-110 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                    </svg>
                                 {% elif category.slug == 'services' %}
-                                <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
-                                    <!-- Golden wrench handle -->
-                                    <line x1="10" y1="54" x2="36" y2="28" stroke="#c78a58" stroke-width="6" stroke-linecap="round"/>
-                                    <!-- Golden wrench head -->
-                                    <path d="M36,28 Q42,18 52,18 Q56,18 56,22 Q56,30 48,32 Z" stroke="#c78a58" stroke-width="4.5" fill="none" stroke-linejoin="round"/>
-                                    <!-- Dark gear -->
-                                    <circle cx="22" cy="22" r="12" stroke="#3d2314" stroke-width="5" fill="none"/>
-                                    <circle cx="22" cy="22" r="5" fill="#3d2314"/>
-                                    <!-- Dark gear teeth accents -->
-                                    <line x1="22" y1="6" x2="22" y2="12" stroke="#3d2314" stroke-width="4" stroke-linecap="round"/>
-                                    <line x1="22" y1="32" x2="22" y2="38" stroke="#3d2314" stroke-width="4" stroke-linecap="round"/>
-                                </svg>
-
+                                    <svg class="w-7 h-7 text-earth-800 group-hover:scale-110 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A5 5 0 0 0 8 8c0 1 .4 2.5 1.5 3.5.7.8 1.3 1.5 1.5 2.5"></path>
+                                        <line x1="9" y1="18" x2="15" y2="18"></line>
+                                        <line x1="10" y1="22" x2="14" y2="22"></line>
+                                    </svg>
                                 {% elif category.slug == 'clothing' %}
-                                <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
-                                    <!-- Golden outer T-shirt outline -->
-                                    <path d="M18,4 L26,4 Q28,14 32,14 Q36,14 38,4 L46,4 L58,16 L50,24 L46,20 L46,58 L18,58 L18,20 L14,24 L6,16 Z" stroke="#c78a58" stroke-width="5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
-                                    <!-- Dark collar V -->
-                                    <polyline points="26,6 32,18 38,6" stroke="#3d2314" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                                    <!-- Dark bottom hem line -->
-                                    <line x1="22" y1="50" x2="42" y2="50" stroke="#3d2314" stroke-width="3.5" stroke-linecap="round"/>
-                                </svg>
-
+                                    <svg class="w-7 h-7 text-earth-800 group-hover:scale-110 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20.37 4.65l-5.37 1.62V4a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2.27L1.63 4.65a1 1 0 0 0-1.28.43L.35 7.22A1 1 0 0 0 .78 8.5L4.28 10v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V10l3.5-1.5a1 1 0 0 0 .43-1.28l-1.28-2.14a1 1 0 0 0-1.28-.43z"></path>
+                                    </svg>
                                 {% elif category.slug == 'shoes' %}
-                                <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
-                                    <!-- Golden outer sole -->
-                                    <path d="M4,46 L4,36 Q4,28 14,24 L24,20 Q28,18 28,14 L28,10 Q28,6 32,6 Q36,6 36,10 L36,18 Q38,24 48,28 L56,32 Q60,34 60,40 L60,46 Q60,52 54,52 L10,52 Q4,52 4,46 Z" stroke="#c78a58" stroke-width="5" fill="none" stroke-linejoin="round"/>
-                                    <!-- Dark lace detail -->
-                                    <line x1="28" y1="14" x2="36" y2="14" stroke="#3d2314" stroke-width="3.5" stroke-linecap="round"/>
-                                    <line x1="26" y1="20" x2="36" y2="20" stroke="#3d2314" stroke-width="3.5" stroke-linecap="round"/>
-                                    <!-- Dark sole line -->
-                                    <line x1="8" y1="48" x2="56" y2="48" stroke="#3d2314" stroke-width="4" stroke-linecap="round"/>
-                                    <!-- Dark nike-style swoosh -->
-                                    <path d="M44,36 Q36,38 20,32" stroke="#3d2314" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-                                </svg>
-
+                                    <svg class="w-7 h-7 text-earth-800 group-hover:scale-110 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 4h-2v4h2V4zM4 20h16v-2H4v2zm0-4c2 0 4-1 6-3s4-3 6-3h3a2 2 0 0 1 2 2v3H4v-1z"></path>
+                                    </svg>
                                 {% elif category.slug == 'kitchenware' %}
-                                <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
-                                    <!-- Golden outer pot body -->
-                                    <path d="M10,26 L10,48 Q10,56 18,56 L46,56 Q54,56 54,48 L54,26" stroke="#c78a58" stroke-width="5" fill="none" stroke-linejoin="round"/>
-                                    <!-- Golden pot lid -->
-                                    <line x1="6" y1="26" x2="58" y2="26" stroke="#c78a58" stroke-width="5" stroke-linecap="round"/>
-                                    <!-- Golden lid handle -->
-                                    <path d="M26,22 Q26,16 32,16 Q38,16 38,22" stroke="#c78a58" stroke-width="4" fill="none" stroke-linecap="round"/>
-                                    <!-- Golden side handles -->
-                                    <circle cx="6" cy="36" r="4" stroke="#c78a58" stroke-width="3.5" fill="none"/>
-                                    <circle cx="58" cy="36" r="4" stroke="#c78a58" stroke-width="3.5" fill="none"/>
-                                    <!-- Dark steam lines -->
-                                    <path d="M24,12 Q26,6 24,2" stroke="#3d2314" stroke-width="3" fill="none" stroke-linecap="round"/>
-                                    <path d="M32,10 Q34,4 32,0" stroke="#3d2314" stroke-width="3" fill="none" stroke-linecap="round"/>
-                                    <path d="M40,12 Q42,6 40,2" stroke="#3d2314" stroke-width="3" fill="none" stroke-linecap="round"/>
-                                </svg>
-
+                                    <svg class="w-7 h-7 text-earth-800 group-hover:scale-110 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                                        <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                                        <line x1="6" y1="2" x2="6" y2="4"></line>
+                                        <line x1="10" y1="2" x2="10" y2="4"></line>
+                                        <line x1="14" y1="2" x2="14" y2="4"></line>
+                                    </svg>
                                 {% else %}
-                                <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
-                                    <!-- Golden outer tag shape -->
-                                    <path d="M6,6 L36,6 Q40,6 42,10 L58,28 Q61,32 58,36 L42,52 Q40,56 36,56 L6,56 Q3,56 3,52 L3,10 Q3,6 6,6 Z" stroke="#c78a58" stroke-width="5" fill="none" stroke-linejoin="round"/>
-                                    <!-- Golden hole -->
-                                    <circle cx="48" cy="20" r="4" fill="#c78a58"/>
-                                    <!-- Dark inner lines -->
-                                    <line x1="12" y1="24" x2="32" y2="24" stroke="#3d2314" stroke-width="4" stroke-linecap="round"/>
-                                    <line x1="12" y1="34" x2="28" y2="34" stroke="#3d2314" stroke-width="4" stroke-linecap="round"/>
-                                    <line x1="12" y1="44" x2="22" y2="44" stroke="#3d2314" stroke-width="4" stroke-linecap="round"/>
-                                </svg>
+                                    <svg class="w-7 h-7 text-earth-800 group-hover:scale-110 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                                        <circle cx="7" cy="7" r=".01"></circle>
+                                    </svg>
                                 {% endif %}
                             </span>
-                            <span>{{ category.name }}</span>
+                            <span class="text-[10.5px] font-bold text-earth-800 text-center leading-tight">{{ category.name }}</span>
                         </a>
                     {% endif %}
                 {% endfor %}
             </div>
-            
-            <!-- Clear Filter Option -->
-            <a href="{% url 'home_feed' %}" class="block text-center w-full py-4 bg-earth-800 hover:bg-earth-850 text-earth-200 font-extrabold text-xs rounded-2xl transition-all shadow-sm uppercase tracking-wider">
-                Clear Filters / Show All
+
+            <!-- Show All CTA -->
+            <a href="{% url 'home_feed' %}" onclick="toggleCategoriesDrawer(false)" class="block text-center w-full py-4 bg-earth-800 hover:bg-earth-850 text-earth-200 font-extrabold text-xs rounded-2xl transition-all shadow-sm uppercase tracking-wider">
+                Show All Listings
             </a>
         </div>
     </div>
